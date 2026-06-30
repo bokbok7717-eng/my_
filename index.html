@@ -800,10 +800,21 @@ function renderSavings(){
   var dispRows=showAll?allRows:allRows.filter(function(r){return r.date.slice(0,7)===month;});
   var cumMap={},cum=0;
   allRows.forEach(function(r){cum+=(r.type==='저축'?r.amount:-r.amount);cumMap[r.id]=cum;});
+
+  // 총 저축액: 전체 기간 저축-지출 누적
   var totalIn=allRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
   var totalOut=allRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
-  document.getElementById('s-total').textContent=fmt(totalIn-totalOut);
-  document.getElementById('s-in').textContent=fmt(totalIn);
+  var grandTotal=totalIn-totalOut;
+
+  // 누적 저축: 이번 달(선택된 월) 기준 저축-지출
+  var monthRows=allRows.filter(function(r){return r.date.slice(0,7)===month;});
+  var monthIn=monthRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
+  var monthOut=monthRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
+  var monthTotal=monthIn-monthOut;
+
+  document.getElementById('s-total').textContent=fmt(monthTotal);
+  document.getElementById('s-in').textContent=fmt(grandTotal);
+
   var tbody=document.getElementById('sav-body');
   if(dispRows.length===0){tbody.innerHTML='<tr><td colspan="6" class="empty">저축 내역이 없어요</td></tr>';document.getElementById('sav-foot').textContent='0엔';return;}
   var footTotal=dispRows.reduce(function(s,r){return s+(r.type==='저축'?r.amount:-r.amount);},0);
