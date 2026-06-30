@@ -77,14 +77,14 @@ h2:first-child{margin-top:0}
 .left-over{display:flex;justify-content:space-between;font-size:12px;border-top:1px solid #eee;padding-top:8px;margin-top:4px}
 
 /* 지출 탭 */
-.form-row{display:grid;grid-template-columns:1fr 1fr 36px;grid-template-rows:auto auto;gap:6px;align-items:center;margin-bottom:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px;margin-bottom:4px}
 .form-row input,.form-row select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff;min-width:0}
 .form-row input:focus,.form-row select:focus{border-color:#534AB7}
 .form-row .f-date{grid-column:1/2;grid-row:1/2}
-.form-row .f-desc{grid-column:2/3;grid-row:1/2}
-.form-row .f-btn{grid-column:3/4;grid-row:1/3}
-.form-row .f-cat{grid-column:1/2;grid-row:2/3}
+.form-row .f-cat{grid-column:2/3;grid-row:1/2}
+.form-row .f-desc{grid-column:1/2;grid-row:2/3}
 .form-row .f-amount{grid-column:2/3;grid-row:2/3}
+.form-row .btn-add.f-btn{grid-column:1/3;grid-row:3/4;width:100%;height:36px;border-radius:6px}
 .bud-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .bud-item{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .bud-item label{font-size:11px;color:#888;display:block;margin-bottom:4px}
@@ -144,14 +144,14 @@ h2:first-child{margin-top:0}
 .tot-card .tv{font-size:15px;font-weight:600}
 
 /* 저축 */
-.sav-form{display:grid;grid-template-columns:1fr 1fr 36px;grid-template-rows:auto auto;gap:6px;align-items:center;margin-bottom:4px}
+.sav-form{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px;margin-bottom:4px}
 .sav-form input,.sav-form select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff;min-width:0}
 .sav-form input:focus,.sav-form select:focus{border-color:#534AB7}
 .sav-form .s-date{grid-column:1/2;grid-row:1/2}
-.sav-form .s-desc{grid-column:2/3;grid-row:1/2}
-.sav-form .s-btn{grid-column:3/4;grid-row:1/3}
-.sav-form .s-type{grid-column:1/2;grid-row:2/3}
+.sav-form .s-type{grid-column:2/3;grid-row:1/2}
+.sav-form .s-desc{grid-column:1/2;grid-row:2/3}
 .sav-form .s-amount{grid-column:2/3;grid-row:2/3}
+.sav-form .btn-add.s-btn{grid-column:1/3;grid-row:3/4;width:100%;height:36px;border-radius:6px}
 .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .filter-row select{border:1px solid #e0e0e0;border-radius:6px;padding:6px 10px;font-size:13px;outline:none;background:#fff}
 .btn-reset{background:#f5f4f0;border:none;border-radius:6px;padding:6px 12px;font-size:12px;color:#888;cursor:pointer}
@@ -309,8 +309,6 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <div class="section-box">
     <div class="form-row">
       <input type="date" id="f-date" class="f-date">
-      <input type="text" id="f-desc" placeholder="내용" class="f-desc">
-      <button class="btn-add f-btn" onclick="addExpense()">+</button>
       <select id="f-cat" class="f-cat">
         <option value="교통비">🚃 교통비</option>
         <option value="식비">🍚 식비</option>
@@ -324,7 +322,9 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
         <option value="공과금">💡 공과금</option>
         <option value="저축">🏦 저축</option>
       </select>
+      <input type="text" id="f-desc" placeholder="내용" class="f-desc">
       <input type="number" id="f-amount" placeholder="금액 (엔)" class="f-amount">
+      <button class="btn-add f-btn" onclick="addExpense()">+</button>
     </div>
     <span class="save-badge" id="exp-badge"></span>
   </div>
@@ -353,10 +353,10 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <div class="section-box">
     <div class="sav-form">
       <input type="date" id="s-date" class="s-date">
-      <input type="text" id="s-desc" placeholder="내용" class="s-desc">
-      <button class="btn-add s-btn" onclick="addSaving()">+</button>
       <select id="s-type" class="s-type"><option value="저축">🏦 저축</option><option value="지출">💸 지출</option></select>
+      <input type="text" id="s-desc" placeholder="내용" class="s-desc">
       <input type="number" id="s-amount" placeholder="금액 (엔)" class="s-amount">
+      <button class="btn-add s-btn" onclick="addSaving()">+</button>
     </div>
     <span class="save-badge" id="sav-badge"></span>
   </div>
