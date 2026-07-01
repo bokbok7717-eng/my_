@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px;overflow-x:hidden}
+body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px}
 
 /* 상단 고정 헤더 */
 .top-bar{position:fixed;top:0;left:0;right:0;background:#534AB7;color:#fff;z-index:200;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -31,7 +31,7 @@ body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px
 .tab-btn .icon{font-size:20px;line-height:1}
 
 /* 콘텐츠 */
-.tab-content{display:none;padding:72px 16px 16px;max-width:780px;margin:0 auto;overflow-x:hidden}
+.tab-content{display:none;padding:72px 16px 16px;max-width:780px;margin:0 auto}
 .tab-content.active{display:block}
 h2{font-size:14px;font-weight:600;color:#555;margin:18px 0 10px}
 h2:first-child{margin-top:0}
@@ -53,7 +53,7 @@ h2:first-child{margin-top:0}
 .input-item input:focus{border-color:#534AB7}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.section-box{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.section-box{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 
 /* 슬라이더 + 입력칸 조합 */
 .sl-combo{display:grid;grid-template-columns:50px minmax(0,1fr) 76px;align-items:center;gap:6px;margin-bottom:8px}
@@ -77,14 +77,9 @@ h2:first-child{margin-top:0}
 .left-over{display:flex;justify-content:space-between;font-size:12px;border-top:1px solid #eee;padding-top:8px;margin-top:4px}
 
 /* 지출 탭 */
-.form-row{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px;margin-bottom:4px}
-.form-row input,.form-row select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff;min-width:0}
+.form-row{display:grid;grid-template-columns:95px 1fr 110px 95px 36px;gap:6px;align-items:center;margin-bottom:4px}
+.form-row input,.form-row select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff}
 .form-row input:focus,.form-row select:focus{border-color:#534AB7}
-.form-row .f-date{grid-column:1/2;grid-row:1/2}
-.form-row .f-cat{grid-column:2/3;grid-row:1/2}
-.form-row .f-desc{grid-column:1/2;grid-row:2/3}
-.form-row .f-amount{grid-column:2/3;grid-row:2/3}
-.form-row .btn-add.f-btn{grid-column:1/3;grid-row:3/4;width:100%;height:36px;border-radius:6px}
 .bud-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .bud-item{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .bud-item label{font-size:11px;color:#888;display:block;margin-bottom:4px}
@@ -144,14 +139,9 @@ h2:first-child{margin-top:0}
 .tot-card .tv{font-size:15px;font-weight:600}
 
 /* 저축 */
-.sav-form{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px;margin-bottom:4px}
-.sav-form input,.sav-form select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff;min-width:0}
+.sav-form{display:grid;grid-template-columns:95px 1fr 85px 95px 36px;gap:6px;align-items:center;margin-bottom:4px}
+.sav-form input,.sav-form select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff}
 .sav-form input:focus,.sav-form select:focus{border-color:#534AB7}
-.sav-form .s-date{grid-column:1/2;grid-row:1/2}
-.sav-form .s-type{grid-column:2/3;grid-row:1/2}
-.sav-form .s-desc{grid-column:1/2;grid-row:2/3}
-.sav-form .s-amount{grid-column:2/3;grid-row:2/3}
-.sav-form .btn-add.s-btn{grid-column:1/3;grid-row:3/4;width:100%;height:36px;border-radius:6px}
 .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .filter-row select{border:1px solid #e0e0e0;border-radius:6px;padding:6px 10px;font-size:13px;outline:none;background:#fff}
 .btn-reset{background:#f5f4f0;border:none;border-radius:6px;padding:6px 12px;font-size:12px;color:#888;cursor:pointer}
@@ -176,6 +166,84 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 .annual-table tr:hover td{background:#f9f8ff}
 .annual-chart-wrap{height:220px;position:relative;margin-bottom:16px}
 .annual-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+
+/* ===== 모바일 반응형 ===== */
+@media (max-width: 480px) {
+  /* 지출 입력 폼: 2x2 + 버튼 레이아웃 */
+  /* HTML 순서: date / text / select / number / button */
+  .form-row{
+    display: grid;
+    grid-template-columns: 120px 1fr 36px;
+    grid-template-rows: auto auto;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .form-row input[type="date"] { grid-column: 1; grid-row: 1; min-width:0; width:100%; font-size:12px; }
+  .form-row input[type="text"] { grid-column: 1; grid-row: 2; min-width:0; width:100%; }
+  .form-row select              { grid-column: 2; grid-row: 2; font-size:12px; min-width:0; width:100%; }
+  .form-row input[type="number"]{ grid-column: 2; grid-row: 1; min-width:0; width:100%; }
+  .form-row .btn-add            { grid-column: 3; grid-row: 1 / 3; width:36px; height:100%; min-height:78px; }
+
+  /* 저축 입력 폼: 2x2 + 버튼 레이아웃 */
+  /* HTML 순서: date / text / select / number / button */
+  .sav-form{
+    display: grid;
+    grid-template-columns: 120px 1fr 36px;
+    grid-template-rows: auto auto;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .sav-form input[type="date"] { grid-column: 1; grid-row: 1; min-width:0; width:100%; font-size:12px; }
+  .sav-form input[type="text"] { grid-column: 1; grid-row: 2; min-width:0; width:100%; }
+  .sav-form select              { grid-column: 2; grid-row: 2; font-size:12px; min-width:0; width:100%; }
+  .sav-form input[type="number"]{ grid-column: 2; grid-row: 1; min-width:0; width:100%; }
+  .sav-form .btn-add            { grid-column: 3; grid-row: 1 / 3; width:36px; height:100%; min-height:78px; }
+
+  /* 도넛 차트 + 슬라이더: 세로 배치 */
+  .donut-wrap{
+    grid-template-columns: 1fr;
+  }
+  .chart-wrap{ height: 180px; }
+
+  /* 생활비 슬라이더 */
+  .sl-combo{
+    grid-template-columns: 42px minmax(0,1fr) 64px;
+    gap: 4px;
+  }
+  .sl-combo .sl-num{ font-size: 11px; padding: 3px 4px; }
+  .sl-combo label{ font-size: 11px; }
+
+  /* 저축 슬라이더 */
+  .sav-combo{
+    grid-template-columns: 42px minmax(0,1fr) 80px;
+    gap: 6px;
+  }
+
+  /* 4칸 카드 → 2칸 */
+  .cards[style*="repeat(4,1fr)"]{
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* 결산 카드 → 2칸 */
+  .sum-grid{ grid-template-columns: repeat(2,1fr); }
+  .annual-cards{ grid-template-columns: repeat(2,1fr); }
+
+  /* 헤더 조정 */
+  .top-bar{ gap: 4px; padding: 8px 10px; }
+  .top-bar .inp-year{ width: 60px; font-size: 13px; }
+  .top-bar .inp-month{ width: 38px; font-size: 13px; }
+  .btn-annual{ padding: 5px 10px; font-size: 11px; }
+
+  /* 탭 콘텐츠 패딩 */
+  .tab-content{ padding: 68px 12px 16px; }
+
+  /* 예산 3칸 → 2칸 */
+  .bud-row{ grid-template-columns: repeat(2,1fr); }
+
+  /* 테이블 폰트 축소 */
+  table{ font-size: 12px; }
+  td, th{ padding: 6px 6px; }
+}
 </style>
 </head>
 <body>
@@ -308,8 +376,9 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <h2>✏️ 지출 입력</h2>
   <div class="section-box">
     <div class="form-row">
-      <input type="date" id="f-date" class="f-date">
-      <select id="f-cat" class="f-cat">
+      <input type="date" id="f-date">
+      <input type="text" id="f-desc" placeholder="내용">
+      <select id="f-cat">
         <option value="교통비">🚃 교통비</option>
         <option value="식비">🍚 식비</option>
         <option value="생필품">🧴 생필품</option>
@@ -322,9 +391,8 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
         <option value="공과금">💡 공과금</option>
         <option value="저축">🏦 저축</option>
       </select>
-      <input type="text" id="f-desc" placeholder="내용" class="f-desc">
-      <input type="number" id="f-amount" placeholder="금액 (엔)" class="f-amount">
-      <button class="btn-add f-btn" onclick="addExpense()">+</button>
+      <input type="number" id="f-amount" placeholder="금액 (엔)">
+      <button class="btn-add" onclick="addExpense()">+</button>
     </div>
     <span class="save-badge" id="exp-badge"></span>
   </div>
@@ -352,11 +420,11 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <h2>✏️ 입력</h2>
   <div class="section-box">
     <div class="sav-form">
-      <input type="date" id="s-date" class="s-date">
-      <select id="s-type" class="s-type"><option value="저축">🏦 저축</option><option value="지출">💸 지출</option></select>
-      <input type="text" id="s-desc" placeholder="내용" class="s-desc">
-      <input type="number" id="s-amount" placeholder="금액 (엔)" class="s-amount">
-      <button class="btn-add s-btn" onclick="addSaving()">+</button>
+      <input type="date" id="s-date">
+      <input type="text" id="s-desc" placeholder="내용 (예: 6월 급여 저축)">
+      <select id="s-type"><option value="저축">🏦 저축</option><option value="지출">💸 지출</option></select>
+      <input type="number" id="s-amount" placeholder="금액 (엔)">
+      <button class="btn-add" onclick="addSaving()">+</button>
     </div>
     <span class="save-badge" id="sav-badge"></span>
   </div>
@@ -611,7 +679,12 @@ function calcAll(){
   var rent=+document.getElementById('in-rent').value||0;
   var util=+document.getElementById('in-util').value||0;
   var fsav=+document.getElementById('e-fsav').value||0;
-  var total=salary+alba, fixed=rent+util+fsav, free=total-fixed;
+  var total=salary+alba;
+  // 고정지출 = 월세 + 공과금 + 저축
+  var fixed=rent+util+fsav;
+  // 수중금액 = 총수입 - 고정지출
+  var free=total-fixed;
+  // 저축률: 저축/총수입
   var rate=total>0?Math.round(fsav/total*100):0;
   document.getElementById('c-total').textContent=fmt(total);
   document.getElementById('c-fixed').textContent=fmt(fixed);
@@ -619,13 +692,12 @@ function calcAll(){
   fEl.textContent=fmtSign(free); fEl.className='val'+(free<0?' neg':'');
   document.getElementById('c-rate').textContent=rate+'%';
 
-  // 저축 슬라이더 max
+  // 저축 슬라이더 max = 총수입 - 월세 - 공과금
   var slSav=document.getElementById('sl-sav');
-  slSav.max=Math.max(free,0);
-  var savV=Math.min(+slSav.value,Math.max(free,0));
-  slSav.value=savV;
-  document.getElementById('num-sav').value=savV;
-  var living=free-savV;
+  slSav.max=Math.max(total-rent-util,0);
+  var savV=+slSav.value;
+  // 생활비 = 수중금액 (저축 이미 고정지출에 포함됨)
+  var living=free;
   document.getElementById('c-sav').textContent=fmt(savV);
   var lEl=document.getElementById('c-living');
   lEl.textContent=fmtSign(living); lEl.className='val'+(living<0?' neg':'');
@@ -800,21 +872,16 @@ function renderSavings(){
   var dispRows=showAll?allRows:allRows.filter(function(r){return r.date.slice(0,7)===month;});
   var cumMap={},cum=0;
   allRows.forEach(function(r){cum+=(r.type==='저축'?r.amount:-r.amount);cumMap[r.id]=cum;});
-
   // 총 저축액: 전체 기간 저축-지출 누적
   var totalIn=allRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
   var totalOut=allRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
   var grandTotal=totalIn-totalOut;
-
-  // 누적 저축: 이번 달(선택된 월) 기준 저축-지출
+  // 누적 저축: 이번달(선택된 월) 저축-지출
   var monthRows=allRows.filter(function(r){return r.date.slice(0,7)===month;});
   var monthIn=monthRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
   var monthOut=monthRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
-  var monthTotal=monthIn-monthOut;
-
-  document.getElementById('s-total').textContent=fmt(monthTotal);
+  document.getElementById('s-total').textContent=fmt(monthIn-monthOut);
   document.getElementById('s-in').textContent=fmt(grandTotal);
-
   var tbody=document.getElementById('sav-body');
   if(dispRows.length===0){tbody.innerHTML='<tr><td colspan="6" class="empty">저축 내역이 없어요</td></tr>';document.getElementById('sav-foot').textContent='0엔';return;}
   var footTotal=dispRows.reduce(function(s,r){return s+(r.type==='저축'?r.amount:-r.amount);},0);
@@ -859,7 +926,7 @@ function renderAnnual(){
   document.getElementById('annual-table').innerHTML=thead+tbody;
 }
 
-// ===== 백업/복원 (여러 localStorage 키를 모두 수집) =====
+// ===== 백업/복원 =====
 function openBackupModal(){ document.getElementById('backup-modal').style.display='flex'; }
 function closeBackupModal(){ document.getElementById('backup-modal').style.display='none'; }
 
@@ -867,9 +934,7 @@ function getAllBudgetKeys(){
   var keys=[];
   for(var i=0;i<localStorage.length;i++){
     var k=localStorage.key(i);
-    if(k==='expense_log_v1' || k==='savings_log_v1' || k.indexOf('budget_monthly_v1')===0){
-      keys.push(k);
-    }
+    if(k==='expense_log_v1'||k==='savings_log_v1'||k.indexOf('budget_monthly_v1')===0) keys.push(k);
   }
   return keys;
 }
@@ -877,18 +942,15 @@ function getAllBudgetKeys(){
 function downloadBackup(){
   var keys=getAllBudgetKeys();
   var bundle={};
-  keys.forEach(function(k){
-    try{ bundle[k]=JSON.parse(localStorage.getItem(k)); }catch(e){ bundle[k]=localStorage.getItem(k); }
-  });
-  var backup={ app:'budget', exportedAt:new Date().toISOString(), data:bundle };
+  keys.forEach(function(k){try{bundle[k]=JSON.parse(localStorage.getItem(k));}catch(e){bundle[k]=localStorage.getItem(k);}});
+  var backup={app:'budget',exportedAt:new Date().toISOString(),data:bundle};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  var dateStr=new Date().toISOString().slice(0,10);
-  a.href=url; a.download='budget_backup_'+dateStr+'.json';
+  a.href=url; a.download='budget_backup_'+new Date().toISOString().slice(0,10)+'.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast2('⬇️ 백업 파일이 다운로드됐어요!');
+  badge('exp-badge','⬇️ 백업 완료');
 }
 
 function restoreBackup(ev){
@@ -897,31 +959,20 @@ function restoreBackup(ev){
   reader.onload=function(e){
     try{
       var backup=JSON.parse(e.target.result);
-      if(!backup.data){ toast2('올바른 백업 파일이 아니에요!'); return; }
-      if(!confirm('현재 데이터를 백업 파일 내용으로 덮어쓸까요?\n(기존 데이터는 사라져요)')) return;
+      if(!backup.data){badge('exp-badge','❌ 올바른 파일 아님');return;}
+      if(!confirm('현재 데이터를 백업 파일로 덮어쓸까요?\n(기존 데이터는 사라져요)')) return;
       Object.keys(backup.data).forEach(function(k){
         var v=backup.data[k];
-        localStorage.setItem(k, typeof v==='string'?v:JSON.stringify(v));
+        localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));
       });
-      loadBudgetData();
-      renderCal(); renderSummary(); calcAll();
+      loadBudgetData(); renderCal(); renderSummary(); calcAll();
       if(document.getElementById('tab-annual').classList.contains('active')) renderAnnual();
       closeBackupModal();
-      toast2('✅ 복원됐어요!');
-    }catch(err){
-      toast2('파일을 읽을 수 없어요!');
-    }
+      badge('exp-badge','✅ 복원 완료');
+    }catch(err){ badge('exp-badge','❌ 파일 오류'); }
   };
   reader.readAsText(file);
   ev.target.value='';
-}
-
-function toast2(msg){
-  var t=document.createElement('div');
-  t.textContent=msg;
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;z-index:9999;white-space:nowrap';
-  document.body.appendChild(t);
-  setTimeout(function(){document.body.removeChild(t);},1800);
 }
 </script>
 </body>
