@@ -6,15 +6,140 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="가계부">
 <title>💰 가계부</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+// ===== 수입 사이클 =====
+var CYCLE_KEY = 'budget_cycle_v1';
+var cycleData = {type:1, day:1}; // type: 1=월기준, 2=월급일기준
+
+function loadCycleData(){
+  try{ cycleData=JSON.parse(localStorage.getItem(CYCLE_KEY))||{type:1,day:1}; }catch(e){ cycleData={type:1,day:1}; }
+}
+function saveCycleData(){
+  localStorage.setItem(CYCLE_KEY, JSON.stringify(cycleData));
+}
+
+// 현재 년월 기준으로 사이클 시작/끝 날짜 계산
+function getCycleRange(year, month){
+  if(cycleData.type===1){
+    // 월 기준: 1일~말일
+    var start=year+'-'+String(month).padStart(2,'0')+'-01';
+    var lastDay=new Date(year,month,0).getDate();
+    var end=year+'-'+String(month).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+    return {start:start, end:end};
+  } else {
+    // 월급일 기준: 예) 25일 기준이면 전달25일~이번달24일
+    var d=cycleData.day||25;
+    var startMonth=month-1, startYear=year;
+    if(startMonth<1){startMonth=12;startYear--;}
+    var start=startYear+'-'+String(startMonth).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    // 끝: 이번달 d-1일
+    var endDay=d-1;
+    var endMonth=month, endYear=year;
+    if(endDay<1){
+      endMonth--;
+      if(endMonth<1){endMonth=12;endYear--;}
+      endDay=new Date(endYear,endMonth,0).getDate();
+    }
+    var end=endYear+'-'+String(endMonth).padStart(2,'0')+'-'+String(endDay).padStart(2,'0');
+    return {start:start, end:end};
+  }
+}
+
+function renderCycleBar(){
+  loadCycleData();
+  var range=getCycleRange(gYear,gMonth);
+  var startD=new Date(range.start+'T00:00:00');
+  var endD=new Date(range.end+'T00:00:00');
+  var fmt2=function(d){return (d.getMonth()+1)+'/'+d.getDate();};
+
+  var label=document.getElementById('cycle-label');
+  var rangeBar=document.getElementById('cycle-range-bar');
+
+  if(cycleData.type===1){
+    if(label) label.textContent='매월 1일 기준';
+    if(rangeBar) rangeBar.style.display='none';
+  } else {
+    if(label) label.textContent='월급일 ('+cycleData.day+'일) 기준';
+    if(rangeBar){
+      rangeBar.style.display='block';
+      rangeBar.textContent='📅 이번 사이클: '+fmt2(startD)+' ~ '+fmt2(endD);
+    }
+  }
+}
+
+// 사이클 기준으로 지출 데이터 필터링
+function getExpInCycle(){
+  var range=getCycleRange(gYear,gMonth);
+  return loadExp().filter(function(r){
+    return r.date>=range.start && r.date<=range.end;
+  });
+}
+
+function openCycleModal(){
+  loadCycleData();
+  setCycleType(cycleData.type);
+  document.getElementById('cy-day').value=cycleData.day||25;
+  updateCyclePreview();
+  document.getElementById('cycle-modal').style.display='flex';
+}
+function closeCycleModal(){
+  document.getElementById('cycle-modal').style.display='none';
+}
+
+function setCycleType(t){
+  cycleData.type=t;
+  var btn1=document.getElementById('cy-type-1');
+  var btn2=document.getElementById('cy-type-2');
+  var wrap=document.getElementById('cy-day-wrap');
+  if(t===1){
+    btn1.style.borderColor='#7fb5c1'; btn1.style.background='#eef6f8'; btn1.style.color='#7fb5c1'; btn1.style.fontWeight='600';
+    btn2.style.borderColor='#e0e0e0'; btn2.style.background='#fff'; btn2.style.color='#888'; btn2.style.fontWeight='400';
+    wrap.style.display='none';
+  } else {
+    btn2.style.borderColor='#7fb5c1'; btn2.style.background='#eef6f8'; btn2.style.color='#7fb5c1'; btn2.style.fontWeight='600';
+    btn1.style.borderColor='#e0e0e0'; btn1.style.background='#fff'; btn1.style.color='#888'; btn1.style.fontWeight='400';
+    wrap.style.display='block';
+    updateCyclePreview();
+  }
+}
+
+function updateCyclePreview(){
+  var d=+document.getElementById('cy-day').value||25;
+  var range=getCycleRange(gYear,gMonth);
+  // 임시로 day 반영해서 미리보기
+  var tmp=cycleData.type;
+  cycleData.type=2; cycleData.day=d;
+  var r=getCycleRange(gYear,gMonth);
+  cycleData.type=tmp;
+  var s=new Date(r.start+'T00:00:00'), e=new Date(r.end+'T00:00:00');
+  var fmt2=function(dt){return (dt.getMonth()+1)+'/'+dt.getDate();};
+  var prev=document.getElementById('cy-preview');
+  if(prev) prev.textContent='→ 이번 사이클: '+fmt2(s)+' ~ '+fmt2(e);
+}
+
+function saveCycleSetting(){
+  var d=+document.getElementById('cy-day').value||1;
+  if(cycleData.type===2 && (d<1||d>31)){
+    alert('1~31 사이로 입력해주세요!'); return;
+  }
+  cycleData.day=d;
+  saveCycleData();
+  renderCycleBar();
+  renderCal();
+  renderSummary();
+  closeCycleModal();
+  badge('exp-badge','✅ 사이클 저장됨');
+}
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px}
 
 /* 상단 고정 헤더 */
-.top-bar{position:fixed;top:0;left:0;right:0;background:#534AB7;color:#fff;z-index:200;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.top-bar{position:fixed;top:0;left:0;right:0;background:#7fb5c1;color:#fff;z-index:200;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .top-bar .app-title{font-size:14px;font-weight:700;margin-right:2px;flex-shrink:0}
-.top-bar input{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 6px;color:#fff;font-size:14px;font-weight:600;outline:none;text-align:center}
+.top-bar input{background:rgba(255,255,255,.3);border:none;border-radius:6px;padding:5px 6px;color:#fff;font-size:14px;font-weight:600;outline:none;text-align:center}
 .top-bar input::placeholder{color:rgba(255,255,255,.6)}
 .top-bar input:focus{background:rgba(255,255,255,.3)}
 .top-bar .inp-year{width:72px}
@@ -22,12 +147,12 @@ body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px
 .top-bar .sep{opacity:.5;font-size:13px;flex-shrink:0}
 .btn-annual{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-left:auto;white-space:nowrap;flex-shrink:0}
 .btn-annual:hover{background:rgba(255,255,255,.35)}
-.btn-annual.active{background:#fff;color:#534AB7}
+.btn-annual.active{background:#fff;color:#7fb5c1}
 
 /* 탭 바 — 결산 없음, 3개만 */
 .tab-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
 .tab-btn{flex:1;padding:10px 0 8px;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#aaa;transition:color .15s}
-.tab-btn.active{color:#534AB7}
+.tab-btn.active{color:#7fb5c1}
 .tab-btn .icon{font-size:20px;line-height:1}
 
 /* 콘텐츠 */
@@ -36,21 +161,21 @@ body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px
 h2{font-size:14px;font-weight:600;color:#555;margin:18px 0 10px}
 h2:first-child{margin-top:0}
 .divider{border:none;border-top:1px solid #eee;margin:16px 0}
-.save-badge{font-size:11px;color:#1D9E75;min-height:16px;display:block;margin-bottom:4px}
+.save-badge{font-size:11px;color:#8dbfb8;min-height:16px;display:block;margin-bottom:4px}
 
 /* 카드 */
 .cards{display:grid;gap:8px;margin:10px 0}
 .card{background:#fff;border-radius:8px;padding:11px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .card .lbl{font-size:11px;color:#888;margin-bottom:3px}
 .card .val{font-size:15px;font-weight:600}
-.neg{color:#e24b4a!important}
-.pos{color:#1D9E75!important}
+.neg{color:#F06B8A!important}
+.pos{color:#8dbfb8!important}
 
 /* 입력 공통 */
 .input-item{display:flex;flex-direction:column;gap:4px}
 .input-item label{font-size:11px;color:#888}
-.input-item input{border:1px solid #e0e0e0;border-radius:6px;padding:8px 10px;font-size:14px;outline:none;width:100%;background:#fff}
-.input-item input:focus{border-color:#534AB7}
+.input-item input{border:1px solid #d8edf0;border-radius:6px;padding:8px 10px;font-size:14px;outline:none;width:100%;background:#fff}
+.input-item input:focus{border-color:#7fb5c1}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .section-box{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
@@ -58,16 +183,16 @@ h2:first-child{margin-top:0}
 /* 슬라이더 + 입력칸 조합 */
 .sl-combo{display:grid;grid-template-columns:50px minmax(0,1fr) 76px;align-items:center;gap:6px;margin-bottom:8px}
 .sl-combo label{font-size:12px;color:#888;white-space:nowrap}
-.sl-combo input[type=range]{accent-color:#534AB7;min-width:0;width:100%}
-.sl-combo .sl-num{border:1px solid #e0e0e0;border-radius:5px;padding:4px 6px;font-size:12px;font-weight:500;text-align:right;outline:none;background:#fff;width:100%;min-width:0}
-.sl-combo .sl-num:focus{border-color:#534AB7}
+.sl-combo input[type=range]{accent-color:#7fb5c1;min-width:0;width:100%}
+.sl-combo .sl-num{border:1px solid #d8edf0;border-radius:5px;padding:4px 6px;font-size:12px;font-weight:500;text-align:right;outline:none;background:#fff;width:100%;min-width:0}
+.sl-combo .sl-num:focus{border-color:#7fb5c1}
 
 /* 저축 슬라이더 */
 .sav-combo{display:grid;grid-template-columns:50px minmax(0,1fr) 100px;align-items:center;gap:8px;margin-bottom:6px}
 .sav-combo label{font-size:12px;color:#888;white-space:nowrap}
-.sav-combo input[type=range]{accent-color:#534AB7;min-width:0;width:100%}
-.sav-combo .sl-num{border:1px solid #e0e0e0;border-radius:5px;padding:5px 8px;font-size:13px;font-weight:500;text-align:right;outline:none;background:#fff;width:100%;min-width:0}
-.sav-combo .sl-num:focus{border-color:#534AB7}
+.sav-combo input[type=range]{accent-color:#7fb5c1;min-width:0;width:100%}
+.sav-combo .sl-num{border:1px solid #d8edf0;border-radius:5px;padding:5px 8px;font-size:13px;font-weight:500;text-align:right;outline:none;background:#fff;width:100%;min-width:0}
+.sav-combo .sl-num:focus{border-color:#7fb5c1}
 
 /* 도넛 */
 .donut-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
@@ -78,53 +203,56 @@ h2:first-child{margin-top:0}
 
 /* 지출 탭 */
 .form-row{display:grid;grid-template-columns:95px 1fr 110px 95px 36px;gap:6px;align-items:center;margin-bottom:4px}
-.form-row input,.form-row select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff}
-.form-row input:focus,.form-row select:focus{border-color:#534AB7}
+.form-row input,.form-row select{border:1px solid #d8edf0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff}
+.form-row input:focus,.form-row select:focus{border-color:#7fb5c1}
 .bud-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .bud-item{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .bud-item label{font-size:11px;color:#888;display:block;margin-bottom:4px}
-.bud-item input{width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:13px;outline:none;background:#fff}
-.bud-item input:focus{border-color:#534AB7}
-.btn-add{background:#534AB7;color:#fff;border:none;border-radius:6px;font-size:18px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.btn-add:hover{background:#443da0}
+.bud-item input{width:100%;border:1px solid #d8edf0;border-radius:5px;padding:6px 8px;font-size:13px;outline:none;background:#fff}
+.bud-item input:focus{border-color:#7fb5c1}
+.btn-add{background:#7fb5c1;color:#fff;border:none;border-radius:6px;font-size:18px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-add:hover{background:#6aa3b0}
 
 /* 달력 */
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:10px}
 .cal-head{text-align:center;font-size:11px;font-weight:600;color:#aaa;padding:5px 0}
-.cal-head:first-child{color:#e24b4a}
+.cal-head:first-child{color:#F06B8A}
 .cal-head:last-child{color:#378ADD}
 .cal-day{border-radius:6px;padding:5px 3px;background:#fff;cursor:pointer;text-align:center;min-height:46px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.cal-day:hover{background:#ede9ff}
-.cal-day.today{border:1.5px solid #534AB7}
-.cal-day.selected{background:#534AB7!important}
+.cal-day:hover{background:#eef6f8}
+.cal-day.in-cycle{background:#eef6f8}
+.cal-day.out-cycle{opacity:0.45}
+.cal-day.in-cycle.red .day-num,.cal-day.in-cycle.blue .day-num{opacity:1}
+.cal-day.today{border:1.5px solid #7fb5c1}
+.cal-day.selected{background:#7fb5c1!important}
 .cal-day.selected .day-num,.cal-day.selected .day-amt-sm{color:#fff!important}
 .cal-day.selected .day-dot{background:#fff!important}
 .cal-day.empty{background:transparent;box-shadow:none;cursor:default}
 .day-num{font-size:12px;color:#555;line-height:1.6;font-weight:500}
-.cal-day.sun .day-num{color:#e24b4a}
+.cal-day.sun .day-num{color:#F06B8A}
 .cal-day.sat .day-num{color:#378ADD}
-.day-dot{width:5px;height:5px;border-radius:50%;background:#534AB7;margin:2px auto 0}
-.day-amt-sm{font-size:9px;color:#534AB7;font-weight:500}
+.day-dot{width:5px;height:5px;border-radius:50%;background:#7fb5c1;margin:2px auto 0}
+.day-amt-sm{font-size:9px;color:#7fb5c1;font-weight:500}
 .detail-panel{background:#f9f8ff;border-radius:10px;padding:14px;margin-bottom:12px;min-height:52px}
 .detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .detail-title{font-size:13px;font-weight:600}
-.detail-total{font-size:13px;font-weight:600;color:#534AB7}
+.detail-total{font-size:13px;font-weight:600;color:#7fb5c1}
 .detail-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee;font-size:13px}
 .detail-row:last-child{border-bottom:none}
 
 /* 태그 */
 .tag{display:inline-block;padding:2px 7px;border-radius:8px;font-size:11px;font-weight:500}
 .tag-교통비{background:#e8f3ff;color:#378ADD}
-.tag-식비{background:#e6f7f2;color:#1D9E75}
-.tag-생필품{background:#fff4e0;color:#EF9F27}
-.tag-비상금{background:#ffe8e8;color:#E24B4A}
+.tag-식비{background:#eef6f4;color:#8dbfb8}
+.tag-생필품{background:#fff4e0;color:#F3C98B}
+.tag-비상금{background:#ffe8e8;color:#F06B8A}
 .tag-문화여가{background:#fde8f0;color:#D4537E}
 .tag-기타{background:#f0f0ee;color:#888}
 .tag-미용{background:#f3e8ff;color:#9333EA}
 .tag-의류잡화{background:#fce7f3;color:#db2777}
-.tag-고정{background:#ede9ff;color:#534AB7}
-.tag-저축{background:#ede9ff;color:#534AB7}
-.tag-지출{background:#ffe8e8;color:#e24b4a}
+.tag-고정{background:#eef6f8;color:#7fb5c1}
+.tag-저축{background:#eef6f8;color:#7fb5c1}
+.tag-지출{background:#ffe8e8;color:#F06B8A}
 
 /* 결산 */
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -140,10 +268,10 @@ h2:first-child{margin-top:0}
 
 /* 저축 */
 .sav-form{display:grid;grid-template-columns:95px 1fr 85px 95px 36px;gap:6px;align-items:center;margin-bottom:4px}
-.sav-form input,.sav-form select{border:1px solid #e0e0e0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff}
-.sav-form input:focus,.sav-form select:focus{border-color:#534AB7}
+.sav-form input,.sav-form select{border:1px solid #d8edf0;border-radius:6px;padding:7px 8px;font-size:13px;outline:none;width:100%;background:#fff}
+.sav-form input:focus,.sav-form select:focus{border-color:#7fb5c1}
 .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.filter-row select{border:1px solid #e0e0e0;border-radius:6px;padding:6px 10px;font-size:13px;outline:none;background:#fff}
+.filter-row select{border:1px solid #d8edf0;border-radius:6px;padding:6px 10px;font-size:13px;outline:none;background:#fff}
 .btn-reset{background:#f5f4f0;border:none;border-radius:6px;padding:6px 12px;font-size:12px;color:#888;cursor:pointer}
 .btn-reset:hover{color:#555}
 .table-wrap{overflow-x:auto}
@@ -152,15 +280,15 @@ thead tr{background:#f5f4f0}
 th{padding:8px 10px;text-align:left;font-weight:500;color:#666;border-bottom:2px solid #eee}
 td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 .btn-del{background:none;border:none;color:#ddd;cursor:pointer;font-size:13px}
-.btn-del:hover{color:#e24b4a}
-.amt-plus{color:#534AB7;font-weight:600}
-.amt-minus{color:#e24b4a;font-weight:600}
-.cum-val{font-weight:500;color:#1D9E75}
+.btn-del:hover{color:#F06B8A}
+.amt-plus{color:#7fb5c1;font-weight:600}
+.amt-minus{color:#F06B8A;font-weight:600}
+.cum-val{font-weight:500;color:#8dbfb8}
 .empty{text-align:center;color:#bbb;padding:20px;font-size:13px}
 
 /* 연간결산 */
 .annual-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
-.annual-table th{background:#534AB7;color:#fff;padding:8px 6px;text-align:center;font-weight:500}
+.annual-table th{background:#7fb5c1;color:#fff;padding:8px 6px;text-align:center;font-weight:500}
 .annual-table td{padding:7px 6px;border-bottom:1px solid #eee;text-align:right}
 .annual-table td:first-child{text-align:center;font-weight:600;color:#555}
 .annual-table tr:hover td{background:#f9f8ff}
@@ -169,36 +297,50 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 
 /* ===== 모바일 반응형 ===== */
 @media (max-width: 480px) {
-  /* 지출 입력 폼: (날짜)(카테고리) / (내용)(금액) / (+) */
+  /* 지출 입력 폼: 2x2 + 버튼 레이아웃 */
+  /* HTML 순서: date / text / select / number / button */
   .form-row{
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: 120px 1fr 36px;
+    grid-template-rows: auto auto;
     gap: 6px;
+    align-items: stretch;
   }
-  .form-row input[type="date"] { grid-column:1; grid-row:1; min-width:0; width:100%; font-size:12px; }
-  .form-row select              { grid-column:2; grid-row:1; min-width:0; width:100%; font-size:12px; }
-  .form-row input[type="text"] { grid-column:1; grid-row:2; min-width:0; width:100%; }
-  .form-row input[type="number"]{ grid-column:2; grid-row:2; min-width:0; width:100%; }
-  .form-row .btn-add            { grid-column:1/3; grid-row:3; width:100%; height:38px; border-radius:6px; }
+  .form-row input[type="date"] { grid-column: 1; grid-row: 1; min-width:0; width:100%; font-size:12px; }
+  .form-row input[type="text"] { grid-column: 1; grid-row: 2; min-width:0; width:100%; }
+  .form-row select              { grid-column: 2; grid-row: 2; font-size:12px; min-width:0; width:100%; }
+  .form-row input[type="number"]{ grid-column: 2; grid-row: 1; min-width:0; width:100%; }
 
-  /* 저축 입력 폼: (날짜)(구분) / (내용)(금액) / (+) */
+  /* 저축 입력 폼: 2x2 + 버튼 레이아웃 */
+  /* HTML 순서: date / text / select / number / button */
   .sav-form{
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: 120px 1fr 36px;
+    grid-template-rows: auto auto;
     gap: 6px;
+    align-items: stretch;
   }
-  .sav-form input[type="date"] { grid-column:1; grid-row:1; min-width:0; width:100%; font-size:12px; }
-  .sav-form select              { grid-column:2; grid-row:1; min-width:0; width:100%; font-size:12px; }
-  .sav-form input[type="text"] { grid-column:1; grid-row:2; min-width:0; width:100%; }
-  .sav-form input[type="number"]{ grid-column:2; grid-row:2; min-width:0; width:100%; }
-  .sav-form .btn-add            { grid-column:1/3; grid-row:3; width:100%; height:38px; border-radius:6px; }
+  .sav-form input[type="date"] { grid-column: 1; grid-row: 1; min-width:0; width:100%; font-size:12px; }
+  .sav-form input[type="text"] { grid-column: 1; grid-row: 2; min-width:0; width:100%; }
+  .sav-form select              { grid-column: 2; grid-row: 2; font-size:12px; min-width:0; width:100%; }
+  .sav-form input[type="number"]{ grid-column: 2; grid-row: 1; min-width:0; width:100%; }
 
   /* 도넛 차트 + 슬라이더: 세로 배치 */
   .donut-wrap{
     grid-template-columns: 1fr;
   }
+  .form-row{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px}
+  .form-row input[type=date]{grid-column:1;grid-row:1;min-width:0;width:100%;font-size:12px}
+  .form-row select{grid-column:2;grid-row:1;min-width:0;width:100%;font-size:12px}
+  .form-row input[type=text]{grid-column:1;grid-row:2;min-width:0;width:100%}
+  .form-row input[type=number]{grid-column:2;grid-row:2;min-width:0;width:100%}
+  .form-row .btn-add{grid-column:1/3!important;grid-row:3!important;width:100%!important;height:32px!important;font-size:14px}
+  .sav-form{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px}
+  .sav-form input[type=date]{grid-column:1;grid-row:1;min-width:0;width:100%;font-size:12px}
+  .sav-form select{grid-column:2;grid-row:1;min-width:0;width:100%;font-size:12px}
+  .sav-form input[type=text]{grid-column:1;grid-row:2;min-width:0;width:100%}
+  .sav-form input[type=number]{grid-column:2;grid-row:2;min-width:0;width:100%}
+  .sav-form .btn-add{grid-column:1/3!important;grid-row:3!important;width:100%!important;height:32px!important;font-size:14px}
   .chart-wrap{ height: 180px; }
 
   /* 생활비 슬라이더 */
@@ -251,33 +393,30 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <span class="sep">년</span>
   <input type="number" id="g-month" class="inp-month" min="1" max="12" placeholder="월" oninput="onGlobalChange()">
   <span class="sep">월</span>
-  <button onclick="openBackupModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap">💾</button>
+  <button onclick="openBackupModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">💾</button>
   <button class="btn-annual" id="btn-annual" onclick="switchTab('annual',this)">📈 결산</button>
-</div>
-
-<!-- 백업/복원 모달 -->
-<div id="backup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:14px;padding:20px;max-width:340px;width:100%">
-    <h3 style="font-size:15px;margin-bottom:14px;color:#333">💾 백업 / 복원</h3>
-    <p style="font-size:12px;color:#aaa;margin-bottom:14px;line-height:1.6">수입/예산, 지출 기록, 저축 기록을 한 번에 백업하거나 복원할 수 있어요.</p>
-    <button onclick="downloadBackup()" style="width:100%;background:#534AB7;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;cursor:pointer;margin-bottom:8px;font-family:inherit">⬇️ 백업 파일 다운로드</button>
-    <label style="display:block;width:100%;background:#f0eeff;color:#534AB7;border-radius:8px;padding:11px;font-size:13px;cursor:pointer;text-align:center;margin-bottom:8px;box-sizing:border-box">
-      ⬆️ 백업 파일 불러오기
-      <input type="file" accept=".json" onchange="restoreBackup(event)" style="display:none">
-    </label>
-    <button onclick="closeBackupModal()" style="width:100%;background:none;border:1.5px solid #e8e6f5;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">닫기</button>
-  </div>
 </div>
 
 <!-- 탭1: 수입/예산 -->
 <div class="tab-content active" id="tab-budget">
+  <!-- 사이클 설정 -->
+  <div id="cycle-bar" style="background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid #eef6f8">
+    <div>
+      <div style="font-size:11px;color:#888;margin-bottom:2px">💰 수입 사이클</div>
+      <div id="cycle-label" style="font-size:13px;font-weight:700;color:#7fb5c1">매월 1일 기준</div>
+    </div>
+    <button onclick="openCycleModal()" style="background:#7fb5c1;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit">설정</button>
+  </div>
+  <!-- 사이클 기간 표시 -->
+  <div id="cycle-range-bar" style="display:none;background:#eef6f8;border-radius:8px;padding:7px 14px;margin-bottom:10px;font-size:12px;color:#7fb5c1;text-align:center;font-weight:600"></div>
+
   <h2>💰 이번달 수입 입력</h2>
   <div class="section-box">
     <div class="grid2" style="margin-bottom:10px">
-      <div class="input-item"><label>월급 (엔)</label><input type="number" id="in-salary" value="0" oninput="calcAll()"></div>
-      <div class="input-item"><label>알바비 (엔)</label><input type="number" id="in-alba" value="0" oninput="calcAll()"></div>
-      <div class="input-item"><label>월세 (엔)</label><input type="number" id="in-rent" value="0" oninput="syncBudgetFixed('rent','budget');calcAll()"></div>
-      <div class="input-item"><label>공과금 예상 (엔)</label><input type="number" id="in-util" value="0" oninput="syncBudgetFixed('util','budget');updateUtilDiff();calcAll()"></div>
+      <div class="input-item"><label>월급</label><input type="number" id="in-salary" value="0" oninput="calcAll()"></div>
+      <div class="input-item"><label>알바비</label><input type="number" id="in-alba" value="0" oninput="calcAll()"></div>
+      <div class="input-item"><label>월세</label><input type="number" id="in-rent" value="0" oninput="syncBudgetFixed('rent','budget');calcAll()"></div>
+      <div class="input-item"><label>공과금 예상</label><input type="number" id="in-util" value="0" oninput="syncBudgetFixed('util','budget');updateUtilDiff();calcAll()"></div>
     </div>
     <div class="cards" style="grid-template-columns:repeat(4,1fr)">
       <div class="card"><div class="lbl">총 수입</div><div class="val" id="c-total">0엔</div></div>
@@ -294,7 +433,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
       <input type="range" min="0" max="0" step="1000" value="0" id="sl-sav" oninput="onSavSlider()">
       <input type="number" class="sl-num" id="num-sav" value="0" placeholder="0" oninput="onSavNum()">
     </div>
-    <div style="font-size:10px;color:#aaa;margin-bottom:8px;text-align:right">슬라이더 또는 숫자 직접 입력 가능</div>
+    <div style="font-size:10px;color:#aaa;margin-bottom:8px;text-align:right"></div>
     <div class="cards" style="grid-template-columns:1fr 1fr">
       <div class="card"><div class="lbl">저축</div><div class="val" id="c-sav">0엔</div></div>
       <div class="card"><div class="lbl">생활비</div><div class="val" id="c-living">0엔</div></div>
@@ -311,7 +450,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
         <div id="leg"></div>
       </div>
       <div>
-        <div style="font-size:11px;font-weight:600;color:#aaa;margin-bottom:8px">슬라이더 또는 숫자 입력</div>
+        <div style="font-size:11px;font-weight:600;color:#aaa;margin-bottom:8px"></div>
         <div class="sl-combo"><label>교통비</label><input type="range" min="0" max="500000" step="100" value="0" id="sl-tr" oninput="onCatSlider('교통비')"><input type="number" class="sl-num" id="num-교통비" value="0" oninput="onCatNum('교통비')"></div>
         <div class="sl-combo"><label>식비</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-fd" oninput="onCatSlider('식비')"><input type="number" class="sl-num" id="num-식비" value="0" oninput="onCatNum('식비')"></div>
         <div class="sl-combo"><label>생필품</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-es" oninput="onCatSlider('생필품')"><input type="number" class="sl-num" id="num-생필품" value="0" oninput="onCatNum('생필품')"></div>
@@ -319,7 +458,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
         <div class="sl-combo"><label>의류/잡화</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-cl" oninput="onCatSlider('의류잡화')"><input type="number" class="sl-num" id="num-의류잡화" value="0" oninput="onCatNum('의류잡화')"></div>
         <div class="sl-combo"><label>문화/여가</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-cu" oninput="onCatSlider('문화여가')"><input type="number" class="sl-num" id="num-문화여가" value="0" oninput="onCatNum('문화여가')"></div>
         <div class="sl-combo"><label>비상금</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-em" oninput="onCatSlider('비상금')"><input type="number" class="sl-num" id="num-비상금" value="0" oninput="onCatNum('비상금')"></div>
-        <div class="left-over"><span style="color:#888;font-size:12px">남은 여유</span><span id="lb-left" style="font-weight:600;font-size:12px;color:#1D9E75">0엔</span></div>
+        <div class="left-over"><span style="color:#888;font-size:12px">남은 여유</span><span id="lb-left" style="font-weight:600;font-size:12px;color:#8dbfb8">0엔</span></div>
       </div>
     </div>
   </div>
@@ -329,22 +468,22 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 <div class="tab-content" id="tab-expense">
   <h2>🔒 고정 지출 & 예산</h2>
   <div class="section-box">
-    <div style="font-size:11px;font-weight:600;color:#aaa;margin-bottom:8px">고정 지출 (수입/예산 탭과 양방향 연동)</div>
+    <div style="font-size:11px;font-weight:600;color:#aaa;margin-bottom:8px">고정 지출 </div>
     <div class="grid2" style="margin-bottom:10px">
-      <div class="bud-item"><label>월세 (엔)</label><input type="number" id="e-rent" value="0" oninput="syncBudgetFixed('rent','expense')"></div>
-      <div class="bud-item"><label>저축 (엔)</label><input type="number" id="e-fsav" value="0" oninput="syncSavFixed()"></div>
+      <div class="bud-item"><label>월세</label><input type="number" id="e-rent" value="0" oninput="syncBudgetFixed('rent','expense')"></div>
+      <div class="bud-item"><label>저축</label><input type="number" id="e-fsav" value="0" oninput="syncSavFixed()"></div>
     </div>
     <!-- 공과금 예상 vs 실제 -->
-    <div style="background:#f9f8ff;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #ede9ff">
-      <div style="font-size:11px;font-weight:600;color:#534AB7;margin-bottom:10px">💡 공과금 예상 vs 실제</div>
+    <div style="background:#f9f8ff;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #eef6f8">
+      <div style="font-size:11px;font-weight:600;color:#7fb5c1;margin-bottom:10px">💡 공과금 예상 vs 실제</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div class="bud-item"><label>이번달 예상 (엔)</label><input type="number" id="e-util-est" value="0" oninput="syncBudgetFixed('util','expense');updateUtilDiff()"></div>
-        <div class="bud-item"><label>실제 납부액 (엔)</label><input type="number" id="e-util-actual" value="0" oninput="updateUtilDiff()"></div>
+        <div class="bud-item"><label>이번달 예상</label><input type="number" id="e-util-est" value="0" oninput="syncBudgetFixed('util','expense');updateUtilDiff()"></div>
+        <div class="bud-item"><label>실제 납부액</label><input type="number" id="e-util-actual" value="0" oninput="updateUtilDiff()"></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
         <div style="background:#fff;border-radius:6px;padding:8px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.06)">
           <div style="font-size:10px;color:#888;margin-bottom:3px">예상</div>
-          <div style="font-size:13px;font-weight:600;color:#534AB7" id="util-est-disp">0엔</div>
+          <div style="font-size:13px;font-weight:600;color:#7fb5c1" id="util-est-disp">0엔</div>
         </div>
         <div style="background:#fff;border-radius:6px;padding:8px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.06)">
           <div style="font-size:10px;color:#888;margin-bottom:3px">실제</div>
@@ -356,16 +495,15 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
         </div>
       </div>
     </div>
-    <div style="font-size:11px;font-weight:600;color:#aaa;margin-bottom:8px">카테고리별 예산 (도넛 슬라이더와 양방향 연동)</div>
-    <div class="bud-row">
-      <div class="bud-item"><label>교통비 (엔)</label><input type="number" id="b-교통비" value="0" oninput="onBudgetInput('교통비')"></div>
-      <div class="bud-item"><label>식비 (엔)</label><input type="number" id="b-식비" value="0" oninput="onBudgetInput('식비')"></div>
-      <div class="bud-item"><label>생필품 (엔)</label><input type="number" id="b-생필품" value="0" oninput="onBudgetInput('생필품')"></div>
-      <div class="bud-item"><label>미용 (엔)</label><input type="number" id="b-미용" value="0" oninput="onBudgetInput('미용')"></div>
-      <div class="bud-item"><label>의류/잡화 (엔)</label><input type="number" id="b-의류잡화" value="0" oninput="onBudgetInput('의류잡화')"></div>
-      <div class="bud-item"><label>문화/여가 (엔)</label><input type="number" id="b-문화여가" value="0" oninput="onBudgetInput('문화여가')"></div>
-      <div class="bud-item"><label>비상금 (엔)</label><input type="number" id="b-비상금" value="0" oninput="onBudgetInput('비상금')"></div>
-      <div class="bud-item"><label>기타 (엔)</label><input type="number" id="b-기타" value="0" oninput="renderSummary()"></div>
+    <div style="display:none">
+      <input type="number" id="b-교통비" value="0">
+      <input type="number" id="b-식비" value="0">
+      <input type="number" id="b-생필품" value="0">
+      <input type="number" id="b-미용" value="0">
+      <input type="number" id="b-의류잡화" value="0">
+      <input type="number" id="b-문화여가" value="0">
+      <input type="number" id="b-비상금" value="0">
+      <input type="number" id="b-기타" value="0">
     </div>
   </div>
 
@@ -393,7 +531,8 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
     <span class="save-badge" id="exp-badge"></span>
   </div>
 
-  <h2>📅 지출 달력</h2>
+  <h2>📅 지출 달력 <button onclick="openEventModal2()" style="background:#7fb5c1;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;vertical-align:middle">+ 반복일정</button></h2>
+  <div id="ev-legend" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:0"></div>
   <div class="section-box" style="padding-bottom:8px">
     <div class="cal" id="cal"></div>
     <div class="detail-panel" id="detail-panel">
@@ -410,8 +549,8 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 <div class="tab-content" id="tab-savings">
   <h2>🏦 저축 현황</h2>
   <div class="cards" style="grid-template-columns:1fr 1fr">
-    <div class="card" style="background:#ede9ff"><div class="lbl">누적 저축</div><div class="val" style="color:#534AB7" id="s-total">0엔</div></div>
-    <div class="card" style="background:#e6f7f2"><div class="lbl">총 저축액</div><div class="val" style="color:#1D9E75" id="s-in">0엔</div></div>
+    <div class="card" style="background:#eef6f8"><div class="lbl">누적 저축</div><div class="val" style="color:#8dbfb8" id="s-total">0엔</div></div>
+    <div class="card" style="background:#eef6f4"><div class="lbl">총 저축액</div><div class="val" style="color:#8dbfb8" id="s-in">0엔</div></div>
   </div>
   <h2>✏️ 입력</h2>
   <div class="section-box">
@@ -419,6 +558,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
       <input type="date" id="s-date">
       <select id="s-type"><option value="저축">🏦 저축</option><option value="지출">💸 지출</option></select>
       <input type="text" id="s-desc" placeholder="내용 (예: 6월 급여 저축)">
+      <select id="s-type"><option value="저축">🏦 저축</option><option value="지출">💸 지출</option></select>
       <input type="number" id="s-amount" placeholder="금액 (엔)">
       <button class="btn-add" onclick="addSaving()">+</button>
     </div>
@@ -455,12 +595,13 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 </nav>
 
 <script>
+
 var gYear=2026, gMonth=new Date().getMonth()+1;
 var EXP_KEY='expense_log_v1', SAV_KEY='savings_log_v1';
 var CAT_LABEL={'교통비':'🚃 교통비','식비':'🍚 식비','생필품':'🧴 생필품','미용':'💇 미용','의류잡화':'👗 의류/잡화','문화여가':'☕ 문화/여가','비상금':'🚨 비상금','기타':'📦 기타','월세':'🏠 월세','공과금':'💡 공과금','저축':'🏦 저축'};
 var VAR_CATS=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
 var FIX_CATS=['월세','공과금','저축'];
-var DC={tr:"#378ADD",fd:"#1D9E75",es:"#EF9F27",em:"#E24B4A",cu:"#D4537E",lf:"#D3D1C7"};
+var DC={tr:"#BFCDD9",fd:"#C5E2D3",es:"#FDDCB0",mi:"#FACDD8",cl:"#F0C4DC",cu:"#D9D0F0",em:"#FEF0A4",lf:"#E8F4F0"};
 var CAT_TO_SL={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','비상금':'sl-em'};
 var CAT_TO_NUM={'교통비':'num-교통비','식비':'num-식비','생필품':'num-생필품','미용':'num-미용','의류잡화':'num-의류잡화','문화여가':'num-문화여가','비상금':'num-비상금'};
 var donutChart=null, annualChart=null, selDate=null;
@@ -559,6 +700,7 @@ function loadBudgetData(){
 
 // ===== 전역 년/월 =====
 function onGlobalChange(){
+  renderCycleBar();
   var y=parseInt(document.getElementById('g-year').value)||2026;
   var m=parseInt(document.getElementById('g-month').value);
   if(!m||m<1||m>12) return;
@@ -603,7 +745,7 @@ function updateUtilDiff(){
     document.getElementById('util-actual-disp').style.color='#1a1a1a';
     var diff=est-actual;
     document.getElementById('util-diff-disp').textContent=(diff>0?'+':'')+diff.toLocaleString('ja-JP')+'엔'+(diff>0?' 절약':diff<0?' 초과':'');
-    document.getElementById('util-diff-disp').style.color=diff>0?'#1D9E75':diff<0?'#e24b4a':'#888';
+    document.getElementById('util-diff-disp').style.color=diff>0?'#8dbfb8':diff<0?'#F06B8A':'#888';
   }
   calcAll();
   saveBudgetData();
@@ -664,6 +806,9 @@ window.addEventListener('load',function(){
   });
   document.getElementById('g-month').value=gMonth;
   loadBudgetData();
+  loadCycleData();
+  renderCycleBar();
+  if(typeof loadCalEvents2==='function'){loadCalEvents2();renderEvLegend();}
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('s-date').value=new Date().toISOString().split('T')[0];
   updateSavMonthSel(); renderSavings(); renderCal();
@@ -707,9 +852,9 @@ function calcAll(){
   var em=+document.getElementById('sl-em').value;
   var used=tr+fd+es+mi+cl+cu+em, lf=living-used;
   var llEl=document.getElementById('lb-left');
-  llEl.textContent=fmtSign(lf); llEl.style.color=lf<0?'#e24b4a':'#1D9E75';
+  llEl.textContent=fmtSign(lf); llEl.style.color=lf<0?'#F06B8A':'#8dbfb8';
 
-  var segs=[{l:'교통비',v:tr,c:DC.tr},{l:'식비',v:fd,c:DC.fd},{l:'생필품',v:es,c:DC.es},{l:'미용',v:mi,c:'#C084FC'},{l:'의류/잡화',v:cl,c:'#F472B6'},{l:'문화/여가',v:cu,c:DC.cu},{l:'비상금',v:em,c:DC.em},{l:'여유',v:Math.max(lf,0),c:DC.lf}].filter(function(d){return d.v>0;});
+  var segs=[{l:'교통비',v:tr,c:DC.tr},{l:'식비',v:fd,c:DC.fd},{l:'생필품',v:es,c:DC.es},{l:'미용',v:mi,c:DC.mi},{l:'의류/잡화',v:cl,c:DC.cl},{l:'문화/여가',v:cu,c:DC.cu},{l:'비상금',v:em,c:DC.em},{l:'여유',v:Math.max(lf,0),c:DC.lf}].filter(function(d){return d.v>0;});
   if(segs.length===0) segs=[{l:'미배분',v:1,c:DC.lf}];
   if(donutChart){
     donutChart.data.labels=segs.map(function(d){return d.l;});
@@ -725,19 +870,44 @@ function calcAll(){
 // ===== 탭2: 달력/지출 =====
 function renderCal(){
   var y=gYear, m=gMonth-1;
-  var rows=loadExp();
+  var cyRange3=getCycleRange(gYear,gMonth);
+  var rows=loadExp().filter(function(r){
+    if(cycleData.type===2) return r.date>=cyRange3.start && r.date<=cyRange3.end;
+    return r.date.slice(0,7)===(gYear+'-'+String(gMonth).padStart(2,'0'));
+  });
   var dayMap={};
   rows.forEach(function(r){if(!dayMap[r.date])dayMap[r.date]={total:0};dayMap[r.date].total+=r.amount;});
   var first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
   var todayStr=new Date().toISOString().split('T')[0];
+  // 사이클 기간 헤더 표시
   var html=['일','월','화','수','목','금','토'].map(function(d){return '<div class="cal-head">'+d+'</div>';}).join('');
   for(var i=0;i<first;i++) html+='<div class="cal-day empty"></div>';
   for(var d=1;d<=last;d++){
     var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     var dow=(first+d-1)%7;
-    var cls='cal-day'+(dow===0?' sun':dow===6?' sat':'')+(ds===todayStr?' today':'')+(ds===selDate?' selected':'');
+    var cyRange2=getCycleRange(gYear,gMonth);
+    var inCy=(cycleData.type===2&&ds>=cyRange2.start&&ds<=cyRange2.end);
+    var outCy=(cycleData.type===2&&!inCy);
+    var cls='cal-day'+(dow===0?' sun':dow===6?' sat':'')+(ds===todayStr?' today':'')+(ds===selDate?' selected':'')+(inCy?' in-cycle':'')+(outCy?' out-cycle':'');
     var inner='<div class="day-num">'+d+'</div>';
     if(dayMap[ds]){inner+='<div class="day-amt-sm">'+fmt(dayMap[ds].total)+'</div><div class="day-dot"></div>';}
+    var evs2=typeof getCalEvents==='function'?getCalEvents(ds):[];
+    if(evs2.length>0){
+      var ev0=evs2[0];
+      // 날짜 숫자를 컬러 원으로 교체
+      inner=inner.replace(
+        '<div class="day-num">'+d+'</div>',
+        '<div class="day-num" style="width:22px;height:22px;border-radius:50%;background:'+ev0.color+';color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700">'+d+'</div>'
+      );
+      // 여러 개면 오른쪽 아래에 작은 점 추가
+      if(evs2.length>1){
+        inner+='<div style="display:flex;gap:2px;justify-content:center;margin-top:1px">';
+        evs2.slice(1,3).forEach(function(ev){
+          inner+='<span style="width:5px;height:5px;border-radius:50%;background:'+ev.color+';display:inline-block"></span>';
+        });
+        inner+='</div>';
+      }
+    }
     html+='<div class="'+cls+'" onclick="clickDay(\''+ds+'\')">'+inner+'</div>';
   }
   document.getElementById('cal').innerHTML=html;
@@ -747,6 +917,19 @@ function clickDay(date){
   selDate=date;
   document.getElementById('f-date').value=date;
   renderCal(); renderDetail();
+  // 사이클 기준으로 결산도 업데이트
+  if(cycleData.type===2) renderSummary();
+}
+
+function getDateCycleYM(dateStr){
+  // dateStr이 속하는 사이클의 gYear/gMonth 반환
+  // 25일 사이클 예시: 6/25~7/24 → 7월 예산
+  if(cycleData.type!==2) return {y:+dateStr.slice(0,4), m:+dateStr.slice(5,7)};
+  var d=cycleData.day||25;
+  var y=+dateStr.slice(0,4), mo=+dateStr.slice(5,7), day=+dateStr.slice(8,10);
+  // day >= 사이클시작일이면 다음달 예산
+  if(day>=d){ mo+=1; if(mo>12){mo=1;y++;} }
+  return {y:y, m:mo};
 }
 
 function renderDetail(){
@@ -755,11 +938,22 @@ function renderDetail(){
   var dayRows=loadExp().filter(function(r){return r.date===selDate;});
   var mm=selDate.slice(5,7), dd=selDate.slice(8,10);
   var total=dayRows.reduce(function(s,r){return s+r.amount;},0);
+
+  // 사이클 기준: 클릭한 날짜가 어느 예산 사이클에 속하는지
+  var budYM=getDateCycleYM(selDate);
+  var isCurrent=(budYM.y===gYear && budYM.m===gMonth);
+  var cycleNote='';
+  if(cycleData.type===2 && !isCurrent){
+    cycleNote='<div style="font-size:11px;background:#eef6f8;color:#7fb5c1;border-radius:6px;padding:4px 8px;margin-top:4px;display:inline-block">'
+      +''+budYM.y+'년 '+budYM.m+'월 예산</div>';
+  }
+
   panel.innerHTML='<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
+    cycleNote+
     (dayRows.length===0?'<div class="empty" style="padding:10px">이날 지출 내역이 없어요 ☁️</div>':
     dayRows.map(function(r){
       var cls=FIX_CATS.indexOf(r.cat)>=0?'tag-고정':'tag-'+r.cat;
-      return '<div class="detail-row"><span><span class="tag '+cls+'">'+CAT_LABEL[r.cat]+'</span> '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px"><span style="font-weight:600;color:#534AB7">'+fmt(r.amount)+'</span><button class="btn-del" onclick="delExpense('+r.id+')">✕</button></span></div>';
+      return '<div class="detail-row"><span><span class="tag '+cls+'">'+CAT_LABEL[r.cat]+'</span> '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px"><span style="font-weight:600;color:#7fb5c1">'+fmt(r.amount)+'</span><button class="btn-del" onclick="delExpense('+r.id+')">✕</button></span></div>';
     }).join(''));
 }
 
@@ -795,30 +989,93 @@ function delExpense(id){
 }
 
 function renderSummary(){
-  var ym=gYear+'-'+String(gMonth).padStart(2,'0');
-  var expRows=loadExp().filter(function(r){return r.date.slice(0,7)===ym;});
+  // 사이클 기준: selDate가 다음달 사이클이면 해당 월 예산으로 표시
+  var sumYear=gYear, sumMonth=gMonth;
+  if(cycleData.type===2 && selDate){
+    var bYM=getDateCycleYM(selDate);
+    sumYear=bYM.y; sumMonth=bYM.m;
+  }
+  var sumYM=sumYear+'-'+String(sumMonth).padStart(2,'0');
+
+  // 사이클 기간 계산
+  var cyRange=getCycleRange(sumYear, sumMonth);
+  var expRows=loadExp().filter(function(r){
+    if(cycleData.type===2) return r.date>=cyRange.start && r.date<=cyRange.end;
+    return r.date.slice(0,7)===sumYM;
+  });
+
+  // 해당 사이클 월의 예산 데이터 로드
+  var budData={};
+  if(sumYear===gYear && sumMonth===gMonth){
+    // 현재 탭 = 이미 로드된 예산 그대로
+    VAR_CATS.forEach(function(cat){
+      budData[cat]=+document.getElementById('b-'+cat).value||0;
+    });
+  } else {
+    // 다른 달 예산 로드
+    var savedBud=JSON.parse(localStorage.getItem('budget_monthly_v1_'+sumYM)||'{}');
+    VAR_CATS.forEach(function(cat){
+      budData[cat]=+(savedBud['b-'+cat])||0;
+    });
+  }
+
+  // 사이클 월 표시 배너
   var sg=document.getElementById('summary-grid');
   if(!sg) return;
+  var sumBanner=document.getElementById('sum-cycle-banner');
+  if(!sumBanner){
+    var bannerEl=document.createElement('div');
+    bannerEl.id='sum-cycle-banner';
+    bannerEl.style.cssText='font-size:12px;font-weight:700;color:#7fb5c1;background:#eef6f8;border-radius:8px;padding:7px 12px;margin-bottom:8px;text-align:center;display:none';
+    sg.parentNode.insertBefore(bannerEl,sg);
+    sumBanner=bannerEl;
+  }
+  if(cycleData.type===2 && (sumYear!==gYear||sumMonth!==gMonth)){
+    var cs=new Date(cyRange.start+'T00:00:00'),ce=new Date(cyRange.end+'T00:00:00');
+    var fmt4=function(d){return (d.getMonth()+1)+'/'+d.getDate();};
+    sumBanner.textContent=sumYear+'년 '+sumMonth+'월 예산';
+    sumBanner.style.display='block';
+  } else {
+    sumBanner.style.display='none';
+  }
+
   var totalBudget=0, totalSpent=0;
   var cards=VAR_CATS.map(function(cat){
-    var budget=+document.getElementById('b-'+cat).value||0;
+    var budget=budData[cat]||0;
     var spent=expRows.filter(function(r){return r.cat===cat;}).reduce(function(s,r){return s+r.amount;},0);
     var diff=budget-spent; totalBudget+=budget; totalSpent+=spent;
-    return '<div class="sum-card"><div class="cn">'+CAT_LABEL[cat]+'</div><div class="sr"><span>예산</span><span>'+fmt(budget)+'</span></div><div class="sr"><span>지출</span><span>'+fmt(spent)+'</span></div><div class="sd"><span>잔여</span><span class="'+(diff>=0?'pos':'neg')+'">'+fmt(Math.abs(diff))+(diff<0?' 초과':'')+'</span></div></div>';
+    var pct=budget>0?Math.min(Math.round(spent/budget*100),999):0;
+    var bc=pct>=100?'#F06B8A':pct>=80?'#F3C98B':'#7fb5c1';
+    var card='<div class="sum-card">';
+    card+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+    card+='<span class="cn">'+CAT_LABEL[cat]+'</span>';
+    card+='<input id="sc'+cat+'" type="number" placeholder="예산" value="'+(budget||'')+'" ';
+    card+='oninput="onSumBud(this.id)" ';
+    card+='style="width:76px;border:1.5px solid #ddd;border-radius:5px;padding:2px 5px;font-size:11px;text-align:right;outline:none;color:#7fb5c1;font-family:inherit">';
+    card+='</div>';
+    card+='<div style="height:4px;background:#eee;border-radius:2px;margin-bottom:6px;overflow:hidden">';
+    card+='<div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+bc+';border-radius:2px"></div>';
+    card+='</div>';
+    card+='<div class="sr"><span>지출</span><span>'+fmt(spent)+'</span></div>';
+    card+='<div class="sd"><span>잔여</span><span class="'+(diff>=0?'pos':'neg')+'">'+fmt(Math.abs(diff))+(diff<0?' 초과':'')+'</span></div>';
+    card+='</div>';
+    return card;
   });
   sg.innerHTML=cards.join('');
   // 공과금 카드
   var utilEst=+document.getElementById('e-util-est').value||0;
   var utilActual=+document.getElementById('e-util-actual').value||0;
   var utilDiff=utilEst-utilActual;
-  var utilCard='<div class="sum-card" style="border:1px solid #ede9ff"><div class="cn" style="color:#534AB7">💡 공과금</div><div class="sr"><span>예상</span><span>'+fmt(utilEst)+'</span></div><div class="sr"><span>실제</span><span>'+(utilActual>0?fmt(utilActual):'미납부')+'</span></div><div class="sd"><span>차액</span><span class="'+(utilDiff>=0?'pos':'neg')+'">'+(utilActual>0?(utilDiff>0?'+':'')+utilDiff.toLocaleString('ja-JP')+'엔'+(utilDiff>0?' 절약':utilDiff<0?' 초과':''):'-')+'</span></div></div>';
+  var utilCard='<div class="sum-card" style="border:1px solid #eef6f8"><div class="cn" style="color:#7fb5c1">💡 공과금</div><div class="sr"><span>예상</span><span>'+fmt(utilEst)+'</span></div><div class="sr"><span>실제</span><span>'+(utilActual>0?fmt(utilActual):'미납부')+'</span></div><div class="sd"><span>차액</span><span class="'+(utilDiff>=0?'pos':'neg')+'">'+(utilActual>0?(utilDiff>0?'+':'')+utilDiff.toLocaleString('ja-JP')+'엔'+(utilDiff>0?' 절약':utilDiff<0?' 초과':''):'-')+'</span></div></div>';
   document.getElementById('summary-grid').innerHTML+=utilCard;
   saveBudgetData();
 
   var diff=totalBudget-totalSpent;
   document.getElementById('total-bar').innerHTML=
+
     '<div class="tot-card" style="background:#888"><div class="tl">예산 총액</div><div class="tv">'+fmt(totalBudget)+'</div></div>'+
-    '<div class="tot-card" style="background:'+(diff>=0?'#1D9E75':'#e24b4a')+'"><div class="tl">'+(diff>=0?'남은 금액':'초과 금액')+'</div><div class="tv">'+fmt(Math.abs(diff))+'</div></div>';
+    '<div class="tot-card" style="background:#7fb5c1"><div class="tl">총 지출</div><div class="tv">'+fmt(totalSpent)+'</div></div>'+
+    '<div class="tot-card" style="background:'+(diff>=0?'#8dbfb8':'#F06B8A')+'"><div class="tl">'+(diff>=0?'남은 금액':'초과 금액')+'</div><div class="tv">'+fmt(Math.abs(diff))+'</div></div>';
 }
 
 // ===== 탭3: 저축 =====
@@ -868,16 +1125,13 @@ function renderSavings(){
   var dispRows=showAll?allRows:allRows.filter(function(r){return r.date.slice(0,7)===month;});
   var cumMap={},cum=0;
   allRows.forEach(function(r){cum+=(r.type==='저축'?r.amount:-r.amount);cumMap[r.id]=cum;});
-  // 총 저축액: 전체 기간 저축-지출 누적
   var totalIn=allRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
   var totalOut=allRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
-  var grandTotal=totalIn-totalOut;
-  // 누적 저축: 이번달(선택된 월) 저축-지출
-  var monthRows=allRows.filter(function(r){return r.date.slice(0,7)===month;});
-  var monthIn=monthRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
-  var monthOut=monthRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
-  document.getElementById('s-total').textContent=fmt(monthIn-monthOut);
-  document.getElementById('s-in').textContent=fmt(grandTotal);
+  var mRows=allRows.filter(function(r){return r.date.slice(0,7)===month;});
+  var mIn=mRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
+  var mOut=mRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
+  document.getElementById('s-total').textContent=fmt(mIn-mOut);
+  document.getElementById('s-in').textContent=fmt(totalIn-totalOut);
   var tbody=document.getElementById('sav-body');
   if(dispRows.length===0){tbody.innerHTML='<tr><td colspan="6" class="empty">저축 내역이 없어요</td></tr>';document.getElementById('sav-foot').textContent='0엔';return;}
   var footTotal=dispRows.reduce(function(s,r){return s+(r.type==='저축'?r.amount:-r.amount);},0);
@@ -905,71 +1159,418 @@ function renderAnnual(){
   var totalSav=mData.reduce(function(s,d){return s+d.sav;},0);
   document.getElementById('annual-cards').innerHTML=
     '<div class="card"><div class="lbl">연간 총 지출</div><div class="val neg">'+fmt(totalExp)+'</div></div>'+
-    '<div class="card" style="background:#ede9ff"><div class="lbl">연간 총 저축</div><div class="val" style="color:#534AB7">'+fmt(totalSav)+'</div></div>'+
-    '<div class="card" style="background:#e6f7f2"><div class="lbl">저축률</div><div class="val pos">'+(totalExp+totalSav>0?Math.round(totalSav/(totalExp+totalSav)*100):0)+'%</div></div>';
+    '<div class="card" style="background:#eef6f8"><div class="lbl">연간 총 저축</div><div class="val" style="color:#7fb5c1">'+fmt(totalSav)+'</div></div>'+
+    '<div class="card" style="background:#eef6f4"><div class="lbl">저축률</div><div class="val pos">'+(totalExp+totalSav>0?Math.round(totalSav/(totalExp+totalSav)*100):0)+'%</div></div>';
   if(annualChart) annualChart.destroy();
   annualChart=new Chart(document.getElementById('annual-chart'),{
     type:'bar',
     data:{labels:months,datasets:[
-      {label:'지출',data:mData.map(function(d){return d.exp;}),backgroundColor:'#E24B4A99',borderRadius:4},
-      {label:'저축',data:mData.map(function(d){return d.sav;}),backgroundColor:'#534AB799',borderRadius:4}
+      {label:'지출',data:mData.map(function(d){return d.exp;}),backgroundColor:'#F06B8A99',borderRadius:4},
+      {label:'저축',data:mData.map(function(d){return d.sav;}),backgroundColor:'#7fb5c199',borderRadius:4}
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:function(v){return Math.round(v/10000)+'만';}},beginAtZero:true}}}  });
   var thead='<thead><tr><th>월</th><th>지출</th><th>저축</th></tr></thead>';
   var tbody='<tbody>'+mData.map(function(d){
     return '<tr><td>'+d.m+'</td><td>'+(d.exp>0?fmt(d.exp):'-')+'</td><td>'+(d.sav>0?fmt(d.sav):'-')+'</td></tr>';
-  }).join('')+'<tr style="background:#f0eeff;font-weight:600"><td>합계</td><td>'+fmt(totalExp)+'</td><td>'+fmt(totalSav)+'</td></tr></tbody>';
+  }).join('')+'<tr style="background:#eef6f8;font-weight:600"><td>합계</td><td>'+fmt(totalExp)+'</td><td>'+fmt(totalSav)+'</td></tr></tbody>';
   document.getElementById('annual-table').innerHTML=thead+tbody;
 }
 
 // ===== 백업/복원 =====
-function openBackupModal(){ document.getElementById('backup-modal').style.display='flex'; }
-function closeBackupModal(){ document.getElementById('backup-modal').style.display='none'; }
-
-function getAllBudgetKeys(){
-  var keys=[];
+function openBackupModal(){document.getElementById('backup-modal').style.display='flex';}
+function closeBackupModal(){document.getElementById('backup-modal').style.display='none';}
+function doDownloadBackup(){
+  var keys=[],bundle={};
   for(var i=0;i<localStorage.length;i++){
     var k=localStorage.key(i);
-    if(k==='expense_log_v1'||k==='savings_log_v1'||k.indexOf('budget_monthly_v1')===0) keys.push(k);
+    if(k==='expense_log_v1'||k==='savings_log_v1'||k.indexOf('budget_monthly_v1')===0)keys.push(k);
   }
-  return keys;
-}
-
-function downloadBackup(){
-  var keys=getAllBudgetKeys();
-  var bundle={};
   keys.forEach(function(k){try{bundle[k]=JSON.parse(localStorage.getItem(k));}catch(e){bundle[k]=localStorage.getItem(k);}});
-  var backup={app:'budget',exportedAt:new Date().toISOString(),data:bundle};
-  var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  var blob=new Blob([JSON.stringify({app:'budget',exportedAt:new Date().toISOString(),data:bundle},null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url; a.download='budget_backup_'+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  a.href=url;a.download='budget_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  badge('exp-badge','⬇️ 백업 완료');
+  badge('exp-badge','백업 완료');
 }
-
-function restoreBackup(ev){
-  var file=ev.target.files[0]; if(!file) return;
+function doRestoreBackup(ev){
+  var file=ev.target.files[0];if(!file)return;
   var reader=new FileReader();
   reader.onload=function(e){
     try{
-      var backup=JSON.parse(e.target.result);
-      if(!backup.data){badge('exp-badge','❌ 올바른 파일 아님');return;}
-      if(!confirm('현재 데이터를 백업 파일로 덮어쓸까요?\n(기존 데이터는 사라져요)')) return;
-      Object.keys(backup.data).forEach(function(k){
-        var v=backup.data[k];
-        localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));
+      var bk=JSON.parse(e.target.result);
+      if(!bk.data){badge('exp-badge','파일 오류');return;}
+      if(!confirm('현재 데이터를 덮어쓸까요?'))return;
+      Object.keys(bk.data).forEach(function(k){
+        localStorage.setItem(k,typeof bk.data[k]==='string'?bk.data[k]:JSON.stringify(bk.data[k]));
       });
-      loadBudgetData(); renderCal(); renderSummary(); calcAll();
-      if(document.getElementById('tab-annual').classList.contains('active')) renderAnnual();
+      loadBudgetData();renderCal();renderSummary();calcAll();
       closeBackupModal();
-      badge('exp-badge','✅ 복원 완료');
-    }catch(err){ badge('exp-badge','❌ 파일 오류'); }
+      badge('exp-badge','복원 완료');
+    }catch(err){badge('exp-badge','파일 오류');}
   };
-  reader.readAsText(file);
-  ev.target.value='';
+  reader.readAsText(file);ev.target.value='';
 }
+
+// ===== 결산 카드 예산 입력 → 도넛 연동 =====
+function onSumBud(elId){
+  var cat=elId.replace('sc','');
+  var v=+(document.getElementById(elId)||{}).value||0;
+  // selDate 기준으로 어느 달 예산인지 판단
+  var tYear=gYear, tMonth=gMonth;
+  if(cycleData.type===2 && selDate){
+    var bYM=getDateCycleYM(selDate);
+    tYear=bYM.y; tMonth=bYM.m;
+  }
+  if(tYear===gYear && tMonth===gMonth){
+    // 현재 달 예산 → 슬라이더/도넛 연동
+    var bEl=document.getElementById('b-'+cat);
+    if(bEl)bEl.value=v;
+    var slId=CAT_TO_SL[cat],numId=CAT_TO_NUM[cat];
+    if(slId)document.getElementById(slId).value=v;
+    if(numId)document.getElementById(numId).value=v;
+    calcAll();
+  } else {
+    // 다른 달 예산 → 해당 월 localStorage에 저장
+    var ymKey='budget_monthly_v1_'+tYear+'-'+String(tMonth).padStart(2,'0');
+    var saved=JSON.parse(localStorage.getItem(ymKey)||'{}');
+    saved['b-'+cat]=v;
+    localStorage.setItem(ymKey,JSON.stringify(saved));
+    renderSummary();
+  }
+}
+
+// ===== 반복 이벤트 =====
+var CAL_EV_KEY2='cal_events_v1';
+var calEvArr=[];
+var curEvType2='monthly';
+var curEvWd2=1;
+function loadCalEvents2(){try{calEvArr=JSON.parse(localStorage.getItem(CAL_EV_KEY2))||[];}catch(e){calEvArr=[];}}
+function saveCalEvents2(){localStorage.setItem(CAL_EV_KEY2,JSON.stringify(calEvArr));}
+function getCalEvents(ds){
+  var d=new Date(ds+'T00:00:00'),dd=d.getDate(),dw=d.getDay();
+  return calEvArr.filter(function(ev){
+    if(ev.endDate&&ds>ev.endDate)return false;
+    if(ev.type==='monthly')return ev.day===dd;
+    if(ev.type==='weekly')return ev.weekday===dw;
+    if(ev.type==='once')return ev.onceDate===ds;
+    return false;
+  });
+}
+function openEventModal2(){
+  loadCalEvents2();renderEvList2();
+  curEvType2='monthly';curEvWd2=1;
+  document.getElementById('ev-name').value='';
+  document.getElementById('ev-color').value='#F3C98B';
+  document.getElementById('ev-day').value='';
+  document.getElementById('ev-end').value='';
+  document.getElementById('ev-once-date').value='';
+  setEvType2('monthly');
+  document.getElementById('event-modal').style.display='flex';
+}
+function closeEventModal2(){document.getElementById('event-modal').style.display='none';}
+function setEvType2(t){
+  curEvType2=t;
+  ['monthly','weekly','once'].forEach(function(tp){
+    var btn=document.getElementById('evt-'+tp);if(!btn)return;
+    var on=(tp===t);
+    btn.style.borderColor=on?'#7fb5c1':'#e0e0e0';
+    btn.style.background=on?'#eef6f8':'#fff';
+    btn.style.color=on?'#7fb5c1':'#888';
+    btn.style.fontWeight=on?'600':'400';
+  });
+  document.getElementById('evw-monthly').style.display=t==='monthly'?'block':'none';
+  document.getElementById('evw-weekly').style.display=t==='weekly'?'block':'none';
+  document.getElementById('evw-once').style.display=t==='once'?'block':'none';
+}
+function setEvWd2(wd){
+  curEvWd2=wd;
+  document.querySelectorAll('#ev-wd-btns button').forEach(function(b){
+    var on=(+b.dataset.wd===wd);
+    b.style.borderColor=on?'#7fb5c1':'#e0e0e0';
+    b.style.background=on?'#eef6f8':'#fff';
+    b.style.fontWeight=on?'600':'400';
+  });
+}
+function saveCalEvent2(){
+  var name=document.getElementById('ev-name').value.trim();
+  if(!name){alert('이름을 입력해주세요!');return;}
+  var color=document.getElementById('ev-color').value;
+  var endDate=document.getElementById('ev-end').value||null;
+  var ev={id:Date.now()+'',name:name,color:color,type:curEvType2,endDate:endDate};
+  if(curEvType2==='monthly'){
+    var day=+document.getElementById('ev-day').value;
+    if(!day||day<1||day>31){alert('날짜(1~31)를 입력해주세요!');return;}
+    ev.day=day;
+  }else if(curEvType2==='weekly'){
+    ev.weekday=curEvWd2;
+  }else{
+    var od=document.getElementById('ev-once-date').value;
+    if(!od){alert('날짜를 선택해주세요!');return;}
+    ev.onceDate=od;
+  }
+  calEvArr.push(ev);saveCalEvents2();
+  renderEvList2();renderCal();renderEvLegend();
+  document.getElementById('ev-name').value='';
+  badge('exp-badge','반복 일정 저장됨');
+}
+function delCalEvent2(btn){
+  var id=btn.getAttribute('data-id');
+  if(!confirm('삭제할까요?'))return;
+  calEvArr=calEvArr.filter(function(e){return e.id!==id;});
+  saveCalEvents2();renderEvList2();renderCal();renderEvLegend();
+}
+function renderEvList2(){
+  var el=document.getElementById('ev-list2');if(!el)return;
+  if(calEvArr.length===0){
+    el.innerHTML='<div style="font-size:12px;color:#bbb;text-align:center;padding:8px">등록된 반복 일정이 없어요</div>';
+    return;
+  }
+  var WD=['일','월','화','수','목','금','토'];
+  var html='<div style="font-size:11px;font-weight:600;color:#888;margin-bottom:8px">등록된 반복 일정</div>';
+  calEvArr.forEach(function(ev){
+    var desc=ev.type==='monthly'?'매달 '+ev.day+'일':ev.type==='weekly'?'매주 '+WD[ev.weekday]+'요일':ev.onceDate;
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f4f0">';
+    html+='<span style="width:10px;height:10px;border-radius:50%;background:'+ev.color+';flex-shrink:0;display:inline-block"></span>';
+    html+='<span style="flex:1;font-size:12px;color:#333">'+ev.name+'</span>';
+    html+='<span style="font-size:11px;color:#aaa">'+desc+(ev.endDate?' ~'+ev.endDate.slice(2):'')+'</span>';
+    html+='<button data-id="'+ev.id+'" onclick="delCalEvent2(this)" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px">✕</button>';
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+function renderEvLegend(){
+  var el=document.getElementById('ev-legend');if(!el)return;
+  if(calEvArr.length===0){el.innerHTML='';return;}
+  var html='';
+  calEvArr.forEach(function(ev){
+    html+='<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#555;background:#f5f4f0;border-radius:10px;padding:3px 8px">';
+    html+='<span style="width:7px;height:7px;border-radius:50%;background:'+ev.color+';flex-shrink:0;display:inline-block"></span>'+ev.name;
+    html+='</span>';
+  });
+  el.innerHTML=html;
+}
+
+
+// ===== 수입 사이클 =====
+var CYCLE_KEY = 'budget_cycle_v1';
+var cycleData = {type:1, day:1}; // type: 1=월기준, 2=월급일기준
+
+function loadCycleData(){
+  try{ cycleData=JSON.parse(localStorage.getItem(CYCLE_KEY))||{type:1,day:1}; }catch(e){ cycleData={type:1,day:1}; }
+}
+function saveCycleData(){
+  localStorage.setItem(CYCLE_KEY, JSON.stringify(cycleData));
+}
+
+// 현재 년월 기준으로 사이클 시작/끝 날짜 계산
+function getCycleRange(year, month){
+  if(cycleData.type===1){
+    // 월 기준: 1일~말일
+    var start=year+'-'+String(month).padStart(2,'0')+'-01';
+    var lastDay=new Date(year,month,0).getDate();
+    var end=year+'-'+String(month).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+    return {start:start, end:end};
+  } else {
+    // 월급일 기준: 예) 25일 기준이면 전달25일~이번달24일
+    var d=cycleData.day||25;
+    var startMonth=month-1, startYear=year;
+    if(startMonth<1){startMonth=12;startYear--;}
+    var start=startYear+'-'+String(startMonth).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    // 끝: 이번달 d-1일
+    var endDay=d-1;
+    var endMonth=month, endYear=year;
+    if(endDay<1){
+      endMonth--;
+      if(endMonth<1){endMonth=12;endYear--;}
+      endDay=new Date(endYear,endMonth,0).getDate();
+    }
+    var end=endYear+'-'+String(endMonth).padStart(2,'0')+'-'+String(endDay).padStart(2,'0');
+    return {start:start, end:end};
+  }
+}
+
+function renderCycleBar(){
+  loadCycleData();
+  var range=getCycleRange(gYear,gMonth);
+  var startD=new Date(range.start+'T00:00:00');
+  var endD=new Date(range.end+'T00:00:00');
+  var fmt2=function(d){return (d.getMonth()+1)+'/'+d.getDate();};
+
+  var label=document.getElementById('cycle-label');
+  var rangeBar=document.getElementById('cycle-range-bar');
+
+  if(cycleData.type===1){
+    if(label) label.textContent='매월 1일 기준';
+    if(rangeBar) rangeBar.style.display='none';
+  } else {
+    if(label) label.textContent='월급일 ('+cycleData.day+'일) 기준';
+    if(rangeBar){
+      rangeBar.style.display='block';
+      rangeBar.textContent='📅 이번 사이클: '+fmt2(startD)+' ~ '+fmt2(endD);
+    }
+  }
+}
+
+// 사이클 기준으로 지출 데이터 필터링
+function getExpInCycle(){
+  var range=getCycleRange(gYear,gMonth);
+  return loadExp().filter(function(r){
+    return r.date>=range.start && r.date<=range.end;
+  });
+}
+
+function openCycleModal(){
+  loadCycleData();
+  setCycleType(cycleData.type);
+  document.getElementById('cy-day').value=cycleData.day||25;
+  updateCyclePreview();
+  document.getElementById('cycle-modal').style.display='flex';
+}
+function closeCycleModal(){
+  document.getElementById('cycle-modal').style.display='none';
+}
+
+function setCycleType(t){
+  cycleData.type=t;
+  var btn1=document.getElementById('cy-type-1');
+  var btn2=document.getElementById('cy-type-2');
+  var wrap=document.getElementById('cy-day-wrap');
+  if(t===1){
+    btn1.style.borderColor='#7fb5c1'; btn1.style.background='#eef6f8'; btn1.style.color='#7fb5c1'; btn1.style.fontWeight='600';
+    btn2.style.borderColor='#e0e0e0'; btn2.style.background='#fff'; btn2.style.color='#888'; btn2.style.fontWeight='400';
+    wrap.style.display='none';
+  } else {
+    btn2.style.borderColor='#7fb5c1'; btn2.style.background='#eef6f8'; btn2.style.color='#7fb5c1'; btn2.style.fontWeight='600';
+    btn1.style.borderColor='#e0e0e0'; btn1.style.background='#fff'; btn1.style.color='#888'; btn1.style.fontWeight='400';
+    wrap.style.display='block';
+    updateCyclePreview();
+  }
+}
+
+function updateCyclePreview(){
+  var d=+document.getElementById('cy-day').value||25;
+  var range=getCycleRange(gYear,gMonth);
+  // 임시로 day 반영해서 미리보기
+  var tmp=cycleData.type;
+  cycleData.type=2; cycleData.day=d;
+  var r=getCycleRange(gYear,gMonth);
+  cycleData.type=tmp;
+  var s=new Date(r.start+'T00:00:00'), e=new Date(r.end+'T00:00:00');
+  var fmt2=function(dt){return (dt.getMonth()+1)+'/'+dt.getDate();};
+  var prev=document.getElementById('cy-preview');
+  if(prev) prev.textContent='→ 이번 사이클: '+fmt2(s)+' ~ '+fmt2(e);
+}
+
+function saveCycleSetting(){
+  var d=+document.getElementById('cy-day').value||1;
+  if(cycleData.type===2 && (d<1||d>31)){
+    alert('1~31 사이로 입력해주세요!'); return;
+  }
+  cycleData.day=d;
+  saveCycleData();
+  renderCycleBar();
+  renderCal();
+  renderSummary();
+  closeCycleModal();
+  badge('exp-badge','✅ 사이클 저장됨');
+}
+
 </script>
+
+<div id="backup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:20px;max-width:340px;width:100%;box-sizing:border-box">
+    <h3 style="font-size:15px;margin-bottom:12px;color:#333">💾 백업 / 복원</h3>
+    <p style="font-size:11px;color:#aaa;margin-bottom:14px;line-height:1.6">수입/예산, 지출, 저축 기록을 모두 백업하거나 복원할 수 있어요.</p>
+    <button onclick="doDownloadBackup()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;cursor:pointer;margin-bottom:8px;font-family:inherit">⬇️ 백업 파일 다운로드</button>
+    <label style="display:block;width:100%;background:#eef6f8;color:#7fb5c1;border-radius:8px;padding:11px;font-size:13px;cursor:pointer;text-align:center;margin-bottom:8px;box-sizing:border-box">
+      ⬆️ 백업 파일 불러오기
+      <input type="file" accept=".json" onchange="doRestoreBackup(event)" style="display:none">
+    </label>
+    <button onclick="closeBackupModal()" style="width:100%;background:none;border:1.5px solid #ddd;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">닫기</button>
+  </div>
+</div>
+
+<div id="event-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-sizing:border-box">
+    <h3 style="font-size:15px;margin-bottom:14px;color:#333;text-align:center">📅 반복 일정 설정</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <div style="font-size:11px;color:#888;margin-bottom:4px">이름</div>
+        <input type="text" id="ev-name" placeholder="예: 알바 월급날" style="width:100%;border:1.5px solid #d8edf0;border-radius:8px;padding:8px;font-size:13px;outline:none;box-sizing:border-box;font-family:inherit">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#888;margin-bottom:4px">색상</div>
+        <input type="color" id="ev-color" value="#F3C98B" style="width:100%;height:38px;border:1.5px solid #d8edf0;border-radius:8px;cursor:pointer;padding:2px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:#888;margin-bottom:6px">반복 유형</div>
+      <div style="display:flex;gap:6px">
+        <button id="evt-monthly" onclick="setEvType2('monthly')" style="flex:1;padding:8px;border:1.5px solid #7fb5c1;background:#eef6f8;color:#7fb5c1;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600">매달</button>
+        <button id="evt-weekly" onclick="setEvType2('weekly')" style="flex:1;padding:8px;border:1.5px solid #d8edf0;background:#fff;color:#888;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">매주</button>
+        <button id="evt-once" onclick="setEvType2('once')" style="flex:1;padding:8px;border:1.5px solid #d8edf0;background:#fff;color:#888;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">특정일</button>
+      </div>
+    </div>
+    <div id="evw-monthly" style="margin-bottom:10px">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">매달 몇 일?</div>
+      <input type="number" id="ev-day" min="1" max="31" placeholder="예: 10" style="width:100%;border:1.5px solid #d8edf0;border-radius:8px;padding:8px;font-size:13px;outline:none;box-sizing:border-box;font-family:inherit">
+    </div>
+    <div id="evw-weekly" style="display:none;margin-bottom:10px">
+      <div style="font-size:11px;color:#888;margin-bottom:6px">요일</div>
+      <div style="display:flex;gap:4px" id="ev-wd-btns">
+        <button data-wd="0" onclick="setEvWd2(0)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#f87171;font-family:inherit">일</button>
+        <button data-wd="1" onclick="setEvWd2(1)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:inherit">월</button>
+        <button data-wd="2" onclick="setEvWd2(2)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:inherit">화</button>
+        <button data-wd="3" onclick="setEvWd2(3)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:inherit">수</button>
+        <button data-wd="4" onclick="setEvWd2(4)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:inherit">목</button>
+        <button data-wd="5" onclick="setEvWd2(5)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:inherit">금</button>
+        <button data-wd="6" onclick="setEvWd2(6)" style="flex:1;padding:7px 0;border:1.5px solid #d8edf0;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;color:#60a5fa;font-family:inherit">토</button>
+      </div>
+    </div>
+    <div id="evw-once" style="display:none;margin-bottom:10px">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">날짜</div>
+      <input type="date" id="ev-once-date" style="width:100%;border:1.5px solid #d8edf0;border-radius:8px;padding:8px;font-size:13px;outline:none;box-sizing:border-box">
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">반복 종료일 <span style="color:#bbb">(없으면 비워두기)</span></div>
+      <input type="date" id="ev-end" style="width:100%;border:1.5px solid #d8edf0;border-radius:8px;padding:8px;font-size:13px;outline:none;box-sizing:border-box">
+    </div>
+    <button onclick="saveCalEvent2()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:inherit">저장</button>
+    <button onclick="closeEventModal2()" style="width:100%;background:#f5f4f0;color:#888;border:none;border-radius:10px;padding:11px;font-size:13px;cursor:pointer;font-family:inherit">취소</button>
+    <div id="ev-list2" style="margin-top:14px;border-top:1px solid #eee;padding-top:12px"></div>
+  </div>
+</div>
+
+
+<!-- 사이클 설정 모달 -->
+<div id="cycle-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:20px;max-width:340px;width:100%;box-sizing:border-box">
+    <h3 style="font-size:15px;margin-bottom:6px;color:#333">💰 수입 사이클 설정</h3>
+    <p style="font-size:11px;color:#aaa;margin-bottom:16px;line-height:1.6">월급날 기준으로 예산 사이클을 설정하면<br>달력과 결산이 그 기간 기준으로 표시돼요</p>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;color:#888;margin-bottom:6px">사이클 유형</div>
+      <div style="display:flex;gap:6px">
+        <button id="cy-type-1" onclick="setCycleType(1)" style="flex:1;padding:8px;border:1.5px solid #7fb5c1;background:#eef6f8;color:#7fb5c1;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600">월 기준 (1일~말일)</button>
+        <button id="cy-type-2" onclick="setCycleType(2)" style="flex:1;padding:8px;border:1.5px solid #d8edf0;background:#fff;color:#888;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">월급일 기준</button>
+      </div>
+    </div>
+
+    <div id="cy-day-wrap" style="display:none;margin-bottom:16px">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">월급 들어오는 날</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" id="cy-day" min="1" max="31" placeholder="예: 25" oninput="updateCyclePreview()" style="width:80px;border:1.5px solid #d8edf0;border-radius:8px;padding:8px;font-size:16px;font-weight:700;text-align:center;outline:none;color:#7fb5c1;font-family:inherit">
+        <span style="font-size:13px;color:#888">일마다 새 사이클 시작</span>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-top:6px" id="cy-preview"></div>
+    </div>
+
+    <button onclick="saveCycleSetting()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:inherit">저장</button>
+    <button onclick="closeCycleModal()" style="width:100%;background:none;border:1.5px solid #ddd;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+  </div>
+</div>
+
 </body>
 </html>
