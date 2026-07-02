@@ -232,7 +232,7 @@ h2:first-child{margin-top:0}
 .cal-day.sun .day-num{color:#F06B8A}
 .cal-day.sat .day-num{color:#378ADD}
 .day-dot{width:5px;height:5px;border-radius:50%;background:#7fb5c1;margin:2px auto 0}
-.day-amt-sm{font-size:9px;color:#7fb5c1;font-weight:500}
+.day-amt-sm{font-size:9px;color:#F06B8A;font-weight:600}
 .detail-panel{background:#f9f8ff;border-radius:10px;padding:14px;margin-bottom:12px;min-height:52px}
 .detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .detail-title{font-size:13px;font-weight:600}
@@ -870,11 +870,9 @@ function calcAll(){
 // ===== 탭2: 달력/지출 =====
 function renderCal(){
   var y=gYear, m=gMonth-1;
-  var cyRange3=getCycleRange(gYear,gMonth);
-  var rows=loadExp().filter(function(r){
-    if(cycleData.type===2) return r.date>=cyRange3.start && r.date<=cyRange3.end;
-    return r.date.slice(0,7)===(gYear+'-'+String(gMonth).padStart(2,'0'));
-  });
+  var ym=gYear+'-'+String(gMonth).padStart(2,'0');
+  // dayMap은 항상 현재 달 전체 날짜 기준 (달력에 지출액 표시용)
+  var rows=loadExp().filter(function(r){ return r.date.slice(0,7)===ym; });
   var dayMap={};
   rows.forEach(function(r){if(!dayMap[r.date])dayMap[r.date]={total:0};dayMap[r.date].total+=r.amount;});
   var first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
