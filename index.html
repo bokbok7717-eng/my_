@@ -20,7 +20,7 @@ body{font-family:sans-serif;color:#1a1a1a;background:#f7f7f5;padding-bottom:70px
 .top-bar .inp-year{width:72px}
 .top-bar .inp-month{width:44px}
 .top-bar .sep{opacity:.5;font-size:13px;flex-shrink:0}
-.btn-annual{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-left:auto;white-space:nowrap;flex-shrink:0}
+.btn-annual{background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:5px 14px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .btn-annual:hover{background:rgba(255,255,255,.35)}
 .btn-annual.active{background:#fff;color:#7fb5c1}
 
@@ -269,7 +269,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <input type="number" id="g-month" class="inp-month" min="1" max="12" placeholder="월" oninput="onGlobalChange()">
   <span class="sep">월</span>
   <button onclick="openBackupModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">💾</button>
-  <button onclick="openRpsModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:13px;cursor:pointer;font-family:inherit" title="살까말까 가위바위보">🐱</button>
+  <button onclick="openRpsModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:15px;cursor:pointer;font-family:inherit;margin-left:auto" title="살까말까 가위바위보">🐱</button>
   <button class="btn-annual" id="btn-annual" onclick="switchTab('annual',this)">📈 결산</button>
 </div>
 
@@ -1536,6 +1536,7 @@ var RPS_WIN={rock:'scissors',scissors:'paper',paper:'rock'};
 var RPS_LOSE={rock:'paper',scissors:'rock',paper:'scissors'};
 
 function openRpsModal(){
+  rpsCheckDailyReset();
   document.getElementById('rps-modal').style.display='flex';
   document.getElementById('rps-name').value='';
   document.getElementById('rps-price').value='';
@@ -1680,13 +1681,32 @@ function rpsClearHistory(){
   rpsRenderHistory();
 }
 
+function rpsToggleHistory(){
+  var wrap=document.getElementById('rps-history-wrap');
+  var arrow=document.getElementById('rps-history-arrow');
+  if(!wrap) return;
+  var open=wrap.style.display==='block';
+  wrap.style.display=open?'none':'block';
+  if(arrow) arrow.textContent=open?'▼':'▲';
+  if(!open) rpsRenderHistory();
+}
+
+function rpsCheckDailyReset(){
+  var today=new Date().toISOString().split('T')[0];
+  var lastDate=localStorage.getItem('rps_last_date');
+  if(lastDate && lastDate!==today){
+    localStorage.removeItem(RPS_KEY);
+  }
+  localStorage.setItem('rps_last_date',today);
+}
+
 
 
 </script>
 
 <!-- ===== 가위바위보 모달 ===== -->
-<div id="rps-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:flex-end;justify-content:center">
-  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;box-sizing:border-box">
+<div id="rps-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div style="background:#fff;border-radius:20px;padding:20px;width:100%;max-width:360px;max-height:75vh;overflow-y:auto;box-sizing:border-box">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <span style="font-size:15px;font-weight:700;color:#4a8fa0">🐱 살까 말까?</span>
       <button onclick="closeRpsModal()" style="background:none;border:none;font-size:20px;color:#bbb;cursor:pointer;padding:0">✕</button>
@@ -1729,13 +1749,15 @@ function rpsClearHistory(){
       <div style="display:none;gap:8px" id="rps-btns"></div>
       <button onclick="rpsReset()" style="width:100%;background:none;border:none;color:#bbb;font-size:12px;cursor:pointer;margin-top:10px;font-family:inherit">← 다시 입력하기</button>
     </div>
-    <!-- 이력 -->
+    <!-- 이력 (기본 접혀있음) -->
     <div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:700;color:#4a8fa0">📋 결정 이력</span>
-        <button onclick="rpsClearHistory()" style="font-size:10px;color:#ccc;background:none;border:none;cursor:pointer;font-family:inherit">전체 삭제</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="rpsToggleHistory()">
+        <span style="font-size:13px;font-weight:700;color:#4a8fa0">📋 결정 이력 <span id="rps-history-arrow" style="font-size:11px;color:#aaa">▼</span></span>
+        <button onclick="event.stopPropagation();rpsClearHistory()" style="font-size:10px;color:#ccc;background:none;border:none;cursor:pointer;font-family:inherit">전체 삭제</button>
       </div>
-      <div id="rps-history" style="max-height:140px;overflow-y:auto"></div>
+      <div id="rps-history-wrap" style="display:none;margin-top:8px">
+        <div id="rps-history" style="max-height:120px;overflow-y:auto"></div>
+      </div>
     </div>
   </div>
 </div>
