@@ -85,7 +85,7 @@ h2:first-child{margin-top:0}
 .bud-item label{font-size:11px;color:#888;display:block;margin-bottom:4px}
 .bud-item input{width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:13px;outline:none;background:#fff}
 .bud-item input:focus{border-color:#7fb5c1}
-.btn-add{background:#7fb5c1;color:#fff;border:none;border-radius:6px;font-size:18px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-add{background:#7fb5c1;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 20px;font-weight:700}
 .btn-add:hover{background:#6aa3b0}
 
 /* 달력 */
@@ -257,6 +257,56 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   table{ font-size: 12px; }
   td, th{ padding: 6px 6px; }
 }
+
+/* ===== 저축 달성 푸시 배너 ===== */
+#sav-push-banner{
+  position:fixed;bottom:64px;left:50%;transform:translateX(-50%) translateY(80px);
+  width:calc(100% - 32px);max-width:400px;
+  background:#fff;border:0.5px solid #eee;
+  border-radius:14px;padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  z-index:500;transition:transform .4s cubic-bezier(.34,1.2,.64,1),opacity .3s ease;
+  opacity:0;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.12)
+}
+#sav-push-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+#sav-push-banner .sp-icon{font-size:22px;flex-shrink:0}
+#sav-push-banner .sp-body{flex:1;min-width:0}
+#sav-push-banner .sp-title{font-size:12px;font-weight:700;color:#222;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sav-push-banner .sp-desc{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sav-push-banner .sp-close{background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;flex-shrink:0;padding:0}
+
+/* ===== 저축 레벨 카드 ===== */
+#level-card{border-radius:14px;padding:16px;margin-bottom:12px;transition:background 1s;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.lv-forest{background:linear-gradient(135deg,#f0faf0,#d4ecd4)}
+.lv-flower{background:linear-gradient(135deg,#fff0f8,#ffd6f0)}
+.lv-sky   {background:linear-gradient(135deg,#e8f4ff,#c8e0ff)}
+.lv-ocean {background:linear-gradient(135deg,#e0f4ff,#a8d8f8)}
+.lv-space {background:linear-gradient(135deg,#12122a,#1e1e40);color:#fff}
+#level-card .lv-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+#level-card .lv-icon{font-size:44px;line-height:1;transition:all .5s;flex-shrink:0}
+#level-card .lv-info{}
+#level-card .lv-name-row{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
+#level-card .lv-name{font-size:22px;font-weight:800;line-height:1}
+#level-card .lv-stage{font-size:11px;font-weight:600;opacity:.5}
+#level-card .lv-sub{font-size:12px;opacity:.55}
+#level-card .lv-steps{display:flex;margin-bottom:8px}
+#level-card .lv-step{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+#level-card .lv-step-icon{font-size:18px;line-height:1;transition:all .3s}
+#level-card .lv-step-label{font-size:8px;font-weight:500;text-align:center}
+#level-card .lv-bar-wrap{background:rgba(0,0,0,.1);border-radius:6px;height:8px;overflow:hidden;margin-bottom:5px}
+#level-card .lv-bar{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.2,.64,1)}
+.bar-forest{background:linear-gradient(90deg,#a8d8a8,#5a9a62)}
+.bar-flower{background:linear-gradient(90deg,#f8a8d8,#e060a8)}
+.bar-sky   {background:linear-gradient(90deg,#90c8f8,#4888d8)}
+.bar-ocean {background:linear-gradient(90deg,#58b8e8,#1878b8)}
+.bar-space {background:linear-gradient(90deg,#9860e8,#5030a8)}
+#level-card .lv-amounts{display:flex;justify-content:space-between;font-size:10px;opacity:.5;margin-bottom:10px}
+#level-card .lv-stages{display:flex;justify-content:space-around;padding-top:10px;border-top:1px solid rgba(0,0,0,.07)}
+#level-card .lv-sdot{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 6px;border-radius:10px;transition:all .2s}
+#level-card .lv-sdot.sel{background:rgba(0,0,0,.07)}
+#level-card .lv-sdot-icon{font-size:16px;transition:all .3s}
+#level-card .lv-sdot-label{font-size:8px;font-weight:600;opacity:.5}
+#level-card .lv-sdot-label.cur{opacity:1}
 </style>
 </head>
 <body>
@@ -270,6 +320,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <span class="sep">월</span>
   <button onclick="openBackupModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">💾</button>
   <button onclick="openRpsModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:15px;cursor:pointer;font-family:inherit;margin-left:auto" title="살까말까">🐱</button>
+  <button class="btn-annual" id="btn-badges" onclick="switchTab('badges',this)" title="업적 뱃지">🏅</button>
   <button class="btn-annual" id="btn-annual" onclick="switchTab('annual',this)">📈 결산</button>
 </div>
 
@@ -422,6 +473,23 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 
 <!-- 탭3: 저축 -->
 <div class="tab-content" id="tab-savings">
+  <!-- 저축 레벨 카드 -->
+  <div id="level-card" class="lv-forest">
+    <div class="lv-top">
+      <span class="lv-icon" id="lv-icon">🌱</span>
+      <div class="lv-info">
+        <div class="lv-name-row">
+          <span class="lv-name" id="lv-name">새싹</span>
+          <span class="lv-stage" id="lv-stage">숲 스테이지</span>
+        </div>
+        <div class="lv-sub" id="lv-sub">다음 레벨까지 25만엔</div>
+      </div>
+    </div>
+    <div class="lv-steps" id="lv-steps"></div>
+    <div class="lv-bar-wrap"><div class="lv-bar bar-forest" id="lv-bar" style="width:0%"></div></div>
+    <div class="lv-amounts"><span id="lv-cur">현재 0엔</span><span id="lv-max">다음 250,000엔</span></div>
+    <div class="lv-stages" id="lv-stages"></div>
+  </div>
   <h2>🏦 저축 현황</h2>
   <div class="cards" style="grid-template-columns:1fr 1fr">
     <div class="card" style="background:#eef6f8"><div class="lbl">누적 저축</div><div class="val" style="color:#7fb5c1" id="s-total">0엔</div></div>
@@ -473,6 +541,15 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <div class="table-wrap"><table class="annual-table" id="annual-table"></table></div>
 </div>
 
+<!-- 탭5: 업적 뱃지 (상단버튼으로만 접근) -->
+<div class="tab-content" id="tab-badges">
+  <h2>🏅 업적 뱃지</h2>
+  <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #d8edf0;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+    <div style="font-size:12px;color:#aaa;margin-bottom:14px">목표를 달성하면 뱃지가 열리고, 새로 획득하면 알림이 떠요. 탭해서 자세히 확인해보세요 ✨</div>
+    <div id="badge-area" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px"></div>
+  </div>
+</div>
+
 <!-- 탭 바 (3개만) -->
 <nav class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('budget',this)"><span class="icon">💰</span>수입/예산</button>
@@ -506,10 +583,12 @@ function switchTab(id,btn){
   document.getElementById('tab-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
   document.getElementById('btn-annual').classList.toggle('active', id==='annual');
+  document.getElementById('btn-badges').classList.toggle('active', id==='badges');
   if(id==='budget') calcAll();
   if(id==='expense'){renderCal();renderSummary();}
   if(id==='savings'){updateSavMonthSel();renderSavings();}
   if(id==='annual') renderAnnual();
+  if(id==='badges'&&typeof checkBadges==='function') checkBadges();
 }
 
 // ===== 월별 수입/예산 저장/불러오기 =====
@@ -825,6 +904,7 @@ function addExpense(){
   document.getElementById('g-month').value=gMonth;
   selDate=date;
   renderCal(); renderDetail(); renderSummary();
+  if(typeof checkBadges==='function') checkBadges();
 }
 
 function delExpense(id){
@@ -940,7 +1020,10 @@ function renderSavings(){
   // 저축 목표 체크
   if(typeof checkGoalAchieved==='function') checkGoalAchieved();
   if(typeof renderGoalDisplay==='function') renderGoalDisplay();
+  if(typeof renderLevelCard==='function') renderLevelCard();
   if(typeof renderGoalHistory==='function') renderGoalHistory();
+  if(typeof checkSavMilestone==='function') checkSavMilestone();
+  if(typeof checkBadges==='function') checkBadges();
 }
 
 // ===== 연간결산 =====
@@ -1338,6 +1421,249 @@ function checkSpendingTypePopup(){
 }
 function closeSpendingPopup(){document.getElementById('spending-type-popup').style.display='none';}
 
+
+// ===== 저축 달성 푸시 =====
+var savPushTimer=null;
+var SAV_MILESTONES=[10,30,50,80,95,100];
+var SAV_MILESTONE_KEY='sav_milestone_shown';
+
+function showSavPush(icon,title,desc){
+  var el=document.getElementById('sav-push-banner');
+  if(!el) return;
+  document.getElementById('sav-push-icon').textContent=icon;
+  document.getElementById('sav-push-title').textContent=title;
+  document.getElementById('sav-push-desc').textContent=desc;
+  el.classList.add('show');
+  if(savPushTimer) clearTimeout(savPushTimer);
+  savPushTimer=setTimeout(closeSavPush,5000);
+}
+function closeSavPush(){
+  var el=document.getElementById('sav-push-banner');
+  if(el) el.classList.remove('show');
+}
+
+function checkSavMilestone(){
+  loadGoalData();
+  if(!goalData.current||goalData.current.achieved) return;
+  var total=getTotalSavings();
+  var amount=goalData.current.amount;
+  if(amount<=0) return;
+  var pct=Math.floor(total/amount*100);
+
+  // 이미 표시한 마일스톤 확인
+  var shownKey=SAV_MILESTONE_KEY+'_'+goalData.current.setDate;
+  var shown=JSON.parse(localStorage.getItem(shownKey)||'[]');
+
+  // 달성한 마일스톤 중 아직 안 보여준 것
+  SAV_MILESTONES.forEach(function(m){
+    if(pct>=m && shown.indexOf(m)===-1){
+      shown.push(m);
+      localStorage.setItem(shownKey,JSON.stringify(shown));
+      var icon=m===100?'🎉':m>=80?'🔥':m>=50?'⭐':'💰';
+      var title=m===100?'목표 달성! 🎊':m+'% 달성!';
+      var desc=goalData.current.name+' '+fmt(Math.round(total))+'엔 / '+fmt(amount)+'엔';
+      setTimeout(function(i,t,d){showSavPush(i,t,d);}(icon,title,desc),300);
+    }
+  });
+}
+
+
+// ===== 저축 레벨 시스템 =====
+var LV_STAGES=[
+  {name:'숲', icon:'🌲', cls:'lv-forest', bar:'bar-forest', color:'#5a9a62',
+   steps:[{icon:'🌱',name:'새싹'},{icon:'🌿',name:'풀잎'},{icon:'🌳',name:'나무'},{icon:'🌲',name:'고목'}],
+   min:0, max:1000000},
+  {name:'꽃', icon:'🌸', cls:'lv-flower', bar:'bar-flower', color:'#e060a8',
+   steps:[{icon:'🌷',name:'꽃봉오리'},{icon:'🌸',name:'벚꽃'},{icon:'🌺',name:'만개'},{icon:'💐',name:'꽃다발'}],
+   min:1000000, max:5000000},
+  {name:'하늘', icon:'🌈', cls:'lv-sky', bar:'bar-sky', color:'#4888d8',
+   steps:[{icon:'🌤',name:'맑음'},{icon:'🌈',name:'무지개'},{icon:'☁️',name:'구름'},{icon:'⚡',name:'번개'}],
+   min:5000000, max:10000000},
+  {name:'바다', icon:'🌊', cls:'lv-ocean', bar:'bar-ocean', color:'#1878b8',
+   steps:[{icon:'🐚',name:'조개'},{icon:'🐠',name:'열대어'},{icon:'🐬',name:'돌고래'},{icon:'🐋',name:'고래'}],
+   min:10000000, max:15000000},
+  {name:'우주', icon:'🌌', cls:'lv-space', bar:'bar-space', color:'#9860e8',
+   steps:[{icon:'⭐',name:'별'},{icon:'🌟',name:'빛나는별'},{icon:'🌙',name:'달'},{icon:'🌌',name:'은하'}],
+   min:15000000, max:100000000},
+];
+
+var LV_ALL=[];
+LV_STAGES.forEach(function(s,si){
+  s.steps.forEach(function(step,i){
+    var segMin=s.min+Math.round((s.max-s.min)/4*i);
+    var segMax=s.min+Math.round((s.max-s.min)/4*(i+1));
+    LV_ALL.push({icon:step.icon,name:step.name,stageIdx:si,stepIdx:i,
+      cls:s.cls,bar:s.bar,color:s.color,stageName:s.name,stageIcon:s.icon,
+      min:segMin,max:segMax,isFirst:i===0});
+  });
+});
+
+var lvSelectedStage=-1;
+
+function getLvIdx(s){
+  for(var i=LV_ALL.length-1;i>=0;i--) if(s>=LV_ALL[i].min) return i;
+  return 0;
+}
+
+function fmtLv(n){
+  if(n>=100000000) return (n/100000000).toFixed(1)+'억';
+  if(n>=10000000)  return (n/10000000).toFixed(0)+'천만';
+  if(n>=1000000)   return (n/1000000).toFixed(1)+'백만';
+  if(n>=10000)     return Math.floor(n/10000)+'만';
+  return n.toLocaleString();
+}
+
+function renderLevelCard(){
+  var total=getTotalSavings();
+  if(total<0) total=0;
+  var idx=getLvIdx(total);
+  var lv=LV_ALL[idx];
+  var card=document.getElementById('level-card');
+  if(!card) return;
+
+  card.className=lv.cls;
+  document.getElementById('lv-icon').textContent=lv.icon;
+  document.getElementById('lv-name').textContent=lv.name;
+  document.getElementById('lv-stage').textContent=lv.stageName+' 스테이지';
+  document.getElementById('lv-cur').textContent='현재 '+fmtLv(total)+'엔';
+  document.getElementById('lv-max').textContent='다음 '+fmtLv(lv.max)+'엔';
+  var remain=lv.max-total;
+  document.getElementById('lv-sub').textContent=remain>0?'다음 레벨까지 '+fmtLv(remain)+'엔':'🎊 최고 레벨 달성!';
+
+  var pct=lv.max>lv.min?Math.min(100,Math.round((total-lv.min)/(lv.max-lv.min)*100)):100;
+  var bar=document.getElementById('lv-bar');
+  bar.className='lv-bar '+lv.bar;
+  bar.style.width=pct+'%';
+
+  // 단계 이모지
+  var dispSi=lvSelectedStage===-1?lv.stageIdx:lvSelectedStage;
+  var dispStage=LV_STAGES[dispSi];
+  var stepsHtml='';
+  dispStage.steps.forEach(function(step,i){
+    var li=dispSi*4+i;
+    var done=li<idx, cur=li===idx;
+    stepsHtml+='<div class="lv-step">'
+      +'<div class="lv-step-icon" style="'+(done?'opacity:1':cur?'opacity:1;transform:scale(1.25)':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
+      +'<div class="lv-step-label" style="opacity:'+(cur?'1':done?'.65':'.28')+';font-weight:'+(cur?800:500)+'">'+step.name+'</div>'
+      +'</div>';
+  });
+  document.getElementById('lv-steps').innerHTML=stepsHtml;
+
+  // 스테이지 5개
+  var stagesHtml='';
+  LV_STAGES.forEach(function(s,si){
+    var done=si<lv.stageIdx, cur=si===lv.stageIdx, sel=si===dispSi;
+    stagesHtml+='<div class="lv-sdot'+(sel?' sel':'')+'" onclick="lvSelectStage('+si+')">'
+      +'<div class="lv-sdot-icon" style="'+(cur?'opacity:1;transform:scale(1.1)':done?'opacity:.7':'filter:grayscale(1);opacity:.25')+'">'+s.icon+'</div>'
+      +'<div class="lv-sdot-label'+(cur?' cur':'')+'">'+s.name+'</div>'
+      +'</div>';
+  });
+  document.getElementById('lv-stages').innerHTML=stagesHtml;
+}
+
+function lvSelectStage(si){
+  var total=getTotalSavings();
+  var curSi=LV_ALL[getLvIdx(Math.max(0,total))].stageIdx;
+  lvSelectedStage=(si===curSi&&lvSelectedStage===-1)?-1:si;
+  renderLevelCard();
+}
+
+
+// ===== 업적 뱃지 =====
+function getYM(){return gYear+'-'+String(gMonth).padStart(2,'0');}
+
+var ALL_BADGES=[
+  {icon:'🎯',label:'첫 걸음',   desc:'처음으로 가계부를 입력했어요! 💪', cls:'b-green', check:function(){return loadExp().length>0||loadSav().length>0;}},
+  {icon:'🌱',label:'저축 시작', desc:'처음으로 저축을 입력했어요! 🌱',   cls:'b-green', check:function(){return loadSav().filter(function(r){return r.type==='저축';}).length>0;}},
+  {icon:'💰',label:'10만엔',    desc:'누적 저축 10만엔 달성!',            cls:'b-yellow',check:function(){return getTotalSavings()>=100000;}},
+  {icon:'💎',label:'100만엔',   desc:'누적 저축 100만엔 달성! 🎊',        cls:'b-blue',  check:function(){return getTotalSavings()>=1000000;}},
+  {icon:'🏅',label:'예산 달성', desc:'이번달 예산 내로 마감했어요!',       cls:'b-yellow',check:function(){
+    var rows=loadExp(); if(!rows.length) return false;
+    var ym=getYM(); var total=rows.filter(function(r){return r.date&&r.date.startsWith(ym);}).reduce(function(s,r){return s+r.amount;},0);
+    var budget=0; VAR_CATS.forEach(function(cat){var el=document.getElementById('b-'+cat);if(el)budget+=(+el.value||0);});
+    return budget>0&&total<=budget;
+  }},
+  {icon:'🌲',label:'숲 클리어', desc:'숲 스테이지를 완료했어요! 🌲',      cls:'b-green', check:function(){return getTotalSavings()>=1000000;}},
+  {icon:'🌸',label:'꽃 클리어', desc:'꽃 스테이지를 완료했어요! 🌸',      cls:'b-pink',  check:function(){return getTotalSavings()>=5000000;}},
+  {icon:'🌈',label:'하늘 클리어',desc:'하늘 스테이지를 완료했어요! 🌈',   cls:'b-blue',  check:function(){return getTotalSavings()>=10000000;}},
+  {icon:'🐋',label:'바다 클리어',desc:'바다 스테이지를 완료했어요! 🐋',   cls:'b-teal',  check:function(){return getTotalSavings()>=15000000;}},
+  {icon:'⚡',label:'깜짝 절약', desc:'이번달 예산의 70% 이하로 썼어요!',  cls:'b-purple',check:function(){return false;}},
+  {icon:'🎰',label:'가위바위보',desc:'가위바위보 5번 이겼어요!',           cls:'b-red',   check:function(){return (+(localStorage.getItem('rps_wins')||0))>=5;}},
+  {icon:'🏆',label:'전설',      desc:'모든 뱃지 달성! 전설의 절약왕!',    cls:'b-gold',  check:function(){return false;}},
+];
+
+var BADGE_CSS='.b-green{background:linear-gradient(135deg,#d4f0d4,#a8d8a8)}.b-blue{background:linear-gradient(135deg,#c8e8ff,#90c8f0)}.b-purple{background:linear-gradient(135deg,#e0d0ff,#b890f0)}.b-yellow{background:linear-gradient(135deg,#fff3cc,#ffe060)}.b-pink{background:linear-gradient(135deg,#fde2e4,#ffb3c1)}.b-red{background:linear-gradient(135deg,#ffd0d0,#f09090)}.b-teal{background:linear-gradient(135deg,#c8f0f0,#80d8d8)}.b-gold{background:linear-gradient(135deg,#fff3b0,#ffd040)}.b-space{background:linear-gradient(135deg,#1a1a3e,#3a2a6e)}';
+
+function renderBadges(){
+  var area=document.getElementById('badge-area');
+  if(!area) return;
+  if(!document.getElementById('badge-style')){
+    var s=document.createElement('style');s.id='badge-style';s.textContent=BADGE_CSS
+      +'.bdg{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}'
+      +'.bdg-icon{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;transition:transform .15s}'
+      +'.bdg-icon:active{transform:scale(.92)}'
+      +'.bdg-icon.locked{filter:grayscale(1);opacity:.28}'
+      +'.bdg-icon.unlocked{box-shadow:0 3px 10px rgba(0,0,0,.15)}'
+      +'.bdg-label{font-size:9px;color:#aaa;text-align:center;line-height:1.3}'
+      +'.bdg-label.unlocked{color:#444;font-weight:600}'
+      +'.new-tag{position:absolute;top:-2px;right:-2px;background:#ff4466;color:#fff;font-size:7px;font-weight:700;padding:1px 4px;border-radius:6px}';
+    document.head.appendChild(s);
+  }
+  var shownKey='badges_shown';
+  var shown=JSON.parse(localStorage.getItem(shownKey)||'[]');
+  var newShown=[];
+  area.innerHTML=ALL_BADGES.map(function(b){
+    var unlocked=b.check?b.check():false;
+    var isNew=unlocked&&shown.indexOf(b.label)===-1;
+    if(unlocked) newShown.push(b.label);
+    return '<div class="bdg" onclick="showBadgePopup(\''+b.label+'\')"><div class="bdg-icon '+(unlocked?'unlocked ':'')+b.cls+'">'
+      +b.icon+(isNew?'<span class="new-tag">NEW</span>':'')
+      +'</div><div class="bdg-label'+(unlocked?' unlocked':'')+'">'+b.label+'</div></div>';
+  }).join('');
+  localStorage.setItem(shownKey,JSON.stringify(newShown));
+}
+
+function showBadgePopup(name){
+  var b=ALL_BADGES.find(function(x){return x.label===name;});
+  if(!b) return;
+  var unlocked=b.check?b.check():false;
+  // 저축 탭 푸시 배너 재활용
+  showSavPush(unlocked?b.icon:'🔒', unlocked?b.label:'미획득', unlocked?b.desc:'아직 획득하지 못한 뱃지예요');
+}
+
+// 새로 달성한 뱃지를 감지해서 팝업으로 알려줌
+var BADGE_UNLOCKED_KEY='badges_unlocked_v1';
+var BADGE_BASELINE_KEY='badges_baseline_v1';
+var badgePopupQueue=[];
+
+function checkBadges(){
+  var prev=JSON.parse(localStorage.getItem(BADGE_UNLOCKED_KEY)||'[]');
+  var hasBaseline=localStorage.getItem(BADGE_BASELINE_KEY)==='1';
+  var curUnlocked=[];
+  var newly=[];
+  ALL_BADGES.forEach(function(b){
+    var ok=b.check?b.check():false;
+    if(ok){
+      curUnlocked.push(b.label);
+      if(hasBaseline&&prev.indexOf(b.label)===-1) newly.push(b);
+    }
+  });
+  localStorage.setItem(BADGE_UNLOCKED_KEY,JSON.stringify(curUnlocked));
+  localStorage.setItem(BADGE_BASELINE_KEY,'1');
+  if(newly.length){
+    badgePopupQueue=badgePopupQueue.concat(newly);
+    showNextBadgePopup();
+  }
+  if(typeof renderBadges==='function') renderBadges();
+}
+
+function showNextBadgePopup(){
+  if(!badgePopupQueue.length) return;
+  var b=badgePopupQueue.shift();
+  showSavPush(b.icon, '🎉 '+b.label+' 뱃지 획득!', b.desc);
+  if(badgePopupQueue.length) setTimeout(showNextBadgePopup,5200);
+}
+
 </script>
 
 <!-- ===== 모달들 ===== -->
@@ -1445,5 +1771,15 @@ function closeSpendingPopup(){document.getElementById('spending-type-popup').sty
   </div>
 </div>
 
+
+<!-- 저축 달성 푸시 배너 -->
+<div id="sav-push-banner">
+  <span class="sp-icon" id="sav-push-icon">🏦</span>
+  <div class="sp-body">
+    <div class="sp-title" id="sav-push-title">저축 달성!</div>
+    <div class="sp-desc" id="sav-push-desc"></div>
+  </div>
+  <button class="sp-close" onclick="closeSavPush()">✕</button>
+</div>
 </body>
 </html>
