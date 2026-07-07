@@ -171,51 +171,25 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 /* ===== 모바일 반응형 ===== */
 @media (max-width: 480px) {
   /* 지출 입력 폼: 2x2 + 버튼 레이아웃 */
-  /* HTML 순서: date / text / select / number / button */
-  .form-row{
-    display: grid;
-    grid-template-columns: 120px 1fr 36px;
-    grid-template-rows: auto auto;
-    gap: 6px;
-    align-items: stretch;
-  }
-  .form-row input[type="date"] { grid-column: 1; grid-row: 1; min-width:0; width:100%; font-size:12px; }
-  .form-row input[type="text"] { grid-column: 1; grid-row: 2; min-width:0; width:100%; }
-  .form-row select              { grid-column: 2; grid-row: 2; font-size:12px; min-width:0; width:100%; }
-  .form-row input[type="number"]{ grid-column: 2; grid-row: 1; min-width:0; width:100%; }
-  .form-row .btn-add            { grid-column: 3; grid-row: 1 / 3; width:36px; height:100%; min-height:78px; }
-
-  /* 저축 입력 폼: 2x2 + 버튼 레이아웃 */
-  /* HTML 순서: date / text / select / number / button */
-  .sav-form{
-    display: grid;
-    grid-template-columns: 120px 1fr 36px;
-    grid-template-rows: auto auto;
-    gap: 6px;
-    align-items: stretch;
-  }
-  .sav-form input[type="date"] { grid-column: 1; grid-row: 1; min-width:0; width:100%; font-size:12px; }
-  .sav-form input[type="text"] { grid-column: 1; grid-row: 2; min-width:0; width:100%; }
-  .sav-form select              { grid-column: 2; grid-row: 2; font-size:12px; min-width:0; width:100%; }
-  .sav-form input[type="number"]{ grid-column: 2; grid-row: 1; min-width:0; width:100%; }
-  .sav-form .btn-add            { grid-column: 3; grid-row: 1 / 3; width:36px; height:100%; min-height:78px; }
-
-  /* 도넛 차트 + 슬라이더: 세로 배치 */
-  .donut-wrap{
-    grid-template-columns: 1fr;
-  }
   .form-row{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px}
   .form-row input[type=date]{grid-column:1;grid-row:1;min-width:0;width:100%;font-size:12px}
   .form-row select{grid-column:2;grid-row:1;min-width:0;width:100%;font-size:12px}
   .form-row input[type=text]{grid-column:1;grid-row:2;min-width:0;width:100%}
   .form-row input[type=number]{grid-column:2;grid-row:2;min-width:0;width:100%}
-  .form-row .btn-add{grid-column:1/3!important;grid-row:3!important;width:100%!important;height:32px!important;font-size:14px!important}
+  .form-row .btn-add{grid-column:1/3;grid-row:3;width:100%;height:32px;min-height:0;font-size:14px}
+
+  /* 저축 입력 폼: 2x2 + 버튼 레이아웃 */
   .sav-form{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px}
   .sav-form input[type=date]{grid-column:1;grid-row:1;min-width:0;width:100%;font-size:12px}
   .sav-form select{grid-column:2;grid-row:1;min-width:0;width:100%;font-size:12px}
   .sav-form input[type=text]{grid-column:1;grid-row:2;min-width:0;width:100%}
   .sav-form input[type=number]{grid-column:2;grid-row:2;min-width:0;width:100%}
-  .sav-form .btn-add{grid-column:1/3!important;grid-row:3!important;width:100%!important;height:32px!important;font-size:14px!important}
+  .sav-form .btn-add{grid-column:1/3;grid-row:3;width:100%;height:32px;min-height:0;font-size:14px}
+
+  /* 도넛 차트 + 슬라이더: 세로 배치 */
+  .donut-wrap{
+    grid-template-columns: 1fr;
+  }
   .chart-wrap{ height: 180px; }
 
   /* 생활비 슬라이더 */
@@ -319,7 +293,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <input type="number" id="g-month" class="inp-month" min="1" max="12" placeholder="월" oninput="onGlobalChange()">
   <span class="sep">월</span>
   <button onclick="openBackupModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">💾</button>
-  <button onclick="openRpsModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:15px;cursor:pointer;font-family:inherit;margin-left:auto" title="살까말까">🐱</button>
+  <button class="btn-annual" onclick="openRpsModal()" style="margin-left:auto" title="살까말까">🐱</button>
   <button class="btn-annual" id="btn-badges" onclick="switchTab('badges',this)" title="업적 뱃지">🏅</button>
   <button class="btn-annual" id="btn-annual" onclick="switchTab('annual',this)">📈 결산</button>
 </div>
@@ -368,7 +342,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
     <div style="font-size:11px;color:#aaa;margin-top:6px;text-align:right" id="sav-sync-note"></div>
   </div>
 
-  <h2>🛒 생활비 배분</h2>
+  <h2>🛒 생활비 배분 <button onclick="copyPrevMonthBudget()" style="background:#eef6f8;color:#7fb5c1;border:none;border-radius:8px;padding:4px 11px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;vertical-align:middle">지난달 예산 복사</button></h2>
   <div class="section-box">
     <div class="donut-wrap">
       <div>
@@ -503,12 +477,23 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
     </div>
     <div id="goal-display"><div style="font-size:12px;color:#bbb;text-align:center;padding:8px">목표를 설정해보세요 🎯</div></div>
   </div>
+  <div id="subgoal-box" style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:11px;font-weight:700;color:#9aa;opacity:.85">➕ 서브 목표</div>
+      <button onclick="openSubGoalModal()" style="background:none;border:1px solid #d8edf0;color:#7fb5c1;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:inherit">+ 추가</button>
+    </div>
+    <div id="subgoal-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+  </div>
   <div id="goal-history-box" style="display:none;background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #d8edf0">
-    <div style="font-size:13px;font-weight:700;color:#4a8fa0;margin-bottom:8px">🏆 달성 이력</div>
-    <div id="goal-history-list"></div>
+    <div onclick="toggleSection('goal-history-list','goal-history-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;font-weight:700;color:#4a8fa0">🏆 달성 이력</span>
+      <span id="goal-history-arrow" style="font-size:12px;color:#aaa">▼</span>
+    </div>
+    <div id="goal-history-list" style="display:none;margin-top:8px"></div>
   </div>
   <h2>✏️ 입력</h2>
   <div class="section-box">
+    <div id="sav-tag-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
     <div class="sav-form">
       <input type="date" id="s-date">
       <input type="text" id="s-desc" placeholder="내용 (예: 6월 급여 저축)">
@@ -518,7 +503,8 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
     </div>
     <span class="save-badge" id="sav-badge"></span>
   </div>
-  <h2>📝 저축 기록</h2>
+  <h2 onclick="toggleSection('sav-record-box','sav-record-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><span>📝 저축 기록</span><span id="sav-record-arrow" style="font-size:13px;color:#aaa;font-weight:400">▲</span></h2>
+  <div id="sav-record-box">
   <div class="filter-row">
     <select id="s-month-sel" onchange="renderSavings()"></select>
     <label style="font-size:12px;color:#888;display:flex;align-items:center;gap:4px"><input type="checkbox" id="s-chk-all" onchange="renderSavings()"> 전체 보기</label>
@@ -530,6 +516,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
       <tbody id="sav-body"><tr><td colspan="6" class="empty">저축 내역이 없어요</td></tr></tbody>
       <tfoot><tr style="background:#f5f4f0;font-weight:600"><td colspan="3" style="padding:8px 10px;color:#555">합계</td><td style="text-align:right;padding:8px 10px" id="sav-foot">0엔</td><td colspan="2"></td></tr></tfoot>
     </table>
+  </div>
   </div>
 </div>
 
@@ -545,7 +532,11 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 <div class="tab-content" id="tab-badges">
   <h2>🏅 업적 뱃지</h2>
   <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid #d8edf0;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-    <div style="font-size:12px;color:#aaa;margin-bottom:14px">목표를 달성하면 뱃지가 열리고, 새로 획득하면 알림이 떠요. 탭해서 자세히 확인해보세요 ✨</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:12px;color:#aaa">목표를 달성하면 뱃지가 열리고, 새로 획득하면 알림이 떠요. 탭해서 자세히 확인해보세요 ✨</div>
+      <div id="badge-progress" style="flex-shrink:0;margin-left:10px;font-size:12px;font-weight:700;color:#7fb5c1;white-space:nowrap">0/0</div>
+    </div>
+    <div style="height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-bottom:14px"><div id="badge-progress-bar" style="height:100%;width:0%;background:#7fb5c1;border-radius:3px;transition:width .4s"></div></div>
     <div id="badge-area" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px"></div>
   </div>
 </div>
@@ -587,7 +578,7 @@ function switchTab(id,btn){
   if(id==='budget') calcAll();
   if(id==='expense'){renderCal();renderSummary();}
   if(id==='savings'){updateSavMonthSel();renderSavings();}
-  if(id==='annual') renderAnnual();
+  if(id==='annual'){renderAnnual();localStorage.setItem('visited_annual','1');}
   if(id==='badges'&&typeof checkBadges==='function') checkBadges();
 }
 
@@ -614,6 +605,32 @@ function saveBudgetData(){
     if(el) data.cats[cat]=el.value;
   });
   localStorage.setItem(getBudgetKey(), JSON.stringify(data));
+}
+
+function copyPrevMonthBudget(){
+  var py=gYear, pm=gMonth-1; if(pm<1){pm=12;py--;}
+  var prevKey=BUDGET_KEY+'_'+py+'-'+String(pm).padStart(2,'0');
+  var raw=localStorage.getItem(prevKey);
+  if(!raw){ alert(py+'년 '+pm+'월 예산 데이터가 없어요'); return; }
+  if(!confirm(py+'년 '+pm+'월 예산을 이번달로 복사할까요? (공과금 예상/실제는 제외돼요)')) return;
+  var data=JSON.parse(raw);
+  document.getElementById('in-salary').value=data.salary||0;
+  document.getElementById('in-alba').value=data.alba||0;
+  document.getElementById('in-rent').value=data.rent||0;
+  document.getElementById('e-rent').value=data.rent||0;
+  document.getElementById('e-fsav').value=data.fsav||0;
+  document.getElementById('sl-sav').value=data.slSav||0;
+  document.getElementById('num-sav').value=data.slSav||0;
+  if(data.cats){
+    Object.keys(data.cats).forEach(function(cat){
+      var el=document.getElementById('b-'+cat);
+      if(el){ el.value=data.cats[cat]; onBudgetInput(cat); }
+    });
+  }
+  saveBudgetData();
+  calcAll(); renderSummary();
+  if(typeof checkBadges==='function') checkBadges();
+  badge('exp-badge','지난달 예산을 복사했어요 📋');
 }
 
 function loadBudgetData(){
@@ -775,6 +792,7 @@ window.addEventListener('load',function(){
   if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();}
   if(typeof loadCalEvents2==='function'){loadCalEvents2();renderEvLegend();}
   if(typeof renderGoalDisplay==='function'){renderGoalDisplay();renderGoalHistory();}
+  if(typeof renderSubGoals==='function') renderSubGoals();
   if(typeof checkSpendingTypePopup==='function'){checkSpendingTypePopup();}
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('s-date').value=new Date().toISOString().split('T')[0];
@@ -974,10 +992,11 @@ function addSaving(){
   var amount=+document.getElementById('s-amount').value;
   if(!date||!desc||!amount){alert('날짜, 내용, 금액을 모두 입력해주세요!');return;}
   var rows=loadSav();
-  rows.push({id:Date.now(),date:date,desc:desc,type:type,amount:amount});
+  rows.push({id:Date.now(),date:date,desc:desc,type:type,amount:amount,goalId:selectedSavGoalId||null});
   saveSav(rows);
   document.getElementById('s-desc').value='';
   document.getElementById('s-amount').value='';
+  selectedSavGoalId=null; if(typeof renderSavTagButtons==='function') renderSavTagButtons();
   badge('sav-badge','✓ 저장됨');
   updateSavMonthSel(); renderSavings();
 }
@@ -996,15 +1015,17 @@ function confirmSavReset(){
 }
 
 function renderSavings(){
+  loadGoalData();
   var allRows=loadSav().slice().sort(function(a,b){return a.date.localeCompare(b.date)||a.id-b.id;});
   var showAll=document.getElementById('s-chk-all').checked;
   var month=document.getElementById('s-month-sel').value;
   var dispRows=showAll?allRows:allRows.filter(function(r){return r.date.slice(0,7)===month;});
   var cumMap={},cum=0;
-  allRows.forEach(function(r){cum+=(r.type==='저축'?r.amount:-r.amount);cumMap[r.id]=cum;});
-  var totalIn=allRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
-  var totalOut=allRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
-  var mRows=allRows.filter(function(r){return r.date.slice(0,7)===month;});
+  allRows.forEach(function(r){if(!r.goalId){cum+=(r.type==='저축'?r.amount:-r.amount);cumMap[r.id]=cum;}else{cumMap[r.id]=null;}});
+  var mainAllRows=allRows.filter(function(r){return !r.goalId;});
+  var totalIn=mainAllRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
+  var totalOut=mainAllRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
+  var mRows=mainAllRows.filter(function(r){return r.date.slice(0,7)===month;});
   var mIn=mRows.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);
   var mOut=mRows.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);
   document.getElementById('s-total').textContent=fmt(mIn-mOut);
@@ -1014,7 +1035,10 @@ function renderSavings(){
   var footTotal=dispRows.reduce(function(s,r){return s+(r.type==='저축'?r.amount:-r.amount);},0);
   tbody.innerHTML=dispRows.map(function(r){
     var isPlus=r.type==='저축';
-    return '<tr><td>'+r.date.slice(5).replace('-','/')+'</td><td>'+r.desc+'</td><td><span class="tag tag-'+r.type+'">'+r.type+'</span></td><td style="text-align:right" class="'+(isPlus?'amt-plus':'amt-minus')+'">'+(isPlus?'+':'-')+fmt(r.amount)+'</td><td style="text-align:right" class="cum-val">'+fmt(cumMap[r.id])+'</td><td><button class="btn-del" onclick="delSaving('+r.id+')">✕</button></td></tr>';
+    var g=r.goalId?goalData.subGoals.find(function(x){return x.id===r.goalId;}):null;
+    var tagChip=g?' <span style="font-size:9px;background:#fde6ef;color:#e186ac;padding:1px 6px;border-radius:8px;font-weight:700">'+g.name+'</span>':'';
+    var cumDisp=cumMap[r.id]===null?'-':fmt(cumMap[r.id]);
+    return '<tr><td>'+r.date.slice(5).replace('-','/')+'</td><td>'+r.desc+tagChip+'</td><td><span class="tag tag-'+r.type+'">'+r.type+'</span></td><td style="text-align:right" class="'+(isPlus?'amt-plus':'amt-minus')+'">'+(isPlus?'+':'-')+fmt(r.amount)+'</td><td style="text-align:right" class="cum-val">'+cumDisp+'</td><td><button class="btn-del" onclick="delSaving('+r.id+')">✕</button></td></tr>';
   }).join('');
   document.getElementById('sav-foot').innerHTML='<span class="'+(footTotal>=0?'amt-plus':'amt-minus')+'">'+(footTotal>=0?'+':'-')+fmt(footTotal)+'</span>';
   // 저축 목표 체크
@@ -1022,6 +1046,9 @@ function renderSavings(){
   if(typeof renderGoalDisplay==='function') renderGoalDisplay();
   if(typeof renderLevelCard==='function') renderLevelCard();
   if(typeof renderGoalHistory==='function') renderGoalHistory();
+  if(typeof checkSubGoalsAchieved==='function') checkSubGoalsAchieved();
+  if(typeof renderSubGoals==='function') renderSubGoals();
+  if(typeof renderSavTagButtons==='function') renderSavTagButtons();
   if(typeof checkSavMilestone==='function') checkSavMilestone();
   if(typeof checkBadges==='function') checkBadges();
 }
@@ -1068,6 +1095,14 @@ function toggleFixed(){
   var arr=document.getElementById('fixed-arrow');
   if(box) box.style.display=fixedBoxOpen?'block':'none';
   if(arr) arr.textContent=fixedBoxOpen?'▲':'▼';
+}
+function toggleSection(boxId,arrowId){
+  var box=document.getElementById(boxId);
+  var arr=document.getElementById(arrowId);
+  if(!box) return;
+  var isOpen=box.style.display!=='none';
+  box.style.display=isOpen?'none':'block';
+  if(arr) arr.textContent=isOpen?'▼':'▲';
 }
 
 // ===== 결산 카드 예산 도넛 연동 =====
@@ -1245,13 +1280,14 @@ function renderEvLegend(){
 
 // ===== 저축 목표 =====
 var GOAL_KEY='savings_goal_v1';
-var goalData={current:null,history:[]};
+var goalData={current:null,history:[],subGoals:[]};
 var GOAL_CATS=['≽^𓏼︲˕︲𓏼^≼','ฅ^•ﻌ•^ฅ','ꉂ₍^› ꘍ ‹ ^₎⟆ ♪','ฅ ̳^_ ̫ _^ ̳ฅ','ฅ^･ㅅ･^ฅ','🜰^ᯣ⥿ᯣ^🜰','≽^-⩊-^≼','≽₍^_ ‸ _ ^₎≼⟆','ฅ^•ꈊ•^ฅو','/ᐠ˵- ⩊ -˵⑅マ','(^. ̫ .^♡)੭','ฅ/ᐠ🝦 ༝ 🝦 ฅ\\','^˶ ╸𖥦 ╸˵^₎⟆','/ᐠ ⚭ ˕ ⚭マ','ᯠ _ ̫ _ᯄ੭','(^>⩊<^)𑁤','⊹ . ݁˖ ^ ̳ᴗ ̫ ᴗ ̳^ྀི','₍˄ ₗ ̫ ₗ ˄₎੭','(^_ ̫ _^∩)','(=🝦 ༝ 🝦=)','≽/ᐠ _ ̫ _マ≼','( ⓛ ω ⓛ *)','( ^ⓛ ﻌ ⓛ^*)','≽(•⩊ •マ≼','₍^>𖥦<^₎','ଘ /ᐠ - ˕ -ྀིマっ','/ᐠ⨷˕⨷^-⟆','.₊̣̇.ಇ/ᐠˬ ͜ ˬ ᐟ\\∫.₊̣̇.'];
 var GOAL_FISH=['🐟','🐠','🐡','🦈','🐬','🐳','🐋','🦑','🦐','🦞'];
 function buildGoalCatRow(){var f=GOAL_FISH[Math.floor(Math.random()*GOAL_FISH.length)];return f+'  '+GOAL_CATS[Math.floor(Math.random()*GOAL_CATS.length)]+'  '+f;}
-function loadGoalData(){try{goalData=JSON.parse(localStorage.getItem(GOAL_KEY))||{current:null,history:[]};}catch(e){goalData={current:null,history:[]};} if(!goalData.history)goalData.history=[];}
+function loadGoalData(){try{goalData=JSON.parse(localStorage.getItem(GOAL_KEY))||{current:null,history:[],subGoals:[]};}catch(e){goalData={current:null,history:[],subGoals:[]};} if(!goalData.history)goalData.history=[]; if(!goalData.subGoals)goalData.subGoals=[];}
 function saveGoalData(){localStorage.setItem(GOAL_KEY,JSON.stringify(goalData));}
-function getTotalSavings(){var a=loadSav(),tIn=a.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0),tOut=a.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);return tIn-tOut;}
+function getTotalSavings(){var a=loadSav().filter(function(r){return !r.goalId;}),tIn=a.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0),tOut=a.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);return tIn-tOut;}
+function getSubGoalTotal(goalId){var a=loadSav().filter(function(r){return r.goalId===goalId;}),tIn=a.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0),tOut=a.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);return tIn-tOut;}
 function openGoalModal(){loadGoalData();document.getElementById('goal-amount-inp').value=goalData.current?goalData.current.amount:'';document.getElementById('goal-name-inp').value=goalData.current?goalData.current.name:'';document.getElementById('goal-modal').style.display='flex';}
 function closeGoalModal(){document.getElementById('goal-modal').style.display='none';}
 function saveGoal(){
@@ -1260,6 +1296,24 @@ function saveGoal(){
   goalData.current={amount:amt,name:name,setDate:new Date().toISOString().split('T')[0],achieved:false,achievedDate:null,catRow:null};
   saveGoalData();renderGoalDisplay();closeGoalModal();badge('exp-badge','목표 저장됨');
 }
+// ===== 축하 팝업 교통정리 (목표/서브목표/뱃지 팝업이 동시에 뜨지 않도록) =====
+var celebrationQueue=[];
+function isCelebrationModalOpen(){
+  return ['goal-achieved-popup','subgoal-achieved-popup','badge-popup'].some(function(id){
+    var el=document.getElementById(id);
+    return el&&el.style.display==='flex';
+  });
+}
+function enqueueCelebration(showFn){
+  if(isCelebrationModalOpen()) celebrationQueue.push(showFn);
+  else showFn();
+}
+function processCelebrationQueue(){
+  if(!celebrationQueue.length||isCelebrationModalOpen()) return;
+  var fn=celebrationQueue.shift();
+  fn();
+}
+
 function checkGoalAchieved(){
   loadGoalData();if(!goalData.current||goalData.current.achieved)return;
   var total=getTotalSavings();
@@ -1269,7 +1323,7 @@ function checkGoalAchieved(){
     goalData.current.achieved=true;goalData.current.achievedDate=today;goalData.current.catRow=catRow;
     goalData.history.unshift({name:goalData.current.name,amount:goalData.current.amount,setDate:goalData.current.setDate,achievedDate:today,catRow:catRow});
     saveGoalData();renderGoalDisplay();renderGoalHistory();
-    showGoalAchievedPopup(goalData.current.name,goalData.current.amount,today,catRow);
+    enqueueCelebration(function(){ showGoalAchievedPopup(goalData.current.name,goalData.current.amount,today,catRow); });
   }
 }
 function showGoalAchievedPopup(name,amount,date,catRow){
@@ -1280,8 +1334,12 @@ function showGoalAchievedPopup(name,amount,date,catRow){
   el.style.display='flex';
   launchGoalParticles();
 }
-function showSavedAchievedPopup(){loadGoalData();var g=goalData.current;if(!g||!g.achieved)return;showGoalAchievedPopup(g.name,g.amount,g.achievedDate,g.catRow||'🐟  ฅ^•ﻌ•^ฅ  🐟');}
-function showHistoryPopup(idx){loadGoalData();var h=goalData.history[idx];if(!h)return;showGoalAchievedPopup(h.name,h.amount,h.achievedDate,h.catRow||'🐟  ฅ^•ﻌ•^ฅ  🐟');}
+function showSavedAchievedPopup(){loadGoalData();var g=goalData.current;if(!g||!g.achieved)return;enqueueCelebration(function(){showGoalAchievedPopup(g.name,g.amount,g.achievedDate,g.catRow||'🐟  ฅ^•ﻌ•^ฅ  🐟');});}
+function showHistoryPopup(idx){
+  loadGoalData();var h=goalData.history[idx];if(!h)return;
+  if(h.isSub&&typeof showSubGoalAchievedPopup==='function') enqueueCelebration(function(){showSubGoalAchievedPopup(h.name,h.amount,h.achievedDate,h.catRow||'🐟  ฅ^•ﻌ•^ฅ  🐟',null);});
+  else enqueueCelebration(function(){showGoalAchievedPopup(h.name,h.amount,h.achievedDate,h.catRow||'🐟  ฅ^•ﻌ•^ฅ  🐟');});
+}
 function launchGoalParticles(){
   var cv=document.getElementById('goal-particle-canvas');if(!cv)return;
   cv.width=window.innerWidth;cv.height=window.innerHeight;
@@ -1296,6 +1354,7 @@ function launchGoalParticles(){
 function closeAchievedPopup(){
   document.getElementById('goal-achieved-popup').style.display='none';
   loadGoalData();goalData.current=null;saveGoalData();renderGoalDisplay();openGoalModal();
+  processCelebrationQueue();
 }
 function renderGoalDisplay(){
   loadGoalData();var el=document.getElementById('goal-display');if(!el)return;
@@ -1315,7 +1374,138 @@ function renderGoalHistory(){
   loadGoalData();var box=document.getElementById('goal-history-box');var list=document.getElementById('goal-history-list');if(!box||!list)return;
   if(goalData.history.length===0){box.style.display='none';return;}
   box.style.display='block';
-  list.innerHTML=goalData.history.map(function(h,i){return '<div onclick="showHistoryPopup('+i+')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer"><div><div style="font-size:12px;font-weight:600;color:#444">'+h.name+'</div><div style="font-size:11px;color:#aaa">'+h.setDate+' → '+h.achievedDate+'</div></div><div style="font-size:12px;font-weight:700;color:#8dbfb8">'+fmt(h.amount)+'</div></div>';}).join('');
+  list.innerHTML=goalData.history.map(function(h,i){
+    var subTag=h.isSub?'<span style="font-size:9px;background:#fde6ef;color:#e186ac;padding:1px 6px;border-radius:8px;margin-left:5px;font-weight:700">서브</span>':'';
+    return '<div onclick="showHistoryPopup('+i+')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer"><div><div style="font-size:12px;font-weight:600;color:#444">'+h.name+subTag+'</div><div style="font-size:11px;color:#aaa">'+h.setDate+' → '+h.achievedDate+'</div></div><div style="font-size:12px;font-weight:700;color:'+(h.isSub?'#e186ac':'#8dbfb8')+'">'+fmt(h.amount)+'</div></div>';
+  }).join('');
+}
+
+// ===== 서브 목표 (메인 목표와 별개로 여러 개 운용, 저축 입력 태그로 자금 분리) =====
+var selectedSavGoalId=null;
+var pendingSubGoalId=null;
+var pendingSubGoalAchievedId=null;
+var subGoalPopupQueue=[];
+
+function openSubGoalModal(){
+  document.getElementById('subgoal-amount-inp').value='';
+  document.getElementById('subgoal-name-inp').value='';
+  document.getElementById('subgoal-modal').style.display='flex';
+}
+function closeSubGoalModal(){document.getElementById('subgoal-modal').style.display='none';}
+function saveSubGoal(){
+  var amt=+document.getElementById('subgoal-amount-inp').value;
+  var name=document.getElementById('subgoal-name-inp').value.trim()||'서브 목표';
+  if(!amt||amt<=0){alert('목표 금액을 입력해주세요!');return;}
+  loadGoalData();
+  goalData.subGoals.push({id:Date.now(),name:name,amount:amt,achieved:false,achievedDate:null,createdDate:new Date().toISOString().split('T')[0]});
+  saveGoalData();renderSubGoals();if(typeof renderSavTagButtons==='function')renderSavTagButtons();closeSubGoalModal();
+}
+// ✕ 버튼이나 완료된 카드를 누르면 바로 삭제하지 않고, 삭제/유지를 물어보는 팝업을 띄움
+function deleteSubGoal(id){ openSubGoalDeletePrompt(id); }
+function openSubGoalDeletePrompt(id){
+  loadGoalData();
+  var g=goalData.subGoals.find(function(x){return x.id===id;});
+  if(!g) return;
+  pendingSubGoalId=id;
+  document.getElementById('subgoal-delete-title').textContent=g.name;
+  document.getElementById('subgoal-delete-popup').style.display='flex';
+}
+function keepSubGoal(){
+  document.getElementById('subgoal-delete-popup').style.display='none';
+  pendingSubGoalId=null;
+  renderSubGoals();
+  if(subGoalPopupQueue.length) showNextSubGoalPopup(); else processCelebrationQueue();
+}
+function reallyDeleteSubGoal(){
+  if(pendingSubGoalId==null) return;
+  loadGoalData();
+  goalData.subGoals=goalData.subGoals.filter(function(g){return g.id!==pendingSubGoalId;});
+  saveGoalData();
+  document.getElementById('subgoal-delete-popup').style.display='none';
+  pendingSubGoalId=null;
+  renderSubGoals(); if(typeof renderSavTagButtons==='function')renderSavTagButtons();
+  if(subGoalPopupQueue.length) showNextSubGoalPopup(); else processCelebrationQueue();
+}
+function checkSubGoalsAchieved(){
+  loadGoalData();
+  if(!goalData.subGoals||!goalData.subGoals.length) return;
+  var changed=false, newlyAchieved=[];
+  goalData.subGoals.forEach(function(g){
+    if(!g.achieved){
+      var subTotal=getSubGoalTotal(g.id);
+      if(subTotal>=g.amount){
+        var today=new Date().toISOString().split('T')[0];
+        var catRow=buildGoalCatRow();
+        g.achieved=true; g.achievedDate=today; g.catRow=catRow;
+        goalData.history.unshift({name:g.name,amount:g.amount,setDate:g.createdDate||today,achievedDate:today,catRow:catRow,isSub:true});
+        changed=true; newlyAchieved.push(g);
+      }
+    }
+  });
+  if(changed){
+    saveGoalData();
+    if(typeof renderGoalHistory==='function') renderGoalHistory();
+    subGoalPopupQueue=subGoalPopupQueue.concat(newlyAchieved.map(function(g){return{id:g.id,name:g.name,amount:g.amount,achievedDate:g.achievedDate,catRow:g.catRow};}));
+    showNextSubGoalPopup();
+  }
+}
+function showNextSubGoalPopup(){
+  if(!subGoalPopupQueue.length) return;
+  var g=subGoalPopupQueue.shift();
+  enqueueCelebration(function(){ showSubGoalAchievedPopup(g.name,g.amount,g.achievedDate,g.catRow,g.id); });
+}
+function showSubGoalAchievedPopup(name,amount,date,catRow,goalId){
+  var el=document.getElementById('subgoal-achieved-popup'); if(!el) return;
+  document.getElementById('subgoal-cat-row').textContent=catRow||buildGoalCatRow();
+  document.getElementById('subgoal-popup-desc').textContent='"'+name+'" '+fmt(amount)+'을 달성했어요!';
+  document.getElementById('subgoal-popup-date').textContent='달성일: '+date;
+  pendingSubGoalAchievedId=(goalId===undefined)?null:goalId;
+  el.style.display='flex';
+  if(typeof launchGoalParticles==='function') launchGoalParticles();
+}
+function onSubGoalAchievedConfirm(){
+  document.getElementById('subgoal-achieved-popup').style.display='none';
+  var gid=pendingSubGoalAchievedId; pendingSubGoalAchievedId=null;
+  if(gid!=null){ openSubGoalDeletePrompt(gid); }
+  else if(subGoalPopupQueue.length){ showNextSubGoalPopup(); }
+  else { processCelebrationQueue(); }
+}
+function renderSubGoals(){
+  loadGoalData();
+  var grid=document.getElementById('subgoal-grid'); if(!grid) return;
+  if(!goalData.subGoals||!goalData.subGoals.length){
+    grid.innerHTML='<div style="grid-column:1/3;font-size:11px;color:#ccc;text-align:center;padding:6px 0">서브 목표를 추가해보세요 (여행 자금, 비상금 등)</div>';
+    return;
+  }
+  grid.innerHTML=goalData.subGoals.map(function(g){
+    var subTotal=getSubGoalTotal(g.id);
+    var pct=Math.min(Math.round(subTotal/g.amount*100),100);
+    var bc=g.achieved?'#8dbfb8':(pct>=80?'#F3C98B':'#b7d8e0');
+    var wrapOpen=g.achieved
+      ?'<div onclick="openSubGoalDeletePrompt('+g.id+')" style="cursor:pointer;background:#fafcfc;border-radius:10px;padding:9px 10px;border:1px solid #eef3f4;position:relative">'
+      :'<div style="background:#fafcfc;border-radius:10px;padding:9px 10px;border:1px solid #eef3f4;position:relative">';
+    var delBtn=g.achieved?'':'<button onclick="event.stopPropagation();openSubGoalDeletePrompt('+g.id+')" style="position:absolute;top:3px;right:5px;background:none;border:none;color:#ccc;font-size:12px;cursor:pointer;padding:2px;line-height:1">✕</button>';
+    return wrapOpen
+      +delBtn
+      +'<div style="font-size:11px;font-weight:600;color:#667;margin-bottom:5px;padding-right:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(g.achieved?'✅ ':'')+g.name+'</div>'
+      +'<div style="height:5px;background:#eee;border-radius:3px;overflow:hidden;margin-bottom:4px"><div style="height:100%;width:'+pct+'%;background:'+bc+';border-radius:3px"></div></div>'
+      +'<div style="font-size:10px;color:#aaa;display:flex;justify-content:space-between"><span>'+pct+'%</span><span>'+fmt(g.amount)+'</span></div>'
+      +'</div>';
+  }).join('');
+}
+// 저축 입력칸 태그 버튼 — 고르지 않으면 기본 저축으로 들어감
+function renderSavTagButtons(){
+  loadGoalData();
+  var wrap=document.getElementById('sav-tag-row'); if(!wrap) return;
+  if(!goalData.subGoals||!goalData.subGoals.length){wrap.innerHTML='';return;}
+  wrap.innerHTML=goalData.subGoals.map(function(g){
+    var active=selectedSavGoalId===g.id;
+    return '<button type="button" onclick="toggleSavTag('+g.id+')" style="background:'+(active?'#eb9dc0':'#fff')+';color:'+(active?'#fff':'#e186ac')+';border:1.5px solid #f5c2d9;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">'+g.name+'</button>';
+  }).join('');
+}
+function toggleSavTag(id){
+  selectedSavGoalId=(selectedSavGoalId===id)?null:id;
+  renderSavTagButtons();
 }
 
 // ===== 가위바위보 =====
@@ -1372,9 +1562,14 @@ function rpsShowResult(player,cpu){
   btns.style.display='flex';rpsSaveHistory(result);
 }
 function rpsRetry(){document.getElementById('rps-ph').textContent='🐱';document.getElementById('rps-ch').textContent='🐻';document.getElementById('rps-msg').textContent='';document.getElementById('rps-sub').textContent='';document.getElementById('rps-btns').style.display='none';document.getElementById('rps-choices').style.display='flex';document.querySelectorAll('#rps-choices button').forEach(function(b){b.disabled=false;b.style.borderColor='#e0eef0';b.style.background='#f5f8f9';});}
-function rpsSave(type){rpsReset();}
+function rpsSave(type){
+  var list=JSON.parse(localStorage.getItem(RPS_KEY)||'[]');
+  if(list.length){ list[0].action=type; localStorage.setItem(RPS_KEY,JSON.stringify(list)); }
+  rpsReset();
+  if(typeof checkBadges==='function') checkBadges();
+}
 function rpsReset(){document.getElementById('rps-input').style.display='block';document.getElementById('rps-game').style.display='none';document.getElementById('rps-name').value='';document.getElementById('rps-price').value='';}
-function rpsSaveHistory(result){var list=JSON.parse(localStorage.getItem(RPS_KEY)||'[]');list.unshift({name:rpsItem,price:rpsPrice,result:result,date:new Date().toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})});if(list.length>20)list=list.slice(0,20);localStorage.setItem(RPS_KEY,JSON.stringify(list));rpsRenderHistory();}
+function rpsSaveHistory(result){var list=JSON.parse(localStorage.getItem(RPS_KEY)||'[]');list.unshift({name:rpsItem,price:rpsPrice,result:result,date:new Date().toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})});if(list.length>20)list=list.slice(0,20);localStorage.setItem(RPS_KEY,JSON.stringify(list));rpsRenderHistory();if(typeof checkBadges==='function') checkBadges();}
 function rpsRenderHistory(){var list=JSON.parse(localStorage.getItem(RPS_KEY)||'[]');var el=document.getElementById('rps-history');if(!el)return;if(list.length===0){el.innerHTML='<div style="font-size:12px;color:#ccc;text-align:center;padding:10px">아직 기록이 없어요</div>';return;}el.innerHTML=list.map(function(h){var r=h.result==='win'||h.result==='win_skip'?'win':h.result==='lose'?'lose':'draw';var label=r==='win'?'이김 🎉':r==='lose'?'짐 😢':'비김 🤝';var col=r==='win'?'#F06B8A':r==='lose'?'#aaa':'#F3C98B';return '<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:12px"><span style="flex:1;color:#444">'+h.name+'</span><span style="color:#F06B8A;font-weight:600;margin:0 8px">'+h.price.toLocaleString('ja-JP')+'엔</span><span style="font-weight:700;color:'+col+'">'+label+'</span><span style="font-size:10px;color:#ddd;margin-left:4px">'+h.date+'</span></div>';}).join('');}
 function rpsToggleHistory(){var wrap=document.getElementById('rps-history-wrap');var arrow=document.getElementById('rps-history-arrow');if(!wrap)return;var open=wrap.style.display==='block';wrap.style.display=open?'none':'block';if(arrow)arrow.textContent=open?'▼':'▲';if(!open)rpsRenderHistory();}
 function rpsClearHistory(){if(!confirm('이력을 전부 삭제할까요?'))return;localStorage.removeItem(RPS_KEY);rpsRenderHistory();}
@@ -1571,11 +1766,26 @@ function lvSelectStage(si){
 
 // ===== 업적 뱃지 =====
 function getYM(){return gYear+'-'+String(gMonth).padStart(2,'0');}
+function getMonthTotalExp(ym){return loadExp().filter(function(r){return r.date&&r.date.startsWith(ym);}).reduce(function(s,r){return s+r.amount;},0);}
+function prevYM(ym){var p=ym.split('-');var y=+p[0],m=+p[1]-1;if(m<1){m=12;y--;}return y+'-'+String(m).padStart(2,'0');}
+function getExpenseStreakDays(){
+  var dateSet={};
+  loadExp().forEach(function(r){if(r.date) dateSet[r.date]=true;});
+  function fmt(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
+  var today=new Date(); today.setHours(0,0,0,0);
+  var start=new Date(today);
+  if(!dateSet[fmt(start)]) start.setDate(start.getDate()-1); // 오늘 아직 기록 전이면 어제부터 확인
+  if(!dateSet[fmt(start)]) return 0;
+  var streak=0,d=new Date(start);
+  while(dateSet[fmt(d)]){ streak++; d.setDate(d.getDate()-1); }
+  return streak;
+}
 
 var ALL_BADGES=[
   {icon:'🎯',label:'첫 걸음',   desc:'처음으로 가계부를 입력했어요! 💪', cls:'b-green', check:function(){return loadExp().length>0||loadSav().length>0;}},
   {icon:'🌱',label:'저축 시작', desc:'처음으로 저축을 입력했어요! 🌱',   cls:'b-green', check:function(){return loadSav().filter(function(r){return r.type==='저축';}).length>0;}},
   {icon:'💰',label:'10만엔',    desc:'누적 저축 10만엔 달성!',            cls:'b-yellow',check:function(){return getTotalSavings()>=100000;}},
+  {icon:'💵',label:'50만엔',    desc:'누적 저축 50만엔 달성!',            cls:'b-yellow',check:function(){return getTotalSavings()>=500000;}},
   {icon:'💎',label:'100만엔',   desc:'누적 저축 100만엔 달성! 🎊',        cls:'b-blue',  check:function(){return getTotalSavings()>=1000000;}},
   {icon:'🏅',label:'예산 달성', desc:'이번달 예산 내로 마감했어요!',       cls:'b-yellow',check:function(){
     var rows=loadExp(); if(!rows.length) return false;
@@ -1587,10 +1797,52 @@ var ALL_BADGES=[
   {icon:'🌸',label:'꽃 클리어', desc:'꽃 스테이지를 완료했어요! 🌸',      cls:'b-pink',  check:function(){return getTotalSavings()>=5000000;}},
   {icon:'🌈',label:'하늘 클리어',desc:'하늘 스테이지를 완료했어요! 🌈',   cls:'b-blue',  check:function(){return getTotalSavings()>=10000000;}},
   {icon:'🐋',label:'바다 클리어',desc:'바다 스테이지를 완료했어요! 🐋',   cls:'b-teal',  check:function(){return getTotalSavings()>=15000000;}},
-  {icon:'⚡',label:'깜짝 절약', desc:'이번달 예산의 70% 이하로 썼어요!',  cls:'b-purple',check:function(){return false;}},
-  {icon:'🎰',label:'가위바위보',desc:'가위바위보 5번 이겼어요!',           cls:'b-red',   check:function(){return (+(localStorage.getItem('rps_wins')||0))>=5;}},
-  {icon:'🏆',label:'전설',      desc:'모든 뱃지 달성! 전설의 절약왕!',    cls:'b-gold',  check:function(){return false;}},
+  {icon:'⚡',label:'깜짝 절약', desc:'이번달 예산의 70% 이하로 썼어요!',  cls:'b-purple',check:function(){
+    var rows=loadExp(); if(!rows.length) return false;
+    var ym=getYM(); var total=rows.filter(function(r){return r.date&&r.date.startsWith(ym);}).reduce(function(s,r){return s+r.amount;},0);
+    var budget=0; VAR_CATS.forEach(function(cat){var el=document.getElementById('b-'+cat);if(el)budget+=(+el.value||0);});
+    return budget>0&&total<=budget*0.7;
+  }},
+  {icon:'🎰',label:'가위바위보',desc:'가위바위보 5번 이겼어요!',           cls:'b-red',   check:function(){
+    var list=JSON.parse(localStorage.getItem(RPS_KEY)||'[]');
+    return list.filter(function(h){return h.result==='win';}).length>=5;
+  }},
+  {icon:'🔥',label:'7일 연속',   desc:'7일 연속 가계부를 입력했어요!',      cls:'b-red',   check:function(){return getExpenseStreakDays()>=7;}},
+  {icon:'🔥',label:'30일 연속',  desc:'30일 연속 가계부를 입력했어요! 대단해요!', cls:'b-purple',check:function(){return getExpenseStreakDays()>=30;}},
+  {icon:'📆',label:'이번달 개근',desc:'이번달 20일 이상 지출을 기록했어요!', cls:'b-blue',  check:function(){
+    var ym=getYM(); var days={};
+    loadExp().forEach(function(r){if(r.date&&r.date.startsWith(ym))days[r.date]=true;});
+    return Object.keys(days).length>=20;
+  }},
+  {icon:'🎨',label:'카테고리 마스터',desc:'8개 지출 카테고리를 모두 사용해봤어요!',cls:'b-pink',check:function(){
+    var used={};
+    loadExp().forEach(function(r){if(r.cat) used[r.cat]=true;});
+    return VAR_CATS.every(function(c){return used[c];});
+  }},
+  {icon:'📌',label:'첫 반복일정',desc:'반복일정을 처음 등록했어요!',        cls:'b-teal',  check:function(){ loadCalEvents2(); return calEvArr.length>0; }},
+  {icon:'🎯',label:'첫 목표 달성',desc:'저축 목표를 처음으로 달성했어요!',  cls:'b-yellow',check:function(){ loadGoalData(); return goalData.history.length>=1; }},
+  {icon:'🎖',label:'목표 3회 달성',desc:'저축 목표를 3번 달성했어요!',      cls:'b-gold',  check:function(){ loadGoalData(); return goalData.history.length>=3; }},
+  {icon:'📉',label:'절약왕',     desc:'지난달 대비 지출을 20% 이상 줄였어요!',cls:'b-green', check:function(){
+    var ym=getYM(); var prev=getMonthTotalExp(prevYM(ym)); var cur=getMonthTotalExp(ym);
+    return prev>0&&cur<=prev*0.8;
+  }},
+  {icon:'🏦',label:'저축 10회',  desc:'저축을 10번 기록했어요!',           cls:'b-teal',  check:function(){ return loadSav().filter(function(r){return r.type==='저축';}).length>=10; }},
+  {icon:'📝',label:'지출 50회',  desc:'지출을 50번 기록했어요!',           cls:'b-blue',  check:function(){ return loadExp().length>=50; }},
+  {icon:'💯',label:'지출 100회', desc:'지출을 100번 기록했어요! 기록왕!',   cls:'b-purple',check:function(){ return loadExp().length>=100; }},
+  {icon:'🕹',label:'살까말까 첫판',desc:'가위바위보 게임을 처음 해봤어요!', cls:'b-red',   check:function(){ return JSON.parse(localStorage.getItem(RPS_KEY)||'[]').length>=1; }},
+  {icon:'🙅',label:'인내심',     desc:'살까말까에서 3번 참았어요! 짠테크 최고!',cls:'b-green',check:function(){
+    var list=JSON.parse(localStorage.getItem(RPS_KEY)||'[]');
+    return list.filter(function(h){return h.result==='win'&&h.action==='win_skip';}).length>=3;
+  }},
+  {icon:'📋',label:'예산 완성',  desc:'이번달 예산을 카테고리별로 다 설정했어요!',cls:'b-blue',check:function(){
+    return VAR_CATS.every(function(cat){var el=document.getElementById('b-'+cat);return el&&(+el.value||0)>0;});
+  }},
+  {icon:'🔍',label:'연간결산 확인',desc:'연간결산 탭을 확인해봤어요!',      cls:'b-teal',  check:function(){ return localStorage.getItem('visited_annual')==='1'; }},
+  {icon:'🏆',label:'전설',      desc:'모든 뱃지 달성! 전설의 절약왕!',    cls:'b-gold',  check:function(){
+    return ALL_BADGES.filter(function(b){return b.label!=='전설';}).every(function(b){return b.check?b.check():false;});
+  }},
 ];
+
 
 var BADGE_CSS='.b-green{background:linear-gradient(135deg,#d4f0d4,#a8d8a8)}.b-blue{background:linear-gradient(135deg,#c8e8ff,#90c8f0)}.b-purple{background:linear-gradient(135deg,#e0d0ff,#b890f0)}.b-yellow{background:linear-gradient(135deg,#fff3cc,#ffe060)}.b-pink{background:linear-gradient(135deg,#fde2e4,#ffb3c1)}.b-red{background:linear-gradient(135deg,#ffd0d0,#f09090)}.b-teal{background:linear-gradient(135deg,#c8f0f0,#80d8d8)}.b-gold{background:linear-gradient(135deg,#fff3b0,#ffd040)}.b-space{background:linear-gradient(135deg,#1a1a3e,#3a2a6e)}';
 
@@ -1612,23 +1864,26 @@ function renderBadges(){
   var shownKey='badges_shown';
   var shown=JSON.parse(localStorage.getItem(shownKey)||'[]');
   var newShown=[];
+  var unlockedCount=0;
   area.innerHTML=ALL_BADGES.map(function(b){
     var unlocked=b.check?b.check():false;
     var isNew=unlocked&&shown.indexOf(b.label)===-1;
-    if(unlocked) newShown.push(b.label);
-    return '<div class="bdg" onclick="showBadgePopup(\''+b.label+'\')"><div class="bdg-icon '+(unlocked?'unlocked ':'')+b.cls+'">'
+    if(unlocked){ newShown.push(b.label); unlockedCount++; }
+    return '<div class="bdg" onclick="showBadgePopup(\''+b.label+'\')"><div class="bdg-icon '+(unlocked?'unlocked ':'locked ')+b.cls+'">'
       +b.icon+(isNew?'<span class="new-tag">NEW</span>':'')
       +'</div><div class="bdg-label'+(unlocked?' unlocked':'')+'">'+b.label+'</div></div>';
   }).join('');
   localStorage.setItem(shownKey,JSON.stringify(newShown));
+  var total=ALL_BADGES.length;
+  var pEl=document.getElementById('badge-progress'); if(pEl) pEl.textContent=unlockedCount+'/'+total+' 획득';
+  var pBar=document.getElementById('badge-progress-bar'); if(pBar) pBar.style.width=(total?Math.round(unlockedCount/total*100):0)+'%';
 }
 
 function showBadgePopup(name){
   var b=ALL_BADGES.find(function(x){return x.label===name;});
   if(!b) return;
   var unlocked=b.check?b.check():false;
-  // 저축 탭 푸시 배너 재활용
-  showSavPush(unlocked?b.icon:'🔒', unlocked?b.label:'미획득', unlocked?b.desc:'아직 획득하지 못한 뱃지예요');
+  enqueueCelebration(function(){ showBadgeModal(unlocked?b.icon:'🔒', unlocked?b.label:'미획득', unlocked?b.desc:'아직 획득하지 못한 뱃지예요', '확인'); });
 }
 
 // 새로 달성한 뱃지를 감지해서 팝업으로 알려줌
@@ -1660,11 +1915,26 @@ function checkBadges(){
 function showNextBadgePopup(){
   if(!badgePopupQueue.length) return;
   var b=badgePopupQueue.shift();
-  showSavPush(b.icon, '🎉 '+b.label+' 뱃지 획득!', b.desc);
-  if(badgePopupQueue.length) setTimeout(showNextBadgePopup,5200);
+  enqueueCelebration(function(){ showBadgeModal(b.icon, b.label, b.desc, '계속 모으기!'); });
+}
+
+function showBadgeModal(icon,title,desc,btnLabel){
+  var el=document.getElementById('badge-popup');
+  if(!el) return;
+  document.getElementById('bp-icon').textContent=icon;
+  document.getElementById('bp-title').textContent=title;
+  document.getElementById('bp-desc').textContent=desc;
+  document.getElementById('bp-btn').textContent=btnLabel||'확인';
+  el.style.display='flex';
+}
+function closeBadgeModal(){
+  var el=document.getElementById('badge-popup');
+  if(el) el.style.display='none';
+  if(badgePopupQueue.length) showNextBadgePopup(); else processCelebrationQueue();
 }
 
 </script>
+
 
 <!-- ===== 모달들 ===== -->
 <canvas id="goal-particle-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9998"></canvas>
@@ -1704,6 +1974,39 @@ function showNextBadgePopup(){
   </div>
 </div>
 
+<div id="subgoal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:20px;max-width:340px;width:100%;box-sizing:border-box">
+    <h3 style="font-size:15px;margin-bottom:6px;color:#333">➕ 서브 목표 추가</h3>
+    <p style="font-size:11px;color:#aaa;margin-bottom:16px;line-height:1.6">메인 목표와 별개로 여러 개 굴릴 수 있어요 (여행 자금, 비상금 등)</p>
+    <div style="margin-bottom:14px"><div style="font-size:11px;color:#888;margin-bottom:4px">목표 금액 (엔)</div><input type="number" id="subgoal-amount-inp" placeholder="예: 200000" style="width:100%;border:1.5px solid #d8edf0;border-radius:8px;padding:10px;font-size:16px;font-weight:700;outline:none;color:#4a8fa0;font-family:inherit;box-sizing:border-box"></div>
+    <div style="margin-bottom:16px"><div style="font-size:11px;color:#888;margin-bottom:4px">목표 이름</div><input type="text" id="subgoal-name-inp" placeholder="예: 여행 자금" style="width:100%;border:1.5px solid #d8edf0;border-radius:8px;padding:8px;font-size:13px;outline:none;font-family:inherit;box-sizing:border-box"></div>
+    <button onclick="saveSubGoal()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:inherit">저장</button>
+    <button onclick="closeSubGoalModal()" style="width:100%;background:none;border:1.5px solid #ddd;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">취소</button>
+  </div>
+</div>
+
+<div id="subgoal-achieved-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:28px 22px;max-width:320px;width:100%;text-align:center;box-sizing:border-box">
+    <div id="subgoal-cat-row" style="font-size:17px;letter-spacing:1px;margin-bottom:14px;line-height:1.8">🐟  ฅ^•ﻌ•^ฅ  🐟</div>
+    <h3 style="font-size:17px;font-weight:700;color:#e186ac;margin-bottom:8px">서브 목표를 달성했습니다!</h3>
+    <p style="font-size:13px;color:#888;line-height:1.6;margin-bottom:4px" id="subgoal-popup-desc"></p>
+    <p style="font-size:12px;color:#aaa;margin-bottom:20px" id="subgoal-popup-date"></p>
+    <div style="height:1px;background:#f0f0f0;margin-bottom:16px"></div>
+    <button onclick="onSubGoalAchievedConfirm()" style="width:100%;background:#eb9dc0;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">확인</button>
+  </div>
+</div>
+
+<div id="subgoal-delete-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;padding:26px 22px;max-width:300px;width:100%;text-align:center;box-sizing:border-box">
+    <h3 style="font-size:16px;font-weight:700;color:#333;margin-bottom:8px" id="subgoal-delete-title"></h3>
+    <p style="font-size:13px;color:#888;margin-bottom:20px">서브 목표를 삭제할까요?</p>
+    <div style="display:flex;gap:8px">
+      <button onclick="keepSubGoal()" style="flex:1;background:none;border:1.5px solid #ddd;color:#888;border-radius:10px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">그대로 두기</button>
+      <button onclick="reallyDeleteSubGoal()" style="flex:1;background:#F06B8A;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">삭제하기</button>
+    </div>
+  </div>
+</div>
+
 <div id="goal-achieved-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:28px 22px;max-width:320px;width:100%;text-align:center;box-sizing:border-box">
     <div id="cat-row-display" style="font-size:17px;letter-spacing:1px;margin-bottom:14px;line-height:1.8">🐟  ฅ^•ﻌ•^ฅ  🐟</div>
@@ -1715,6 +2018,16 @@ function showNextBadgePopup(){
     <button onclick="document.getElementById('goal-achieved-popup').style.display='none'" style="width:100%;background:none;border:1.5px solid #ddd;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">닫기</button>
   </div>
 </div>
+
+<div id="badge-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:32px 24px 24px;max-width:300px;width:100%;text-align:center;box-sizing:border-box">
+    <span id="bp-icon" style="font-size:56px;display:block;margin-bottom:12px;line-height:1">🏅</span>
+    <h3 id="bp-title" style="font-size:19px;font-weight:800;color:#333;margin-bottom:8px"></h3>
+    <p id="bp-desc" style="font-size:13px;color:#888;line-height:1.6;margin-bottom:22px"></p>
+    <button id="bp-btn" onclick="closeBadgeModal()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">확인</button>
+  </div>
+</div>
+
 
 <div id="spending-type-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:26px 22px;max-width:320px;width:100%;text-align:center;box-sizing:border-box;max-height:85vh;overflow-y:auto">
