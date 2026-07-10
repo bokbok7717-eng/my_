@@ -172,6 +172,9 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 .annual-table td{padding:7px 6px;border-bottom:1px solid #eee;text-align:right}
 .annual-table td:first-child{text-align:center;font-weight:600;color:#555}
 .annual-table tr:hover td{background:#f9f8ff}
+.tot-card{flex:1;border-radius:10px;padding:14px;text-align:center}
+.tl{font-size:12px;color:rgba(255,255,255,.8);margin-bottom:4px}
+.tv{font-size:18px;font-weight:700;color:#fff}
 .annual-chart-wrap{height:220px;position:relative;margin-bottom:16px}
 .annual-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 
@@ -199,7 +202,8 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   .donut-wrap{
     grid-template-columns: 1fr;
   }
-  .chart-wrap{ height: 180px; }
+  .chart-wrap{ height: 200px; }
+  .donut-wrap>div:last-child{ margin-top: 8px; }
 
   /* 생활비 슬라이더 */
   .sl-combo{
@@ -290,6 +294,164 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 #level-card .lv-sdot-icon{font-size:16px;transition:all .3s}
 #level-card .lv-sdot-label{font-size:8px;font-weight:600;opacity:.5}
 #level-card .lv-sdot-label.cur{opacity:1}
+
+/* ===== 다크모드 ===== */
+body.dark{background:#1a1a1a;color:#e8e8e8}
+body.dark .top-bar{background:#4a8a96}
+body.dark .tab-bar{background:#242424;border-top-color:#333}
+body.dark .tab-btn{color:#666}
+body.dark .tab-btn.active{color:#7fb5c1}
+body.dark .section-box,body.dark .card,body.dark .bud-item,body.dark .sum-card,body.dark .sav-card{background:#2a2a2a;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+body.dark .sum-card .cn{color:#aaa}
+body.dark .sum-card .sr span:first-child{color:#666}
+body.dark .sum-card .sr span:last-child{color:#ddd}
+body.dark .sum-card .sd{border-top-color:#3a3a3a}
+body.dark .sum-card input[type=number]{background:#333!important;border-color:#444!important;color:#7fb5c1!important}
+body.dark .sum-card [style*="background:#eee"]{background:#333!important}
+body.dark .sum-card [style*="border:1px solid #eef6f8"]{border-color:#2a4a50!important}
+body.dark .cal-day{background:#2a2a2a;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+body.dark .cal-day:hover{background:#333}
+body.dark .cal-day.empty{background:transparent}
+body.dark .cal-day.selected{background:#7fb5c1!important}
+body.dark .detail-panel{background:#232323}
+body.dark .detail-row{border-bottom-color:#333}
+body.dark .memo-row{color:#888;border-bottom-color:#333}
+body.dark .input-item input,body.dark .form-row input,body.dark .form-row select,body.dark .bud-item input,body.dark .sl-combo .sl-num,body.dark .sav-combo .sl-num,body.dark .f-memo-inp{background:#2a2a2a;border-color:#3a3a3a;color:#e8e8e8}
+body.dark .input-item input:focus,body.dark .form-row input:focus,body.dark .form-row select:focus,body.dark .bud-item input:focus{border-color:#7fb5c1}
+body.dark .f-memo-inp{background:#232323}
+body.dark h2{color:#aaa}
+body.dark .lbl,body.dark .card .lbl{color:#888}
+body.dark .divider{border-top-color:#333}
+body.dark .left-over{border-top-color:#333}
+body.dark #leg{color:#aaa}
+body.dark .tag-고정,body.dark .tag-저축{background:#1e3a40;color:#7fb5c1}
+body.dark .tag-지출{background:#3a1e1e;color:#f06b8a}
+body.dark .cum-val{color:#7fb5c1}
+body.dark .empty{color:#666}
+body.dark thead tr{background:#1e1e1e!important}
+body.dark th{background:#1e1e1e;color:#888;border-bottom:1px solid #333}
+body.dark tbody tr:hover{background:#2f2f2f}
+body.dark tfoot tr{background:#1e1e1e!important}
+body.dark tfoot td{color:#aaa!important}
+body.dark .filter-row select{background:#2a2a2a!important;border-color:#3a3a3a!important;color:#e8e8e8!important}
+body.dark .tag-교통비{background:#1e2d40;color:#6aabff}
+body.dark .tag-식비{background:#1e3030;color:#8dbfb8}
+body.dark .tag-생필품{background:#302a1a;color:#f3c98b}
+body.dark .tag-비상금{background:#3a1e1e;color:#f06b8a}
+body.dark .tag-문화여가{background:#32203a;color:#d4537e}
+body.dark .tag-기타{background:#2a2a2a;color:#aaa}
+body.dark .tag-미용{background:#2a1e3a;color:#b47aff}
+body.dark .tag-의류잡화{background:#3a1e2e;color:#f472b6}
+body.dark .annual-card,body.dark .annual-bar-bg{background:#2a2a2a}
+body.dark .annual-table th{background:#3a7a88}
+body.dark .annual-table td{border-bottom-color:#333;color:#ddd}
+body.dark .annual-table td:first-child{color:#aaa}
+body.dark .annual-table tr:hover td{background:#2f2f2f!important}
+body.dark .annual-bar-bg{background:#333}
+body.dark input[type=number]::-webkit-inner-spin-button{filter:invert(.5)}
+body.dark select option{background:#2a2a2a;color:#e8e8e8}
+body.dark #cycle-bar{background:#2a2a2a;border-color:#3a3a3a}
+body.dark .rps-modal-inner,body.dark .modal-inner{background:#2a2a2a;color:#e8e8e8}
+body.dark .modal-inner input,body.dark .modal-inner select{background:#333;border-color:#444;color:#e8e8e8}
+body.dark .ev-item{background:#2a2a2a;border-color:#3a3a3a}
+body.dark .sav-record-row{border-bottom-color:#333}
+body.dark .sav-total-row{border-top-color:#444}
+body.dark .badge-item{background:#2a2a2a}
+body.dark .badge-item.locked{opacity:.4}
+body.dark .card[style*="background:#eef6f8"]{background:#1e3a40!important}
+body.dark .card[style*="background:#e6f7f2"]{background:#1e3030!important}
+body.dark [style*="background:#eef6f8"]{background:#1e3a40!important}
+body.dark [style*="background:#e6f7f2"]{background:#1a3030!important}
+body.dark [style*="background:#f9f8ff"]{background:#23232e!important}
+body.dark [style*="background:#f0f7f0"]{background:#1e2e1e!important}
+body.dark [style*="background:#fff"]{background:#2a2a2a!important;color:#e8e8e8}
+body.dark [style*="color:#444"]{color:#ddd!important}
+body.dark [style*="color:#555"]{color:#ccc!important}
+body.dark [style*="color:#888"]{color:#888!important}
+body.dark [style*="color:#aaa"]{color:#777!important}
+body.dark [style*="border-bottom:1px solid #f0f0f0"]{border-bottom-color:#333!important}
+body.dark [style*="border:1px solid #eef6f8"]{border-color:#2a4a50!important}
+body.dark [style*="background:#f5f5f5"]{background:#252525!important}
+body.dark [style*="border:1px solid #e8e8e8"]{border-color:#3a3a3a!important}
+body.dark #dark-sch-modal{background:#2a2a2a!important;color:#e8e8e8!important}
+body.dark #dark-sch-modal input[type=time]{background:#333!important;border-color:#444!important;color:#e8e8e8!important}
+body.dark #dark-sch-modal [style*="color:#555"]{color:#e8e8e8!important}
+body.dark #dark-sch-modal [style*="color:#888"]{color:#aaa!important}
+body.dark #dark-sch-modal [style*="background:#eee"]{background:#3a3a3a!important;color:#aaa!important}
+body.dark #dark-sch-modal [style*="color:#7fb5c1"]{color:#7fb5c1!important}
+
+/* ===== 저축 탭 다크모드 ===== */
+/* 레벨 카드 */
+body.dark #level-card{background:#1e2a1e!important;border-color:#2a3a2a!important}
+body.dark .lv-bar-wrap{background:#2a3a2a!important}
+body.dark .lv-name{color:#c8e6c8!important}
+body.dark .lv-stage{color:#8ab88a!important}
+body.dark .lv-sub{color:#7a9a7a!important}
+body.dark .lv-cur,body.dark .lv-max{color:#8ab88a!important}
+body.dark .lv-step-label{color:#7a9a7a!important}
+
+/* 저축 현황 카드 */
+body.dark #tab-savings .card{background:#1e3030!important;border-color:#2a4040!important}
+
+/* 저축 목표 박스 */
+body.dark #goal-box{background:#2a2a2a!important;border-color:#3a3a3a!important}
+body.dark #goal-box [style*="color:#4a8fa0"]{color:#7fb5c1!important}
+body.dark #goal-box [style*="background:#eee"]{background:#333!important}
+body.dark #goal-box [style*="color:#aaa"]{color:#666!important}
+body.dark #goal-box [style*="color:#bbb"]{color:#666!important}
+body.dark #goal-box [style*="color:#444"]{color:#ddd!important}
+body.dark #goal-display [style*="color:#444"]{color:#ddd!important}
+body.dark #goal-display [style*="background:#eee"]{background:#333!important}
+
+/* 서브 목표 */
+body.dark #subgoal-box [style*="color:#9aa"]{color:#888!important}
+body.dark #subgoal-box [style*="border:1px solid #d8edf0"]{border-color:#3a3a3a!important}
+body.dark #subgoal-grid>div{background:#2a2a2a!important;border-color:#3a3a3a!important}
+body.dark #subgoal-grid [style*="color:#444"]{color:#ddd!important}
+body.dark #subgoal-grid [style*="color:#aaa"]{color:#666!important}
+body.dark #subgoal-grid [style*="background:#eee"]{background:#3a3a3a!important}
+
+/* 달성 이력 박스 */
+body.dark #goal-history-box{background:#2a2a2a!important;border-color:#3a3a3a!important}
+body.dark #goal-history-box [style*="color:#4a8fa0"]{color:#7fb5c1!important}
+body.dark #goal-history-box [style*="color:#aaa"]{color:#666!important}
+body.dark #goal-history-list [style*="border-bottom:1px solid #f0f0f0"]{border-bottom-color:#333!important}
+body.dark #goal-history-list [style*="color:#444"]{color:#ddd!important}
+body.dark #goal-history-list [style*="color:#aaa"]{color:#777!important}
+
+/* 저축 기록 테이블 */
+body.dark .table-wrap{background:#2a2a2a!important}
+body.dark table{background:#2a2a2a;color:#e8e8e8}
+body.dark thead tr{background:#232323!important}
+body.dark th{color:#aaa!important;border-bottom-color:#3a3a3a!important}
+body.dark td{border-bottom-color:#333!important;color:#ddd}
+body.dark tfoot tr{background:#232323!important}
+body.dark tfoot [style*="color:#555"]{color:#aaa!important}
+body.dark .filter-row{background:transparent}
+body.dark .filter-row select{background:#2a2a2a;border-color:#3a3a3a;color:#e8e8e8}
+body.dark .filter-row label{color:#aaa!important}
+body.dark .btn-reset{background:#3a2a2a!important;border-color:#5a3a3a!important;color:#f06b8a!important}
+
+/* 구분 태그 (저축/지출 뱃지) */
+body.dark .tag-저축-badge,body.dark [style*="background:#d4f0e8"]{background:#1e3530!important;color:#8dbfb8!important}
+body.dark [style*="background:#fde8ef"]{background:#3a1e28!important;color:#f06b8a!important}
+
+/* 합계 행 */
+body.dark #sav-foot{color:#8dbfb8!important}
+body.dark [style*="background:#fafafa"]{background:#232323!important}
+body.dark #cycle-bar{background:#2a2a2a!important;border-color:#3a3a3a!important}
+body.dark #cycle-range-bar{background:#1e3a40!important}
+
+/* ===== 설정 드로어 ===== */
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:13px;color:#444;cursor:pointer;border-bottom:1px solid #f0f0f0}
+.settings-item:hover{background:#f7f7f5}
+.settings-arr{color:#bbb;font-size:16px}
+body.dark #settings-drawer{background:#2a2a2a!important;color:#e8e8e8!important}
+body.dark #settings-drawer>div:first-child{border-bottom-color:#3a3a3a!important;color:#e8e8e8!important}
+body.dark #settings-drawer>div:first-child button{color:#aaa!important}
+body.dark .settings-item{color:#e8e8e8!important;border-bottom-color:#3a3a3a}
+body.dark .settings-item:hover{background:#333}
+body.dark .settings-arr{color:#666!important}
 </style>
 </head>
 <body>
@@ -303,8 +465,58 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
   <span class="sep">월</span>
   <button onclick="openBackupModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit">💾</button>
   <button class="btn-annual" onclick="openRpsModal()" style="margin-left:auto" title="살까말까">🐱</button>
-  <button class="btn-annual" id="btn-badges" onclick="switchTab('badges',this)" title="업적 뱃지">🏅</button>
-  <button class="btn-annual" id="btn-annual" onclick="switchTab('annual',this)">📈 결산</button>
+  <button class="btn-annual" id="dark-btn" onclick="toggleDark()" title="다크모드">🌙</button>
+  <button class="btn-annual" onclick="openSettingsDrawer()" title="설정">⚙️</button>
+</div>
+
+<!-- 설정 팝업 -->
+<div id="settings-overlay" onclick="closeSettingsDrawer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000"></div>
+<div id="settings-drawer" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:280px;background:#fff;border-radius:16px;z-index:1001;box-shadow:0 8px 32px rgba(0,0,0,.2);overflow:hidden;transition:background .2s">
+  <div style="padding:16px 20px;border-bottom:1px solid #eee;font-size:15px;font-weight:700;color:#555;display:flex;align-items:center;justify-content:space-between">
+    <span>⚙️ 설정</span>
+    <button onclick="closeSettingsDrawer()" style="background:none;border:none;font-size:18px;color:#bbb;cursor:pointer;line-height:1">✕</button>
+  </div>
+  <div class="settings-item" onclick="switchTab('annual',null);closeSettingsDrawer()">
+    <span>📈 결산</span><span class="settings-arr">›</span>
+  </div>
+  <div class="settings-item" onclick="openBackupModal();closeSettingsDrawer()">
+    <span>💾 백업 / 복원</span><span class="settings-arr">›</span>
+  </div>
+  <div class="settings-item" onclick="switchTab('badges',document.querySelector('[onclick*="badges"]'));closeSettingsDrawer()">
+    <span>🏅 뱃지</span><span class="settings-arr">›</span>
+  </div>
+  <div class="settings-item" onclick="openDarkScheduleModal();closeSettingsDrawer()">
+    <span>🌙 다크모드 시간 설정</span><span class="settings-arr">›</span>
+  </div>
+</div>
+
+<!-- 다크모드 시간 설정 모달 -->
+<div id="dark-sch-overlay" onclick="closeDarkScheduleModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1002"></div>
+<div id="dark-sch-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:280px;background:#fff;border-radius:16px;z-index:1003;box-shadow:0 8px 32px rgba(0,0,0,.2);overflow:hidden;transition:background .2s">
+  <div style="padding:16px 20px;border-bottom:1px solid #eee;font-size:15px;font-weight:700;color:#555;display:flex;align-items:center;justify-content:space-between">
+    <span>🌙 다크모드 시간 설정</span>
+    <button onclick="closeDarkScheduleModal()" style="background:none;border:none;font-size:18px;color:#bbb;cursor:pointer">✕</button>
+  </div>
+  <div style="padding:16px 20px">
+    <div style="font-size:12px;color:#888;margin-bottom:12px">설정한 시간에 자동으로 다크모드가 켜지고 꺼져요</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <span style="font-size:13px;color:#555">자동 전환</span>
+      <button id="dark-sch-toggle" onclick="toggleDarkSchedule()" style="padding:4px 14px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:#eee;color:#888">OFF</button>
+    </div>
+    <div id="dark-sch-times" style="opacity:.4;pointer-events:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:#888;margin-bottom:4px">🌙 시작 (어두워짐)</div>
+          <input type="time" id="dark-sch-start" value="21:00" style="width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:8px;font-size:13px;outline:none;box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#888;margin-bottom:4px">☀️ 종료 (밝아짐)</div>
+          <input type="time" id="dark-sch-end" value="07:00" style="width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:8px;font-size:13px;outline:none;box-sizing:border-box">
+        </div>
+      </div>
+    </div>
+    <button onclick="saveDarkSchedule()" style="width:100%;margin-top:16px;background:#7fb5c1;color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">저장</button>
+  </div>
 </div>
 
 <!-- 탭1: 수입/예산 -->
@@ -383,7 +595,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
       <div class="bud-item"><label>저축</label><input type="number" id="e-fsav" value="0" oninput="syncSavFixed()"></div>
     </div>
     <!-- 공과금 예상 vs 실제 -->
-    <div style="background:#f9f8ff;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #eef6f8">
+    <div style="background:#f5f5f5;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #e8e8e8">
       <div style="font-size:11px;font-weight:600;color:#7fb5c1;margin-bottom:10px">💡 공과금 예상 vs 실제</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
         <div class="bud-item"><label>이번달 예상</label><input type="number" id="e-util-est" value="0" oninput="syncBudgetFixed('util','expense');updateUtilDiff()"></div>
@@ -522,7 +734,7 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
     <label style="font-size:12px;color:#888;display:flex;align-items:center;gap:4px"><input type="checkbox" id="s-chk-all" onchange="renderSavings()"> 전체 보기</label>
     <button class="btn-reset" onclick="confirmSavReset()">🗑 이번달 삭제</button>
   </div>
-  <div class="table-wrap">
+  <div class="table-wrap" id="sav-table-wrap">
     <table>
       <thead><tr><th>날짜</th><th>내용</th><th>구분</th><th style="text-align:right">금액</th><th style="text-align:right">누적</th><th></th></tr></thead>
       <tbody id="sav-body"><tr><td colspan="6" class="empty">저축 내역이 없어요</td></tr></tbody>
@@ -562,6 +774,90 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 
 <script>
 var gYear=2026, gMonth=new Date().getMonth()+1;
+// 다크모드
+var DARK_KEY='budget_dark_v1';
+function toggleDark(){
+  var on=document.body.classList.toggle('dark');
+  localStorage.setItem(DARK_KEY, on?'1':'0');
+  var btn=document.getElementById('dark-btn');
+  if(btn) btn.textContent=on?'☀️':'🌙';
+}
+function openSettingsDrawer(){
+  document.getElementById('settings-overlay').style.display='block';
+  document.getElementById('settings-drawer').style.display='block';
+}
+function closeSettingsDrawer(){
+  document.getElementById('settings-overlay').style.display='none';
+  document.getElementById('settings-drawer').style.display='none';
+}
+
+// 다크모드 시간 설정
+var DARK_SCH_KEY='budget_dark_sch_v1';
+function openDarkScheduleModal(){
+  var modal=document.getElementById('dark-sch-modal');
+  var overlay=document.getElementById('dark-sch-overlay');
+  var sch=JSON.parse(localStorage.getItem(DARK_SCH_KEY)||'{}');
+  document.getElementById('dark-sch-start').value=sch.start||'21:00';
+  document.getElementById('dark-sch-end').value=sch.end||'07:00';
+  var on=!!sch.enabled;
+  document.getElementById('dark-sch-toggle').textContent=on?'ON':'OFF';
+  document.getElementById('dark-sch-toggle').style.background=on?'#7fb5c1':'#eee';
+  document.getElementById('dark-sch-toggle').style.color=on?'#fff':'#888';
+  document.getElementById('dark-sch-times').style.opacity=on?'1':'0.4';
+  document.getElementById('dark-sch-times').style.pointerEvents=on?'auto':'none';
+  modal.style.display='block'; overlay.style.display='block';
+}
+function closeDarkScheduleModal(){
+  document.getElementById('dark-sch-modal').style.display='none';
+  document.getElementById('dark-sch-overlay').style.display='none';
+}
+function toggleDarkSchedule(){
+  var sch=JSON.parse(localStorage.getItem(DARK_SCH_KEY)||'{}');
+  sch.enabled=!sch.enabled;
+  localStorage.setItem(DARK_SCH_KEY,JSON.stringify(sch));
+  var on=sch.enabled;
+  document.getElementById('dark-sch-toggle').textContent=on?'ON':'OFF';
+  document.getElementById('dark-sch-toggle').style.background=on?'#7fb5c1':'#eee';
+  document.getElementById('dark-sch-toggle').style.color=on?'#fff':'#888';
+  document.getElementById('dark-sch-times').style.opacity=on?'1':'0.4';
+  document.getElementById('dark-sch-times').style.pointerEvents=on?'auto':'none';
+}
+function saveDarkSchedule(){
+  var sch=JSON.parse(localStorage.getItem(DARK_SCH_KEY)||'{}');
+  sch.start=document.getElementById('dark-sch-start').value;
+  sch.end=document.getElementById('dark-sch-end').value;
+  localStorage.setItem(DARK_SCH_KEY,JSON.stringify(sch));
+  closeDarkScheduleModal();
+  applyDarkSchedule();
+  alert('저장됐어요!');
+}
+function applyDarkSchedule(){
+  var sch=JSON.parse(localStorage.getItem(DARK_SCH_KEY)||'{}');
+  if(!sch.enabled) return;
+  var now=new Date(), h=now.getHours(), m=now.getMinutes();
+  var cur=h*60+m;
+  var sv=sch.start||'21:00', ev=sch.end||'07:00';
+  var sm=parseInt(sv)*60+parseInt(sv.split(':')[1]);
+  var em=parseInt(ev)*60+parseInt(ev.split(':')[1]);
+  var isDark=(sm<em)?(cur>=sm&&cur<em):(cur>=sm||cur<em);
+  var curDark=document.body.classList.contains('dark');
+  if(isDark&&!curDark){ document.body.classList.add('dark'); localStorage.setItem(DARK_KEY,'1'); var btn=document.getElementById('dark-btn'); if(btn) btn.textContent='☀️'; }
+  else if(!isDark&&curDark&&localStorage.getItem(DARK_KEY)==='1'){ document.body.classList.remove('dark'); localStorage.setItem(DARK_KEY,'0'); var btn=document.getElementById('dark-btn'); if(btn) btn.textContent='🌙'; }
+}
+setInterval(applyDarkSchedule, 60000);
+document.addEventListener('DOMContentLoaded', function(){ applyDarkSchedule(); });
+(function(){
+  if(localStorage.getItem(DARK_KEY)==='1'){
+    document.body.classList.add('dark');
+    document.addEventListener('DOMContentLoaded',function(){
+      document.addEventListener('DOMContentLoaded',function(){
+      var btn=document.getElementById('dark-btn');
+      if(btn) btn.textContent='☀️';
+    });
+    });
+  }
+})();
+
 var EXP_KEY='expense_log_v1', SAV_KEY='savings_log_v1';
 var CAT_LABEL={'교통비':'🚃 교통비','식비':'🍚 식비','생필품':'🧴 생필품','미용':'💇 미용','의류잡화':'👗 의류/잡화','문화여가':'☕ 문화/여가','비상금':'🚨 비상금','기타':'📦 기타','월세':'🏠 월세','공과금':'💡 공과금','저축':'🏦 저축'};
 var VAR_CATS=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
@@ -585,8 +881,9 @@ function switchTab(id,btn){
   document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});
   document.getElementById('tab-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
-  document.getElementById('btn-annual').classList.toggle('active', id==='annual');
-  document.getElementById('btn-badges').classList.toggle('active', id==='badges');
+  var btnAnnual=document.getElementById('btn-annual'); if(btnAnnual) btnAnnual.classList.toggle('active', id==='annual');
+  var btnBadges=document.getElementById('btn-badges'); if(btnBadges) btnBadges.classList.toggle('active', id==='badges');
+  var btnBadges2=document.querySelector('.tab-btn[onclick*="badges"]'); if(btnBadges2) btnBadges2.classList.toggle('active', id==='badges');
   if(id==='budget') calcAll();
   if(id==='expense'){renderCal();renderSummary();}
   if(id==='savings'){updateSavMonthSel();renderSavings();}
