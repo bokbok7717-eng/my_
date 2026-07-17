@@ -279,7 +279,8 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 #level-card .lv-steps{display:flex;margin-bottom:8px}
 #level-card .lv-step{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
 #level-card .lv-step-icon{font-size:18px;line-height:1;transition:all .3s}
-#level-card .lv-step-label{font-size:8px;font-weight:500;text-align:center}
+#level-card .lv-step-label{font-size:8px;font-weight:500;text-align:center;position:relative;z-index:2}
+#level-card .lv-step-icon{position:relative;z-index:1}
 #level-card .lv-bar-outer{position:relative;margin-bottom:2px}
 #level-card .lv-bar-wrap{background:rgba(0,0,0,.1);border-radius:6px;height:8px;overflow:hidden;margin-bottom:0}
 #level-card .lv-bar{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.2,.64,1)}
@@ -391,15 +392,50 @@ body.dark #dark-sch-modal [style*="color:#7fb5c1"]{color:#7fb5c1!important}
 
 /* ===== 저축 탭 다크모드 ===== */
 /* 레벨 카드 */
-body.dark #level-card{background:#1e2a1e!important;border-color:#2a3a2a!important}
-body.dark .lv-bar-wrap{background:#2a3a2a!important}
+body.dark #level-card.lv-forest{background:#1a2a1a!important;border-color:#2a3a2a!important}
+body.dark #level-card.lv-flower{background:#2a1a22!important;border-color:#3a2a30!important}
+body.dark #level-card.lv-sky{background:#1a1e2a!important;border-color:#2a2e3a!important}
+body.dark #level-card.lv-ocean{background:#1a2228!important;border-color:#2a3238!important}
+body.dark #level-card.lv-space{background:#1e1a2a!important;border-color:#2e2a3a!important}
+body.dark .lv-forest .lv-bar-wrap{background:#2a3a2a!important}
+body.dark .lv-flower .lv-bar-wrap{background:#3a2a30!important}
+body.dark .lv-sky .lv-bar-wrap{background:#2a2e3a!important}
+body.dark .lv-ocean .lv-bar-wrap{background:#2a3238!important}
+body.dark .lv-space .lv-bar-wrap{background:#2e2a3a!important}
 body.dark .lv-tick-line{background:rgba(255,255,255,.2)!important}
 body.dark .lv-tick-label{color:rgba(255,255,255,.35)!important}
-body.dark .lv-name{color:#c8e6c8!important}
-body.dark .lv-stage{color:#8ab88a!important}
-body.dark .lv-sub{color:#7a9a7a!important}
-body.dark .lv-cur,body.dark .lv-max{color:#8ab88a!important}
-body.dark .lv-step-label{color:#7a9a7a!important}
+/* 숲 */
+body.dark #level-card.lv-forest .lv-name{color:#c8e6c8!important}
+body.dark #level-card.lv-forest .lv-stage{color:#8ab88a!important}
+body.dark #level-card.lv-forest .lv-sub{color:#7a9a7a!important}
+body.dark #level-card.lv-forest .lv-cur,body.dark #level-card.lv-forest .lv-max{color:#8ab88a!important}
+body.dark #level-card.lv-forest .lv-step-label{color:#7a9a7a!important}
+body.dark #level-card.lv-forest .lv-tick-label{color:rgba(180,230,180,.5)!important}
+/* 꽃 */
+body.dark #level-card.lv-flower .lv-name{color:#f7c8e6!important}
+body.dark #level-card.lv-flower .lv-stage{color:#e08ab8!important}
+body.dark #level-card.lv-flower .lv-sub{color:#b87a9a!important}
+body.dark #level-card.lv-flower .lv-cur,body.dark #level-card.lv-flower .lv-max{color:#e08ab8!important}
+body.dark #level-card.lv-flower .lv-step-label{color:#b87a9a!important}
+body.dark #level-card.lv-flower .lv-tick-label{color:rgba(230,160,210,.5)!important}
+/* 하늘 */
+body.dark #level-card.lv-sky .lv-name{color:#c8d8f7!important}
+body.dark #level-card.lv-sky .lv-stage{color:#7aaae0!important}
+body.dark #level-card.lv-sky .lv-sub{color:#6a8ab8!important}
+body.dark #level-card.lv-sky .lv-cur,body.dark #level-card.lv-sky .lv-max{color:#7aaae0!important}
+body.dark #level-card.lv-sky .lv-step-label{color:#6a8ab8!important}
+/* 바다 */
+body.dark #level-card.lv-ocean .lv-name{color:#c8eaf7!important}
+body.dark #level-card.lv-ocean .lv-stage{color:#5ab8d8!important}
+body.dark #level-card.lv-ocean .lv-sub{color:#4a9ab8!important}
+body.dark #level-card.lv-ocean .lv-cur,body.dark #level-card.lv-ocean .lv-max{color:#5ab8d8!important}
+body.dark #level-card.lv-ocean .lv-step-label{color:#4a9ab8!important}
+/* 우주 */
+body.dark #level-card.lv-space .lv-name{color:#e0c8f7!important}
+body.dark #level-card.lv-space .lv-stage{color:#a878e0!important}
+body.dark #level-card.lv-space .lv-sub{color:#8860b8!important}
+body.dark #level-card.lv-space .lv-cur,body.dark #level-card.lv-space .lv-max{color:#a878e0!important}
+body.dark #level-card.lv-space .lv-step-label{color:#8860b8!important}
 
 /* 저축 현황 카드 */
 body.dark #tab-savings .card{background:#1e3030!important;border-color:#2a4040!important}
@@ -805,6 +841,7 @@ function toggleDark(){
   localStorage.setItem(DARK_KEY, on?'1':'0');
   var btn=document.getElementById('dark-btn');
   if(btn) btn.textContent=on?'☀️':'🌙';
+  if(typeof renderLevelCard==='function') renderLevelCard();
 }
 function openSettingsDrawer(){
   document.getElementById('settings-overlay').style.display='block';
@@ -2156,7 +2193,7 @@ function renderLevelCard(){
     var li=dispSi*4+i;
     var done=li<idx, cur=li===idx;
     stepsHtml+='<div class="lv-step">'
-      +'<div class="lv-step-icon" style="'+(cur?'opacity:1;transform:scale(1.25);filter:drop-shadow(0 0 6px '+lv.color+') drop-shadow(0 0 12px '+lv.color+')':done?'opacity:1':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
+      +'<div class="lv-step-icon" style="'+(cur?'opacity:1;transform:scale(1.25);filter:drop-shadow(0 0 6px '+(document.body.classList.contains('dark')?'rgba(255,255,255,.3)':lv.color+'ff')+') drop-shadow(0 0 10px '+(document.body.classList.contains('dark')?'rgba(255,255,255,.15)':lv.color+'ee')+')':done?'opacity:1':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
       +'<div class="lv-step-label" style="opacity:'+(cur?'1':done?'.8':'.28')+';font-weight:'+(cur?800:done?600:400)+'">'+step.name+'</div>'
       +'</div>';
   });
