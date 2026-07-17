@@ -280,8 +280,15 @@ td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 #level-card .lv-step{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
 #level-card .lv-step-icon{font-size:18px;line-height:1;transition:all .3s}
 #level-card .lv-step-label{font-size:8px;font-weight:500;text-align:center}
-#level-card .lv-bar-wrap{background:rgba(0,0,0,.1);border-radius:6px;height:8px;overflow:hidden;margin-bottom:5px}
+#level-card .lv-bar-outer{position:relative;margin-bottom:2px}
+#level-card .lv-bar-wrap{background:rgba(0,0,0,.1);border-radius:6px;height:8px;overflow:hidden;margin-bottom:0}
 #level-card .lv-bar{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.2,.64,1)}
+#level-card .lv-tick-row{position:relative;height:18px;margin-top:2px}
+#level-card .lv-tick{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1px}
+#level-card .lv-tick-line{width:1px;height:5px;background:rgba(0,0,0,.25)}
+#level-card .lv-tick-label{font-size:9px;color:rgba(0,0,0,.45);white-space:nowrap}
+#level-card .lv-tick:first-child{transform:translateX(0)}
+#level-card .lv-tick:last-child{transform:translateX(-100%)}
 .bar-forest{background:linear-gradient(90deg,#a8d8a8,#5a9a62)}
 .bar-flower{background:linear-gradient(90deg,#f8a8d8,#e060a8)}
 .bar-sky   {background:linear-gradient(90deg,#90c8f8,#4888d8)}
@@ -386,6 +393,8 @@ body.dark #dark-sch-modal [style*="color:#7fb5c1"]{color:#7fb5c1!important}
 /* 레벨 카드 */
 body.dark #level-card{background:#1e2a1e!important;border-color:#2a3a2a!important}
 body.dark .lv-bar-wrap{background:#2a3a2a!important}
+body.dark .lv-tick-line{background:rgba(255,255,255,.2)!important}
+body.dark .lv-tick-label{color:rgba(255,255,255,.35)!important}
 body.dark .lv-name{color:#c8e6c8!important}
 body.dark .lv-stage{color:#8ab88a!important}
 body.dark .lv-sub{color:#7a9a7a!important}
@@ -696,7 +705,10 @@ body.dark .settings-arr{color:#666!important}
       </div>
     </div>
     <div class="lv-steps" id="lv-steps"></div>
-    <div class="lv-bar-wrap"><div class="lv-bar bar-forest" id="lv-bar" style="width:0%"></div></div>
+    <div class="lv-bar-outer">
+      <div class="lv-bar-wrap"><div class="lv-bar bar-forest" id="lv-bar" style="width:0%"></div></div>
+      <div class="lv-tick-row" id="lv-tick-row"></div>
+    </div>
     <div class="lv-amounts"><span id="lv-cur">현재 0엔</span><span id="lv-max">다음 250,000엔</span></div>
     <div class="lv-stages" id="lv-stages"></div>
   </div>
@@ -1677,7 +1689,7 @@ var GOAL_FISH=['🐟','🐠','🐡','🦈','🐬','🐳','🐋','🦑','🦐','�
 function buildGoalCatRow(){var f=GOAL_FISH[Math.floor(Math.random()*GOAL_FISH.length)];return f+'  '+GOAL_CATS[Math.floor(Math.random()*GOAL_CATS.length)]+'  '+f;}
 function loadGoalData(){try{goalData=JSON.parse(localStorage.getItem(GOAL_KEY))||{current:null,history:[],subGoals:[]};}catch(e){goalData={current:null,history:[],subGoals:[]};} if(!goalData.history)goalData.history=[]; if(!goalData.subGoals)goalData.subGoals=[];}
 function saveGoalData(){localStorage.setItem(GOAL_KEY,JSON.stringify(goalData));}
-function getTotalSavings(){var a=loadSav().filter(function(r){return !r.goalId;}),tIn=a.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0),tOut=a.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);return tIn-tOut;}
+function getTotalSavings(){var a=loadSav();var tIn=a.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0);var tOut=a.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);return tIn-tOut;}
 function getSubGoalTotal(goalId){var a=loadSav().filter(function(r){return r.goalId===goalId;}),tIn=a.filter(function(r){return r.type==='저축';}).reduce(function(s,r){return s+r.amount;},0),tOut=a.filter(function(r){return r.type==='지출';}).reduce(function(s,r){return s+r.amount;},0);return tIn-tOut;}
 function openGoalModal(){loadGoalData();document.getElementById('goal-amount-inp').value=goalData.current?goalData.current.amount:'';document.getElementById('goal-name-inp').value=goalData.current?goalData.current.name:'';document.getElementById('goal-modal').style.display='flex';}
 function closeGoalModal(){document.getElementById('goal-modal').style.display='none';}
@@ -2120,6 +2132,21 @@ function renderLevelCard(){
   var bar=document.getElementById('lv-bar');
   bar.className='lv-bar '+lv.bar;
   bar.style.width=pct+'%';
+
+  // 4등분 눈금
+  var tickRow=document.getElementById('lv-tick-row');
+  if(tickRow){
+    var fmtT=function(v){return v>=10000?Math.round(v/10000)+'만':''+v;};
+    var ticks=['',25,50,75,100].map(function(p,i){
+      var val=lv.min+Math.round((lv.max-lv.min)*[0,0.25,0.5,0.75,1][i]);
+      var label=i===0?fmtT(lv.min):i===4?fmtT(lv.max):fmtT(val);
+      return '<div class="lv-tick" style="left:'+(i===0?0:i===4?100:[25,50,75][i-1])+'%">'
+        +'<div class="lv-tick-line"></div>'
+        +'<div class="lv-tick-label">'+label+'</div>'
+        +'</div>';
+    });
+    tickRow.innerHTML=ticks.join('');
+  }
 
   // 단계 이모지
   var dispSi=lvSelectedStage===-1?lv.stageIdx:lvSelectedStage;
