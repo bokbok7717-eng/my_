@@ -314,6 +314,7 @@ body.dark .cal-day:hover{background:#333}
 body.dark .cal-day.empty{background:transparent}
 body.dark .cal-day.selected{background:#7fb5c1!important}
 body.dark .detail-panel{background:#232323}
+body.dark #cycle-banner{color:#5a9aaa!important;background:rgba(127,181,193,.1)!important}
 body.dark .detail-row{border-bottom-color:#333}
 body.dark .memo-row{color:#888;border-bottom-color:#333}
 body.dark .input-item input,body.dark .form-row input,body.dark .form-row select,body.dark .bud-item input,body.dark .sl-combo .sl-num,body.dark .sav-combo .sl-num,body.dark .f-memo-inp{background:#2a2a2a;border-color:#3a3a3a;color:#e8e8e8}
@@ -675,7 +676,7 @@ body.dark .settings-arr{color:#666!important}
     </div>
   </div>
 
-  <h2>📊 카테고리별 결산 <span style="font-size:11px;font-weight:400;color:#aaa">(예산 입력 가능)</span></h2>
+  <h2>📊 카테고리별 결산</h2>
   <div class="sum-grid" id="summary-grid"></div>
   <div class="tot-bar" id="total-bar"></div>
 </div>
@@ -1050,7 +1051,7 @@ function updateUtilDiff(){
     document.getElementById('util-diff-disp').style.color='#aaa';
   } else {
     document.getElementById('util-actual-disp').textContent=actual.toLocaleString('ja-JP')+'엔';
-    document.getElementById('util-actual-disp').style.color='#1a1a1a';
+    document.getElementById('util-actual-disp').style.color='#7fb5c1';
     var diff=est-actual;
     document.getElementById('util-diff-disp').textContent=(diff>0?'+':'')+diff.toLocaleString('ja-JP')+'엔'+(diff>0?' 절약':diff<0?' 초과':'');
     document.getElementById('util-diff-disp').style.color=diff>0?'#8dbfb8':diff<0?'#F06B8A':'#888';
@@ -1213,7 +1214,7 @@ function renderCal(){
 function clickDay(date){
   selDate=date;
   document.getElementById('f-date').value=date;
-  renderCal(); renderDetail();
+  renderCal(); renderDetail(); renderSummary();
 }
 
 function renderDetail(){
@@ -1222,7 +1223,20 @@ function renderDetail(){
   var dayRows=loadExp().filter(function(r){return r.date===selDate;});
   var mm=selDate.slice(5,7), dd=selDate.slice(8,10);
   var total=dayRows.reduce(function(s,r){return s+r.amount;},0);
-  panel.innerHTML='<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
+  // 사이클 안내 배너
+  var cycleBanner='';
+  var ar=getActiveCycleRange();
+  if(ar){
+    var sd=new Date(selDate+'T00:00:00');
+    var cycleDay=cycleData.day||25;
+    if(sd.getDate()>=cycleDay){
+      var f2=function(s){var d=new Date(s+'T00:00:00');return (d.getMonth()+1)+'/'+d.getDate();};
+      var s=new Date(ar.start+'T00:00:00'), e=new Date(ar.end+'T00:00:00');
+      var sm2=(s.getMonth()+1), sd2=s.getDate(), em2=(e.getMonth()+1), ed2=e.getDate();
+      cycleBanner='<div id="cycle-banner" style="font-size:11px;color:#7fb5c1;background:rgba(127,181,193,.12);border-radius:8px;padding:5px 10px;margin-bottom:8px;text-align:center">📅 '+sm2+'/'+sd2+'~'+em2+'/'+ed2+'</div>';
+    }
+  }
+  panel.innerHTML=cycleBanner+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
     (dayRows.length===0?'<div class="empty" style="padding:10px">이날 지출 내역이 없어요 ☁️</div>':
     dayRows.map(function(r){
       var cls=FIX_CATS.indexOf(r.cat)>=0?'tag-고정':'tag-'+r.cat;
@@ -1271,12 +1285,35 @@ function delExpense(id){
   renderCal(); renderDetail(); renderSummary();
 }
 
+function getActiveCycleRange(){
+  // selDate가 있고 월급일 기준 사이클이면, selDate 기준으로 사이클 범위 계산
+  if(typeof cycleData==='undefined'||cycleData.type!==2) return null;
+  var d=cycleData.day||25;
+  if(selDate){
+    var sd=new Date(selDate+'T00:00:00');
+    var sy=sd.getFullYear(), sm=sd.getMonth()+1, sday=sd.getDate();
+    // selDate가 월급일 이후면: 이달 d일 ~ 다음달 d-1일
+    // selDate가 월급일 이전이면: 전달 d일 ~ 이달 d-1일
+    var baseYear, baseMonth;
+    if(sday>=d){ baseYear=sy; baseMonth=sm; }
+    else{ baseMonth=sm-1; baseYear=sy; if(baseMonth<1){baseMonth=12;baseYear--;} }
+    var start=baseYear+'-'+String(baseMonth).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var em=baseMonth+1, ey=baseYear;
+    if(em>12){em=1;ey++;}
+    var ed=d-1;
+    if(ed<1){em--;if(em<1){em=12;ey--;}ed=new Date(ey,em,0).getDate();}
+    var end=ey+'-'+String(em).padStart(2,'0')+'-'+String(ed).padStart(2,'0');
+    return {start:start, end:end};
+  }
+  return getCycleRange(gYear,gMonth);
+}
+
 function renderSummary(){
   var ym=gYear+'-'+String(gMonth).padStart(2,'0');
+  var activeRange=getActiveCycleRange();
   var expRows=loadExp().filter(function(r){
-    if(typeof cycleData!=='undefined'&&cycleData.type===2){
-      var cyR=getCycleRange(gYear,gMonth);
-      return r.date>=cyR.start&&r.date<=cyR.end;
+    if(activeRange){
+      return r.date>=activeRange.start&&r.date<=activeRange.end;
     }
     return r.date.slice(0,7)===ym;
   });
@@ -1303,11 +1340,25 @@ function renderSummary(){
   var utilEst=+document.getElementById('e-util-est').value||0;
   var utilActual=+document.getElementById('e-util-actual').value||0;
   var utilDiff=utilEst-utilActual;
-  var utilCard='<div class="sum-card" style="border:1px solid #eef6f8"><div class="cn" style="color:#7fb5c1">💡 공과금</div><div class="sr"><span>예상</span><span>'+fmt(utilEst)+'</span></div><div class="sr"><span>실제</span><span>'+(utilActual>0?fmt(utilActual):'미납부')+'</span></div><div class="sd"><span>차액</span><span class="'+(utilDiff>=0?'pos':'neg')+'">'+(utilActual>0?(utilDiff>0?'+':'')+utilDiff.toLocaleString('ja-JP')+'엔'+(utilDiff>0?' 절약':utilDiff<0?' 초과':''):'-')+'</span></div></div>';
+  var utilActualColor=utilActual>0?(utilDiff>=0?'#7fb5c1':'#F06B8A'):'#aaa';
+  var utilCard='<div class="sum-card" style="border:1px solid #eef6f8"><div class="cn" style="color:#7fb5c1">💡 공과금</div><div class="sr"><span>예상</span><span>'+fmt(utilEst)+'</span></div><div class="sr"><span>실제</span><span style="color:'+utilActualColor+'">'+(utilActual>0?fmt(utilActual):'미납부')+'</span></div><div class="sd"><span>차액</span><span style="color:#aaa">'+(utilActual>0?(utilDiff>0?'+':'')+utilDiff.toLocaleString('ja-JP')+'엔'+(utilDiff>0?' 절약':utilDiff<0?' 초과':''):'-')+'</span></div></div>';
   document.getElementById('summary-grid').innerHTML+=utilCard;
   saveBudgetData();
 
   var diff=totalBudget-totalSpent;
+  // h2 옆 사이클 범위 업데이트
+  var ar=getActiveCycleRange();
+  var rlbl=document.getElementById('summary-range-label');
+  if(rlbl){
+    // selDate가 월급일 이후일 때만 (다음 사이클) 표시
+    var isNextCycle=ar&&selDate&&(new Date(selDate+'T00:00:00').getDate()>=(cycleData.day||25));
+    if(isNextCycle){
+      var f2s=function(s){var d=new Date(s+'T00:00:00');return (d.getMonth()+1)+'/'+d.getDate();};
+      rlbl.textContent=f2s(ar.start)+' ~ '+f2s(ar.end);
+    } else {
+      rlbl.textContent='';
+    }
+  }
   document.getElementById('total-bar').innerHTML=
     '<div class="tot-card" style="background:#888"><div class="tl">예산 총액</div><div class="tv">'+fmt(totalBudget)+'</div></div>'+
     '<div class="tot-card" style="background:'+(diff>=0?'#8dbfb8':'#F06B8A')+'"><div class="tl">'+(diff>=0?'남은 금액':'초과 금액')+'</div><div class="tv">'+fmt(Math.abs(diff))+'</div></div>';
@@ -2078,8 +2129,8 @@ function renderLevelCard(){
     var li=dispSi*4+i;
     var done=li<idx, cur=li===idx;
     stepsHtml+='<div class="lv-step">'
-      +'<div class="lv-step-icon" style="'+(done?'opacity:1':cur?'opacity:1;transform:scale(1.25)':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
-      +'<div class="lv-step-label" style="opacity:'+(cur?'1':done?'.65':'.28')+';font-weight:'+(cur?800:500)+'">'+step.name+'</div>'
+      +'<div class="lv-step-icon" style="'+(cur?'opacity:1;transform:scale(1.25);filter:drop-shadow(0 0 4px rgba(255,255,255,.5))':done?'opacity:1':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
+      +'<div class="lv-step-label" style="opacity:'+(cur?'1':done?'.8':'.28')+';font-weight:'+(cur?800:done?600:400)+'">'+step.name+'</div>'
       +'</div>';
   });
   document.getElementById('lv-steps').innerHTML=stepsHtml;
@@ -2089,8 +2140,8 @@ function renderLevelCard(){
   LV_STAGES.forEach(function(s,si){
     var done=si<lv.stageIdx, cur=si===lv.stageIdx, sel=si===dispSi;
     stagesHtml+='<div class="lv-sdot'+(sel?' sel':'')+'" onclick="lvSelectStage('+si+')">'
-      +'<div class="lv-sdot-icon" style="'+(cur?'opacity:1;transform:scale(1.1)':done?'opacity:.7':'filter:grayscale(1);opacity:.25')+'">'+s.icon+'</div>'
-      +'<div class="lv-sdot-label'+(cur?' cur':'')+'">'+s.name+'</div>'
+      +'<div class="lv-sdot-icon" style="'+(cur?'opacity:1;transform:scale(1.1)':done?'opacity:1':'filter:grayscale(1);opacity:.25')+'">'+s.icon+'</div>'
+      +'<div class="lv-sdot-label'+(cur?' cur':done?' cur':'')+'">'+s.name+'</div>'
       +'</div>';
   });
   document.getElementById('lv-stages').innerHTML=stagesHtml;
