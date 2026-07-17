@@ -334,6 +334,7 @@ body.dark tbody tr:hover{background:#2f2f2f}
 body.dark tfoot tr{background:#1e1e1e!important}
 body.dark tfoot td{color:#aaa!important}
 body.dark .filter-row select{background:#2a2a2a!important;border-color:#3a3a3a!important;color:#e8e8e8!important}
+body.dark #c-sav-salary,body.dark #c-sav-alba{color:#7fb5c1}
 body.dark .tag-교통비{background:#1e2d40;color:#6aabff}
 body.dark .tag-식비{background:#1e3030;color:#8dbfb8}
 body.dark .tag-생필품{background:#302a1a;color:#f3c98b}
@@ -549,17 +550,27 @@ body.dark .settings-arr{color:#666!important}
 
   <h2>🏦 저축 설정</h2>
   <div class="section-box">
+    <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">🏢 회사 월급에서 <span id="lbl-remain-salary" style="font-weight:400;color:#aaa"></span></div>
     <div class="sav-combo">
       <label>저축액</label>
-      <input type="range" min="0" max="0" step="1000" value="0" id="sl-sav" oninput="onSavSlider()">
-      <input type="number" class="sl-num" id="num-sav" value="0" placeholder="0" oninput="onSavNum()">
+      <input type="range" min="0" max="0" step="1000" value="0" id="sl-sav-salary" oninput="onSavSlider('salary')">
+      <input type="number" class="sl-num" id="num-sav-salary" value="0" placeholder="0" oninput="onSavNum('salary')">
     </div>
-    <div style="font-size:10px;color:#aaa;margin-bottom:8px;text-align:right"></div>
+    <div style="font-size:11px;color:#888;font-weight:600;margin-top:10px;margin-bottom:6px">🛒 알바비에서 <span id="lbl-remain-alba" style="font-weight:400;color:#aaa"></span></div>
+    <div class="sav-combo">
+      <label>저축액</label>
+      <input type="range" min="0" max="0" step="1000" value="0" id="sl-sav-alba" oninput="onSavSlider('alba')">
+      <input type="number" class="sl-num" id="num-sav-alba" value="0" placeholder="0" oninput="onSavNum('alba')">
+    </div>
+    <div style="font-size:10px;color:#aaa;margin-bottom:8px;text-align:right;margin-top:4px">슬라이더 또는 숫자 직접 입력 가능</div>
     <div class="cards" style="grid-template-columns:1fr 1fr">
-      <div class="card"><div class="lbl">저축</div><div class="val" id="c-sav">0엔</div></div>
+      <div class="card"><div class="lbl">저축 합계</div><div class="val" id="c-sav">0엔</div></div>
       <div class="card"><div class="lbl">생활비</div><div class="val" id="c-living">0엔</div></div>
     </div>
-    <!-- 지출탭 저축 연동 표시 -->
+    <div style="font-size:11px;color:#aaa;margin-top:6px;display:flex;gap:12px;justify-content:center">
+      <span>🏢 월급 저축: <b id="c-sav-salary">0엔</b></span>
+      <span>🛒 알바 저축: <b id="c-sav-alba">0엔</b></span>
+    </div>
     <div style="font-size:11px;color:#aaa;margin-top:6px;text-align:right" id="sav-sync-note"></div>
   </div>
 
@@ -592,7 +603,7 @@ body.dark .settings-arr{color:#666!important}
     <div style="font-size:11px;font-weight:600;color:#aaa;margin-bottom:8px">고정 지출 </div>
     <div class="grid2" style="margin-bottom:10px">
       <div class="bud-item"><label>월세</label><input type="number" id="e-rent" value="0" oninput="syncBudgetFixed('rent','expense')"></div>
-      <div class="bud-item"><label>저축</label><input type="number" id="e-fsav" value="0" oninput="syncSavFixed()"></div>
+      <div class="bud-item"><label>저축</label><input type="number" id="e-fsav" value="0" readonly style="background:#f5f5f5;cursor:default" title="수입/예산 탭에서 설정"></div>
     </div>
     <!-- 공과금 예상 vs 실제 -->
     <div style="background:#f5f5f5;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #e8e8e8">
@@ -906,7 +917,8 @@ function saveBudgetData(){
     utilEst:document.getElementById('e-util-est').value,
     utilActual:document.getElementById('e-util-actual').value,
     fsav:document.getElementById('e-fsav').value,
-    slSav:document.getElementById('sl-sav').value,
+    slSavSalary:document.getElementById('sl-sav-salary').value,
+    slSavAlba:document.getElementById('sl-sav-alba').value,
     cats:{}
   };
   ['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'].forEach(function(cat){
@@ -927,9 +939,10 @@ function copyPrevMonthBudget(){
   document.getElementById('in-alba').value=data.alba||0;
   document.getElementById('in-rent').value=data.rent||0;
   document.getElementById('e-rent').value=data.rent||0;
-  document.getElementById('e-fsav').value=data.fsav||0;
-  document.getElementById('sl-sav').value=data.slSav||0;
-  document.getElementById('num-sav').value=data.slSav||0;
+  document.getElementById('sl-sav-salary').value=data.slSavSalary||0;
+  document.getElementById('num-sav-salary').value=data.slSavSalary||0;
+  document.getElementById('sl-sav-alba').value=data.slSavAlba||0;
+  document.getElementById('num-sav-alba').value=data.slSavAlba||0;
   if(data.cats){
     Object.keys(data.cats).forEach(function(cat){
       var el=document.getElementById('b-'+cat);
@@ -958,8 +971,10 @@ function loadBudgetData(){
       var numEl=document.getElementById(numId);
       if(numEl) numEl.value=0;
     });
-    document.getElementById('sl-sav').value=0;
-    document.getElementById('num-sav').value=0;
+    document.getElementById('sl-sav-salary').value=0;
+    document.getElementById('num-sav-salary').value=0;
+    document.getElementById('sl-sav-alba').value=0;
+    document.getElementById('num-sav-alba').value=0;
     updateUtilDiff();
     calcAll();
     return;
@@ -971,9 +986,10 @@ function loadBudgetData(){
   document.getElementById('e-rent').value=data.rent||0;
   document.getElementById('e-util-est').value=data.utilEst||0;
   document.getElementById('e-util-actual').value=data.utilActual||0;
-  document.getElementById('e-fsav').value=data.fsav||0;
-  document.getElementById('sl-sav').value=data.slSav||0;
-  document.getElementById('num-sav').value=data.slSav||0;
+  document.getElementById('sl-sav-salary').value=data.slSavSalary||0;
+  document.getElementById('num-sav-salary').value=data.slSavSalary||0;
+  document.getElementById('sl-sav-alba').value=data.slSavAlba||0;
+  document.getElementById('num-sav-alba').value=data.slSavAlba||0;
   if(data.cats){
     Object.keys(data.cats).forEach(function(cat){
       var el=document.getElementById('b-'+cat);
@@ -1043,27 +1059,21 @@ function updateUtilDiff(){
   saveBudgetData();
 }
 function syncSavFixed(){
-  var v=+document.getElementById('e-fsav').value||0;
-  document.getElementById('sl-sav').value=v;
-  document.getElementById('num-sav').value=v;
+  // e-fsav는 이제 calcAll에서 자동 계산
   calcAll();
 }
-function onSavSlider(){
-  var v=+document.getElementById('sl-sav').value;
-  document.getElementById('num-sav').value=v;
-  document.getElementById('e-fsav').value=v;
+function onSavSlider(type){
+  var v=+document.getElementById('sl-sav-'+type).value;
+  document.getElementById('num-sav-'+type).value=v;
   calcAll();
 }
-function onSavNum(){
-  var v=+document.getElementById('num-sav').value||0;
-  // slSav.max가 설정되기 전일 수 있으니 직접 세팅
-  var slSav=document.getElementById('sl-sav');
-  if(v>+slSav.max) slSav.max=v;
-  slSav.value=v;
-  document.getElementById('e-fsav').value=v;
-  // calcAll이 슬라이더값 재계산하지 않도록 num-sav도 다시 세팅
+function onSavNum(type){
+  var v=+document.getElementById('num-sav-'+type).value||0;
+  var sl=document.getElementById('sl-sav-'+type);
+  if(v>+sl.max) sl.max=v;
+  sl.value=v;
   calcAll();
-  document.getElementById('num-sav').value=v;
+  document.getElementById('num-sav-'+type).value=v;
 }
 
 // ===== 양방향 연동: 카테고리 슬라이더 ↔ 예산 입력칸 ↔ 도넛 숫자 =====
@@ -1113,9 +1123,18 @@ function calcAll(){
   var alba=+document.getElementById('in-alba').value||0;
   var rent=+document.getElementById('in-rent').value||0;
   var util=+document.getElementById('in-util').value||0;
-  var fsav=+document.getElementById('e-fsav').value||0;
+  // 월급/알바 각각 저축 슬라이더
+  var slSalary=document.getElementById('sl-sav-salary');
+  var slAlba=document.getElementById('sl-sav-alba');
+  slSalary.max=Math.max(salary,0);
+  slAlba.max=Math.max(alba,0);
+  var savSalary=Math.min(+slSalary.value, salary);
+  var savAlba=Math.min(+slAlba.value, alba);
+  var fsav=savSalary+savAlba;
+  // e-fsav 동기화 (지출탭 연동용)
+  document.getElementById('e-fsav').value=fsav;
   var total=salary+alba;
-  // 고정지출 = 월세 + 공과금 + 저축
+  // 고정지출 = 월세 + 공과금 + 저축합계
   var fixed=rent+util+fsav;
   // 수중금액 = 총수입 - 고정지출
   var free=total-fixed;
@@ -1127,13 +1146,16 @@ function calcAll(){
   fEl.textContent=fmtSign(free); fEl.className='val'+(free<0?' neg':'');
   document.getElementById('c-rate').textContent=rate+'%';
 
-  // 저축 슬라이더 max = 총수입 - 월세 - 공과금
-  var slSav=document.getElementById('sl-sav');
-  slSav.max=Math.max(total-rent-util,0);
-  var savV=+slSav.value;
-  // 생활비 = 수중금액 (저축 이미 고정지출에 포함됨)
+  // 생활비 = 수중금액
   var living=free;
-  document.getElementById('c-sav').textContent=fmt(savV);
+  document.getElementById('c-sav').textContent=fmt(fsav);
+  document.getElementById('c-sav-salary').textContent=fmt(savSalary);
+  document.getElementById('c-sav-alba').textContent=fmt(savAlba);
+  var remS=document.getElementById('lbl-remain-salary');
+  if(remS) remS.textContent=salary>0?'(여유 '+fmt(salary-savSalary)+')':'';
+  var remA=document.getElementById('lbl-remain-alba');
+  if(remA) remA.textContent=alba>0?'(여유 '+fmt(alba-savAlba)+')':'';
+  if(document.getElementById('c-rate2')) document.getElementById('c-rate2').textContent=rate+'%';
   var lEl=document.getElementById('c-living');
   lEl.textContent=fmtSign(living); lEl.className='val'+(living<0?' neg':'');
 
