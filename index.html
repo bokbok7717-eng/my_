@@ -2068,19 +2068,19 @@ function checkSavMilestone(){
 
 // ===== 저축 레벨 시스템 =====
 var LV_STAGES=[
-  {name:'숲', icon:'🌲', cls:'lv-forest', bar:'bar-forest', color:'#5a9a62',
+  {name:'숲', icon:'🌲', cls:'lv-forest', bar:'bar-forest', color:'#b8ffbe',
    steps:[{icon:'🌱',name:'새싹'},{icon:'🌿',name:'풀잎'},{icon:'🌳',name:'나무'},{icon:'🌲',name:'고목'}],
    min:0, max:1000000},
-  {name:'꽃', icon:'🌸', cls:'lv-flower', bar:'bar-flower', color:'#e060a8',
+  {name:'꽃', icon:'🌸', cls:'lv-flower', bar:'bar-flower', color:'#ffbee6',
    steps:[{icon:'🌷',name:'꽃봉오리'},{icon:'🌸',name:'벚꽃'},{icon:'🌺',name:'만개'},{icon:'💐',name:'꽃다발'}],
    min:1000000, max:5000000},
-  {name:'하늘', icon:'🌈', cls:'lv-sky', bar:'bar-sky', color:'#4888d8',
+  {name:'하늘', icon:'🌈', cls:'lv-sky', bar:'bar-sky', color:'#b0d8ff',
    steps:[{icon:'🌤',name:'맑음'},{icon:'🌈',name:'무지개'},{icon:'☁️',name:'구름'},{icon:'⚡',name:'번개'}],
    min:5000000, max:10000000},
-  {name:'바다', icon:'🌊', cls:'lv-ocean', bar:'bar-ocean', color:'#1878b8',
+  {name:'바다', icon:'🌊', cls:'lv-ocean', bar:'bar-ocean', color:'#96eaff',
    steps:[{icon:'🐚',name:'조개'},{icon:'🐠',name:'열대어'},{icon:'🐬',name:'돌고래'},{icon:'🐋',name:'고래'}],
    min:10000000, max:15000000},
-  {name:'우주', icon:'🌌', cls:'lv-space', bar:'bar-space', color:'#9860e8',
+  {name:'우주', icon:'🌌', cls:'lv-space', bar:'bar-space', color:'#e0c8ff',
    steps:[{icon:'⭐',name:'별'},{icon:'🌟',name:'빛나는별'},{icon:'🌙',name:'달'},{icon:'🌌',name:'은하'}],
    min:15000000, max:100000000},
 ];
@@ -2156,7 +2156,7 @@ function renderLevelCard(){
     var li=dispSi*4+i;
     var done=li<idx, cur=li===idx;
     stepsHtml+='<div class="lv-step">'
-      +'<div class="lv-step-icon" style="'+(cur?'opacity:1;transform:scale(1.25);filter:drop-shadow(0 0 4px rgba(255,255,255,.5))':done?'opacity:1':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
+      +'<div class="lv-step-icon" style="'+(cur?'opacity:1;transform:scale(1.25);filter:drop-shadow(0 0 6px '+lv.color+') drop-shadow(0 0 12px '+lv.color+')':done?'opacity:1':'filter:grayscale(1);opacity:.22')+'">'+step.icon+'</div>'
       +'<div class="lv-step-label" style="opacity:'+(cur?'1':done?'.8':'.28')+';font-weight:'+(cur?800:done?600:400)+'">'+step.name+'</div>'
       +'</div>';
   });
