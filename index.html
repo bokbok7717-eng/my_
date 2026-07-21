@@ -1140,6 +1140,9 @@ function copyPrevMonthBudget(){
   document.getElementById('in-alba').value=data.alba||0;
   document.getElementById('in-rent').value=data.rent||0;
   document.getElementById('e-rent').value=data.rent||0;
+  // max를 먼저 설정해야 아래 value 세팅이 0으로 클램핑되지 않음
+  document.getElementById('sl-sav-salary').max=Math.max(data.salary||0,0);
+  document.getElementById('sl-sav-alba').max=Math.max(data.alba||0,0);
   document.getElementById('sl-sav-salary').value=data.slSavSalary||0;
   document.getElementById('num-sav-salary').value=data.slSavSalary||0;
   document.getElementById('sl-sav-alba').value=data.slSavAlba||0;
@@ -1187,6 +1190,9 @@ function loadBudgetData(){
   document.getElementById('e-rent').value=data.rent||0;
   document.getElementById('e-util-est').value=data.utilEst||0;
   document.getElementById('e-util-actual').value=data.utilActual||0;
+  // max를 먼저 설정해야 아래 value 세팅이 0으로 클램핑되지 않음
+  document.getElementById('sl-sav-salary').max=Math.max(data.salary||0,0);
+  document.getElementById('sl-sav-alba').max=Math.max(data.alba||0,0);
   document.getElementById('sl-sav-salary').value=data.slSavSalary||0;
   document.getElementById('num-sav-salary').value=data.slSavSalary||0;
   document.getElementById('sl-sav-alba').value=data.slSavAlba||0;
