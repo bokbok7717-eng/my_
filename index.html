@@ -2492,7 +2492,8 @@ var SP_TYPES=[
 function checkSpendingTypePopup(){
   var today=new Date();
   var ym=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0');
-  // 실제 배포시: if(today.getDate()<25||localStorage.getItem(SP_KEY+'_'+ym))return;
+  var d=cycleData&&cycleData.day?cycleData.day:25;
+  if(today.getDate()<d||localStorage.getItem(SP_KEY+'_'+ym))return;
   // 사이클 범위
   var ar=getActiveCycleRange();
   var css, ces, cs, ce;
