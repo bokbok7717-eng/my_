@@ -1431,13 +1431,14 @@ function renderPaceInDetail(){
   if(cats.length===0) return '';
   var rows=cats.map(function(c){
     var color=c.pct>=100?'#F06B8A':c.pct>timePct+15?'#F3C98B':'#7fb5c1';
-    var weekDiff=c.weekBudget>0?c.weekBudget-c.weekSpent:null;
+    // 이번주 지출 있을 때만 표시, weekDiff는 이번주 기준으로만
+    var weekDiff=c.weekBudget>0&&c.weekSpent>0?c.weekBudget-c.weekSpent:null;
     var weekInfo=c.weekSpent>0
       ?'이번주 '+c.weekSpent.toLocaleString('ja-JP')+'엔'+(weekDiff!==null?' / '+(weekDiff<0?'-':'')+Math.abs(weekDiff).toLocaleString('ja-JP'):'')
       :'';
     return '<div style="margin-bottom:8px">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'
-        +'<span style="font-size:11px;color:#888">'+c.label+'</span>'
+        +'<span style="font-size:11px;color:#888">'+CAT_LABEL[c.cat]+'</span>'
         +'<span style="font-size:10px;color:#aaa">'+weekInfo+'</span>'
       +'</div>'
       +'<div style="display:flex;align-items:center;gap:6px">'
@@ -1449,12 +1450,13 @@ function renderPaceInDetail(){
       +'</div>'
       +'</div>';
   }).join('');
+  var paceId='pace-detail-'+Date.now();
   return '<div style="margin-top:6px;border-top:1px solid #eee">'
-    +'<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;cursor:pointer">'
+    +'<div onclick="var d=document.getElementById(\''+paceId+'\');var a=this.querySelector(\'span:last-child\');if(d.style.display===\'none\'){d.style.display=\'block\';a.textContent=\'다음주까지 '+(7-((sd.getDay()+6)%7))+'일 ▴\';}else{d.style.display=\'none\';a.textContent=\'다음주까지 '+(7-((sd.getDay()+6)%7))+'일 ▾\';}" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;cursor:pointer">'
       +'<span style="font-size:12px;color:#888">페이스 체크</span>'
       +'<span style="font-size:11px;color:#aaa">다음주까지 '+(7-((sd.getDay()+6)%7))+'일 ▾</span>'
     +'</div>'
-    +'<div style="display:none;padding-bottom:4px">'+rows+'</div>'
+    +'<div id="'+paceId+'" style="display:none;padding-bottom:4px">'+rows+'</div>'
     +'</div>';
 }
 
