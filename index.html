@@ -1431,10 +1431,9 @@ function renderPaceInDetail(){
   if(cats.length===0) return '';
   var rows=cats.map(function(c){
     var color=c.pct>=100?'#F06B8A':c.pct>timePct+15?'#F3C98B':'#7fb5c1';
-    // 이번주 지출 있을 때만 표시, weekDiff는 이번주 기준으로만
-    var weekDiff=c.weekBudget>0&&c.weekSpent>0?c.weekBudget-c.weekSpent:null;
-    var weekInfo=c.weekSpent>0
-      ?'이번주 '+c.weekSpent.toLocaleString('ja-JP')+'엔'+(weekDiff!==null?' / '+(weekDiff<0?'-':'')+Math.abs(weekDiff).toLocaleString('ja-JP'):'')
+    var weekDiff=c.weekBudget>0?c.weekBudget-c.weekSpent:null;
+    var weekInfo=c.weekBudget>0
+      ?'이번주 '+c.weekSpent.toLocaleString('ja-JP')+'엔'+(weekDiff!==null&&c.weekSpent>0?' / '+(weekDiff<0?'-':'')+Math.abs(weekDiff).toLocaleString('ja-JP'):'')
       :'';
     return '<div style="margin-bottom:8px">'
       +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'
