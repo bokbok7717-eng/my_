@@ -528,6 +528,57 @@ body.dark .pace-cat{color:#666}
 body.dark .pace-wrap{background:#333}
 body.dark .pace-title{color:#ddd!important}
 body.dark .pace-line{background:#444}
+
+/* ===== 한도 알림 배너 ===== */
+#limit-banner{display:none;border-radius:10px;padding:8px 12px;margin-bottom:8px;border:0.5px solid}
+#limit-banner.warn{background:#fff8e6;border-color:#f3c98b}
+#limit-banner.over{background:#fce8e8;border-color:#f09595}
+.limit-banner-inner{display:flex;align-items:center;gap:6px}
+.limit-banner-tags{display:flex;flex-wrap:wrap;gap:5px;flex:1}
+.limit-tag{font-size:11px;border-radius:20px;padding:2px 8px}
+.limit-tag.over{background:#f09595;color:#501313}
+.limit-tag.warn{background:#faeeda;color:#633806}
+.limit-close{background:none;border:none;font-size:13px;cursor:pointer;padding:0 2px;flex-shrink:0;line-height:1}
+body.dark #limit-banner.warn{background:#2a2210!important;border-color:#f3c98b!important}
+body.dark #limit-banner.over{background:#2a1010!important;border-color:#f09595!important}
+body.dark .limit-tag.over{background:#5a1a1a;color:#f09595}
+body.dark .limit-tag.warn{background:#3a2a10;color:#f3c98b}
+/* 사이클 결산 팝업 다크모드 */
+body.dark #spending-type-popup>div{background:#2a2a2a!important}
+body.dark #sp-badge{background:#1e3a40!important;color:#7fb5c1!important}
+body.dark #sp-title{color:#e8e8e8!important}
+body.dark #sp-sub{color:#aaa!important}
+body.dark #sp-desc{background:#333!important;color:#ccc!important}
+body.dark #spending-type-popup [style*="background:#f7f7f5"]{background:#333!important}
+body.dark #spending-type-popup .cs-lbl,body.dark #sp-cat-list [style*="color:#aaa"]{color:#666!important}
+body.dark #spending-type-popup [style*="color:#555"]{color:#ccc!important}
+body.dark #spending-type-popup [style*="color:#888"]{color:#888!important}
+body.dark #spending-type-popup [style*="border-bottom:0.5px solid #f5f5f5"]{border-bottom-color:#3a3a3a!important}
+body.dark #spending-type-popup [style*="background:#f9f9f9"]{background:#333!important}
+body.dark #spending-type-popup [style*="height:1px;background:#f0f0f0"]{background:#3a3a3a!important}
+body.dark #spending-type-popup [style*="border:1.5px solid #ddd"]{border-color:#444!important;color:#888!important}
+body.dark #sp-move-btn{border-color:#3a6a70!important;color:#7fb5c1!important}
+
+/* ===== 사이클 요약 카드 ===== */
+#cycle-summary{background:#fff;border-radius:16px}
+body.dark #cycle-summary{background:#2a2a2a!important}
+body.dark #cycle-summary-overlay>div>div:last-child{border-top-color:#3a3a3a!important}
+#cycle-summary .cs-title{font-size:13px;font-weight:600;color:#444}
+#cycle-summary .cs-sub{font-size:11px;color:#aaa;margin-top:2px}
+#cycle-summary .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#cycle-summary .cs-card{background:#f7f7f5;border-radius:8px;padding:10px}
+#cycle-summary .cs-lbl{font-size:11px;color:#888;margin-bottom:3px}
+#cycle-summary .cs-val{font-size:18px;font-weight:700}
+#cycle-summary .cs-cats{border-top:0.5px solid #eee;padding-top:10px;margin-top:2px}
+#cycle-summary .cs-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+#cycle-summary .cs-move{text-align:center;font-size:11px;color:#7fb5c1;margin-top:10px;cursor:pointer;padding-top:8px;border-top:0.5px solid #eee}
+body.dark #cycle-summary .cs-card{background:#333!important}
+body.dark #cycle-summary .cs-title{color:#ddd!important}
+body.dark #cycle-summary .cs-lbl{color:#666!important}
+body.dark #cycle-summary .cs-sub{color:#666!important}
+body.dark #cycle-summary .cs-cats{border-top-color:#3a3a3a!important}
+body.dark #cycle-summary .cs-row span{color:#aaa!important}
+body.dark #cycle-summary .cs-move{border-top-color:#3a3a3a!important}
 </style>
 </head>
 <body>
@@ -769,6 +820,15 @@ body.dark .pace-line{background:#444}
   </div>
 
   <h2>📅 지출 달력 <button onclick="openEventModal2()" style="background:#7fb5c1;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;vertical-align:middle">+ 반복일정</button></h2>
+
+  <!-- 한도 알림 배너 -->
+  <div id="limit-banner">
+    <div class="limit-banner-inner">
+      <span id="limit-icon" style="font-size:14px;flex-shrink:0"></span>
+      <div class="limit-banner-tags" id="limit-tags"></div>
+      <button class="limit-close" id="limit-close-btn" onclick="closeLimitBanner()" aria-label="닫기">✕</button>
+    </div>
+  </div>
   <div id="ev-legend" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:0"></div>
   <div class="section-box" style="padding-bottom:8px">
     <div class="cal" id="cal"></div>
@@ -1158,6 +1218,8 @@ function onGlobalChange(){
   loadBudgetData();
   renderCal();
   renderCycleBar();
+  renderLimitBanner();
+  renderCycleSummary();
   document.getElementById('detail-panel').innerHTML='<div class="empty">날짜를 클릭하면 내역이 보여요</div>';
   renderSummary();
   if(document.getElementById('tab-annual').classList.contains('active')) renderAnnual();
@@ -1250,7 +1312,7 @@ window.addEventListener('load',function(){
   });
   document.getElementById('g-month').value=gMonth;
   loadBudgetData();
-  if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();}
+  if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();renderLimitBanner();if(typeof checkSpendingTypePopup==='function')checkSpendingTypePopup();}
   if(typeof loadCalEvents2==='function'){loadCalEvents2();renderEvLegend();}
   if(typeof renderGoalDisplay==='function'){renderGoalDisplay();renderGoalHistory();}
   if(typeof renderSubGoals==='function') renderSubGoals();
@@ -1485,6 +1547,7 @@ function addExpense(){
   selDate=date;
   renderCal(); renderDetail(); renderSummary();
   if(typeof checkBadges==='function') checkBadges();
+  if(typeof renderLimitBanner==='function') renderLimitBanner();
 }
 
 function toggleMemo(id){
@@ -1913,6 +1976,115 @@ function renderCycleBar(){
     }
   }
 }
+// ===== 한도 알림 배너 =====
+var limitBannerDismissed='';
+function renderLimitBanner(){
+  var ar=getActiveCycleRange();
+  if(!ar) return;
+  var expRows=loadExp().filter(function(r){return r.date>=ar.start&&r.date<=ar.end;});
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var overCats=[], warnCats=[];
+  VAR_C.forEach(function(cat){
+    var budget=+(document.getElementById('b-'+cat)||{value:0}).value||0;
+    if(!budget) return;
+    var spent=expRows.filter(function(r){return r.cat===cat;}).reduce(function(s,r){return s+r.amount;},0);
+    var pct=Math.round(spent/budget*100);
+    if(pct>=100) overCats.push({label:CAT_LABEL[cat],pct:pct});
+    else if(pct>=90) warnCats.push({label:CAT_LABEL[cat],pct:pct});
+  });
+  var banner=document.getElementById('limit-banner');
+  var today=new Date().toISOString().slice(0,10);
+  if((!overCats.length&&!warnCats.length)||limitBannerDismissed===today){
+    banner.style.display='none'; return;
+  }
+  banner.style.display='block';
+  banner.className=overCats.length?'over':'warn';
+  document.getElementById('limit-icon').textContent=overCats.length?'🚨':'⚠️';
+  var tags='';
+  overCats.forEach(function(c){tags+='<span class="limit-tag over">'+c.label+' '+c.pct+'%</span>';});
+  warnCats.forEach(function(c){tags+='<span class="limit-tag warn">'+c.label+' '+c.pct+'%</span>';});
+  document.getElementById('limit-tags').innerHTML=tags;
+}
+function closeLimitBanner(){
+  limitBannerDismissed=new Date().toISOString().slice(0,10);
+  document.getElementById('limit-banner').style.display='none';
+}
+
+// ===== 사이클 요약 카드 =====
+function renderCycleSummary(){
+  var overlay=document.getElementById('cycle-summary-overlay');
+  var summary=document.getElementById('cycle-summary');
+  if(!overlay||!summary) return;
+
+  // 사이클 범위
+  var ar=getActiveCycleRange();
+  var cycleStart, cycleEnd;
+  if(ar){ cycleStart=ar.start; cycleEnd=ar.end; }
+  else {
+    var lastDay=new Date(gYear,gMonth,0).getDate();
+    cycleStart=gYear+'-'+String(gMonth).padStart(2,'0')+'-01';
+    cycleEnd=gYear+'-'+String(gMonth).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+  }
+
+  var expRows=loadExp().filter(function(r){return r.date>=cycleStart&&r.date<=cycleEnd;});
+  var totalSpent=expRows.reduce(function(s,r){return s+r.amount;},0);
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var totalBudget=VAR_C.reduce(function(s,cat){
+    return s+(+(document.getElementById('b-'+cat)||{value:0}).value||0);
+  },0);
+  var pct=totalBudget>0?Math.round(totalSpent/totalBudget*100):0;
+  var diff=totalBudget-totalSpent;
+  var f2=function(s){var d=new Date(s+'T00:00:00');return (d.getMonth()+1)+'/'+d.getDate();};
+
+  document.getElementById('cs-title').textContent=f2(cycleStart)+' ~ '+f2(cycleEnd)+' 사이클';
+  document.getElementById('cs-sub').textContent='총 '+expRows.length+'건의 지출';
+
+  var badge=document.getElementById('cs-badge');
+  badge.textContent=pct<=100?'예산 내 ✓':'예산 초과';
+  badge.style.background=pct<=100?'#eef6f8':'#fce8e8';
+  badge.style.color=pct<=100?'#0f6e56':'#a32d2d';
+
+  var totalEl=document.getElementById('cs-total');
+  totalEl.textContent=totalSpent.toLocaleString('ja-JP')+'엔';
+  totalEl.style.color=pct<=100?'#444':'#a32d2d';
+
+  var pctEl=document.getElementById('cs-pct');
+  pctEl.textContent=pct+'%';
+  pctEl.style.color=pct<=100?'#1d9e75':'#a32d2d';
+
+  var catData=VAR_C.map(function(cat){
+    var spent=expRows.filter(function(r){return r.cat===cat;}).reduce(function(s,r){return s+r.amount;},0);
+    return {label:CAT_LABEL[cat],spent:spent};
+  }).filter(function(c){return c.spent>0;}).sort(function(a,b){return b.spent-a.spent;}).slice(0,3);
+
+  document.getElementById('cs-cats').innerHTML=
+    '<div style="font-size:11px;color:#aaa;margin-bottom:5px">카테고리별 상위 지출</div>'+
+    catData.map(function(c){
+      return '<div class="cs-row"><span style="color:#888">'+c.label+'</span><span style="color:#555">'+c.spent.toLocaleString('ja-JP')+'엔</span></div>';
+    }).join('');
+
+  var moveBtn=document.getElementById('cs-move-btn');
+  if(diff>0){
+    moveBtn.style.display='block';
+    moveBtn.textContent='잔여 '+diff.toLocaleString('ja-JP')+'엔 → 저축으로 이동 ›';
+  } else {
+    moveBtn.style.display='none';
+  }
+
+  overlay.style.display='flex';
+}
+function closeCycleSummary(){
+  var overlay=document.getElementById('cycle-summary-overlay');
+  if(overlay) overlay.style.display='none';
+  // 오늘 날짜 기준 다시 안 뜨게
+  localStorage.setItem('cycle_summary_shown', new Date().toISOString().slice(0,7));
+}
+function moveSurplusToSavings(){
+  // 사이클 종료 시 잔여 금액 저축 탭으로 이동 안내
+  switchTab('savings',null);
+  alert('저축 탭에서 금액을 직접 입력해주세요!');
+}
+
 function openCycleModal(){
   loadCycleData();setCycleType(cycleData.type);
   document.getElementById('cy-day').value=cycleData.day||25;
@@ -1937,7 +2109,7 @@ function updateCyclePreview(){
 function saveCycleSetting(){
   var d=+document.getElementById('cy-day').value||1;
   if(cycleData.type===2&&(d<1||d>31)){alert('1~31 사이로 입력해주세요!');return;}
-  cycleData.day=d;saveCycleData();renderCycleBar();renderCal();renderSummary();closeCycleModal();
+  cycleData.day=d;saveCycleData();renderCycleBar();renderCal();renderSummary();renderLimitBanner();renderCycleSummary();closeCycleModal();
   badge('exp-badge','사이클 저장됨');
 }
 
@@ -2318,32 +2490,73 @@ var SP_TYPES=[
   {emoji:'🌟',title:'절약형 인간',desc:'이번달 정말 잘 했어요 🌟<br>저축도 잘 되고 있고, 최고예요!',cat:null},
 ];
 function checkSpendingTypePopup(){
-  var today=new Date();if(today.getDate()<25)return;
+  var today=new Date();
   var ym=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0');
-  if(localStorage.getItem(SP_KEY+'_'+ym))return;
-  var cs=new Date(today.getFullYear(),today.getMonth()-1,25);var ce=new Date(today.getFullYear(),today.getMonth(),24);
-  var css=cs.getFullYear()+'-'+String(cs.getMonth()+1).padStart(2,'0')+'-'+String(cs.getDate()).padStart(2,'0');
-  var ces=ce.getFullYear()+'-'+String(ce.getMonth()+1).padStart(2,'0')+'-'+String(ce.getDate()).padStart(2,'0');
-  var rows=loadExp().filter(function(r){return r.date>=css&&r.date<=ces;});if(rows.length===0)return;
+  // 실제 배포시: if(today.getDate()<25||localStorage.getItem(SP_KEY+'_'+ym))return;
+  // 사이클 범위
+  var ar=getActiveCycleRange();
+  var css, ces, cs, ce;
+  if(ar){ css=ar.start; ces=ar.end; cs=new Date(css+'T00:00:00'); ce=new Date(ces+'T00:00:00'); }
+  else {
+    cs=new Date(today.getFullYear(),today.getMonth()-1,25);
+    ce=new Date(today.getFullYear(),today.getMonth(),24);
+    css=cs.getFullYear()+'-'+String(cs.getMonth()+1).padStart(2,'0')+'-'+String(cs.getDate()).padStart(2,'0');
+    ces=ce.getFullYear()+'-'+String(ce.getMonth()+1).padStart(2,'0')+'-'+String(ce.getDate()).padStart(2,'0');
+  }
+  var rows=loadExp().filter(function(r){return r.date>=css&&r.date<=ces;});
   var catMap={};rows.forEach(function(r){catMap[r.cat]=(catMap[r.cat]||0)+r.amount;});
   var totalSpent=rows.reduce(function(s,r){return s+r.amount;},0);
-  var topCat=null,topAmt=0;Object.keys(catMap).forEach(function(k){if(catMap[k]>topAmt){topAmt=catMap[k];topCat=k;}});
+  var topCat=null,topAmt=0;
+  Object.keys(catMap).forEach(function(k){if(catMap[k]>topAmt){topAmt=catMap[k];topCat=k;}});
   var catToType={'식비':0,'교통비':1,'의류잡화':2,'미용':3,'문화여가':4,'생필품':5};
   var typeIdx=topCat&&catToType[topCat]!==undefined?catToType[topCat]:6;
-  var t=SP_TYPES[typeIdx];var pct=totalSpent>0?Math.round(topAmt/totalSpent*100):0;
-  var totalBudget=0;['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'].forEach(function(cat){var el=document.getElementById('b-'+cat);if(el)totalBudget+=(+el.value||0);});
+  var t=SP_TYPES[typeIdx];
+  var pct=totalSpent>0?Math.round(topAmt/totalSpent*100):0;
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var totalBudget=VAR_C.reduce(function(s,cat){return s+(+(document.getElementById('b-'+cat)||{value:0}).value||0);},0);
   var diff=totalBudget-totalSpent;
+  var budgetPct=totalBudget>0?Math.round(totalSpent/totalBudget*100):0;
   var f2=function(d){return (d.getMonth()+1)+'/'+d.getDate();};
-  var badge2=document.getElementById('sp-badge');if(badge2)badge2.textContent=f2(cs)+' ~ '+f2(ce)+' 사이클 결산';
+  // 헤더
+  var badge2=document.getElementById('sp-badge');
+  if(badge2) badge2.textContent=f2(cs)+' ~ '+f2(ce)+' 사이클 결산';
   var em=document.getElementById('sp-emoji');if(em)em.textContent=t.emoji;
   var ti=document.getElementById('sp-title');if(ti)ti.textContent='당신은 '+t.title+'입니다';
-  var su=document.getElementById('sp-sub');if(su)su.textContent=topCat?'이번달 지출의 '+pct+'%가 '+(CAT_LABEL[topCat]||topCat)+'였어요':'이번달 열심히 절약했어요!';
+  var su=document.getElementById('sp-sub');
+  if(su)su.textContent=topCat?'이번 사이클 지출의 '+pct+'%가 '+(CAT_LABEL[topCat]||topCat)+'였어요':'열심히 절약했어요!';
   var de=document.getElementById('sp-desc');if(de)de.innerHTML=t.desc;
-  var st=document.getElementById('sp-total');if(st)st.textContent=fmt(totalSpent);
-  var sb=document.getElementById('sp-budget');if(sb)sb.innerHTML=totalBudget>0?(diff>=0?'<span style="color:#8dbfb8">예산 내 지출 👍</span>':'<span style="color:#F06B8A">예산 초과 😅</span>'):'<span style="color:#aaa">-</span>';
-  var ss=document.getElementById('sp-save');if(ss)ss.textContent=diff>0?'+'+fmt(diff):diff<0?'-'+fmt(Math.abs(diff)):'-';
+  // 통계
+  var st=document.getElementById('sp-total');
+  if(st)st.textContent=fmt(totalSpent);
+  var sb=document.getElementById('sp-budget');
+  if(sb)sb.innerHTML=totalBudget>0?budgetPct+'% <span style="color:'+(diff>=0?'#8dbfb8':'#F06B8A')+'">'+(diff>=0?'예산 내 👍':'예산 초과 😅')+'</span>':'<span style="color:#aaa">-</span>';
+  // 절약
+  var ss=document.getElementById('sp-save');
+  if(ss){ss.textContent=diff>0?'+'+fmt(diff):diff<0?'-'+fmt(Math.abs(diff)):'-';ss.style.color=diff>=0?'#8dbfb8':'#F06B8A';}
+  // 카테고리 상위 3
+  var catData=VAR_C.map(function(cat){
+    return {label:CAT_LABEL[cat],spent:catMap[cat]||0};
+  }).filter(function(c){return c.spent>0;}).sort(function(a,b){return b.spent-a.spent;}).slice(0,3);
+  var catListEl=document.getElementById('sp-cat-list');
+  if(catListEl&&catData.length>0){
+    catListEl.innerHTML='<div style="font-size:10px;color:#aaa;margin-bottom:5px">카테고리별 상위 지출</div>'+
+      catData.map(function(c){
+        return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid #f5f5f5">'
+          +'<span style="color:#888">'+c.label+'</span><span style="color:#555;font-weight:600">'+c.spent.toLocaleString('ja-JP')+'엔</span></div>';
+      }).join('');
+  }
+  // 잔여 저축 이동
+  var moveBtn=document.getElementById('sp-move-btn');
+  if(moveBtn){
+    if(diff>0){moveBtn.style.display='block';moveBtn.textContent='잔여 '+fmt(diff)+' → 저축으로 이동 ›';}
+    else moveBtn.style.display='none';
+  }
   document.getElementById('spending-type-popup').style.display='flex';
   localStorage.setItem(SP_KEY+'_'+ym,'1');
+}
+function spMoveSurplus(){
+  closeSpendingPopup();
+  switchTab('savings',null);
 }
 function closeSpendingPopup(){document.getElementById('spending-type-popup').style.display='none';}
 
@@ -2775,22 +2988,45 @@ function closeBadgeModal(){
 </div>
 
 
-<div id="spending-type-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:26px 22px;max-width:320px;width:100%;text-align:center;box-sizing:border-box;max-height:85vh;overflow-y:auto">
-    <div id="sp-badge" style="display:inline-block;background:#eef6f8;color:#7fb5c1;font-size:11px;font-weight:700;border-radius:10px;padding:3px 10px;margin-bottom:16px"></div>
-    <div id="sp-emoji" style="font-size:54px;line-height:1;margin-bottom:8px"></div>
-    <div id="sp-title" style="font-size:18px;font-weight:700;color:#333;margin-bottom:4px"></div>
-    <div id="sp-sub" style="font-size:12px;color:#888;margin-bottom:10px"></div>
-    <div id="sp-desc" style="font-size:12px;color:#777;line-height:1.7;margin-bottom:14px;padding:10px 12px;background:#f9f9f9;border-radius:10px;text-align:left"></div>
-    <div style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:#aaa">총 지출</span><span style="font-weight:700;color:#4a8fa0" id="sp-total"></span></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:#aaa">예산 대비</span><span style="font-weight:700" id="sp-budget"></span></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:#aaa">절약 금액</span><span style="font-weight:700;color:#8dbfb8" id="sp-save"></span></div>
+<div id="spending-type-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;max-width:340px;width:100%;box-sizing:border-box;max-height:90vh;overflow-y:auto">
+    <!-- 헤더 -->
+    <div style="padding:20px 20px 0;text-align:center">
+      <div id="sp-badge" style="display:inline-block;background:#eef6f8;color:#7fb5c1;font-size:11px;font-weight:700;border-radius:10px;padding:3px 10px;margin-bottom:14px"></div>
+      <div id="sp-emoji" style="font-size:48px;line-height:1;margin-bottom:6px"></div>
+      <div id="sp-title" style="font-size:17px;font-weight:700;color:#333;margin-bottom:3px"></div>
+      <div id="sp-sub" style="font-size:12px;color:#888;margin-bottom:10px"></div>
+      <div id="sp-desc" style="font-size:12px;color:#777;line-height:1.6;margin-bottom:14px;padding:10px 12px;background:#f9f9f9;border-radius:10px;text-align:left"></div>
     </div>
-    <div style="height:1px;background:#f0f0f0;margin-bottom:12px"></div>
-    <div style="font-size:13px;color:#7fb5c1;font-weight:600;margin-bottom:16px">이번달도 열심히 적어볼까요? ✏️</div>
-    <button onclick="closeSpendingPopup()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px">새 달 시작하기 🎯</button>
-    <button onclick="closeSpendingPopup()" style="width:100%;background:none;border:1.5px solid #ddd;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">닫기</button>
+    <!-- 사이클 요약 통계 -->
+    <div style="padding:0 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:#f7f7f5;border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:#aaa;margin-bottom:3px">총 지출</div>
+          <div style="font-size:16px;font-weight:700;color:#4a8fa0" id="sp-total"></div>
+        </div>
+        <div style="background:#f7f7f5;border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:#aaa;margin-bottom:3px">예산 대비</div>
+          <div style="font-weight:700;font-size:16px" id="sp-budget"></div>
+        </div>
+      </div>
+      <!-- 카테고리 상위 지출 -->
+      <div id="sp-cat-list" style="margin-bottom:12px"></div>
+      <!-- 절약/초과 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f9f9f9;border-radius:10px;margin-bottom:14px">
+        <span style="font-size:12px;color:#888">절약 금액</span>
+        <span style="font-weight:700;color:#8dbfb8;font-size:14px" id="sp-save"></span>
+      </div>
+      <!-- 잔여 저축 이동 -->
+      <div id="sp-move-btn" style="display:none;text-align:center;font-size:12px;color:#7fb5c1;cursor:pointer;margin-bottom:12px;padding:8px;border:1px dashed #c0dde5;border-radius:8px" onclick="spMoveSurplus()"></div>
+    </div>
+    <!-- 버튼 -->
+    <div style="padding:0 20px 20px">
+      <div style="height:1px;background:#f0f0f0;margin-bottom:14px"></div>
+      <div style="font-size:12px;color:#7fb5c1;font-weight:600;text-align:center;margin-bottom:12px">이번 사이클도 열심히 적어볼까요? ✏️</div>
+      <button onclick="closeSpendingPopup()" style="width:100%;background:#7fb5c1;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px">새 사이클 시작하기 🎯</button>
+      <button onclick="closeSpendingPopup()" style="width:100%;background:none;border:1.5px solid #ddd;color:#aaa;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:inherit">닫기</button>
+    </div>
   </div>
 </div>
 
