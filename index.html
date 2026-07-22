@@ -599,7 +599,33 @@ body.dark .day-inc-dot{background:#5dcc96}
 body.dark .input-tab-bar{background:#333}
 body.dark .input-tab-btn.active{background:#2a2a2a;color:#7fb5c1}
 body.dark .input-tab-btn{color:#666}
+
+/* ===== 자동완성 ===== */
+#desc-suggest{display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--surface-2,#fff);border:1px solid #d0e8ee;border-radius:8px;z-index:500;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.ac-item{padding:9px 12px;font-size:13px;cursor:pointer;color:#444;border-bottom:0.5px solid #eee;display:flex;align-items:center;gap:6px}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.ac-active{background:#eef6f8}
+.ac-clock{font-size:11px;color:#bbb}
+#f-desc-wrap{position:relative}
+body.dark #desc-suggest{background:#2a2a2a;border-color:#3a3a3a}
+body.dark .ac-item{color:#ddd;border-bottom-color:#333}
+body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
 </style>
+  <!-- PWA -->
+  <link rel="manifest" href="/diary-main/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="가계부">
+  <meta name="theme-color" content="#7fb5c1">
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.register('/diary-main/sw.js')
+          .then(function(reg){ console.log('SW 등록:', reg.scope); })
+          .catch(function(err){ console.log('SW 실패:', err); });
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -834,7 +860,12 @@ body.dark .input-tab-btn{color:#666}
           <option value="공과금">💡 공과금</option>
           <option value="저축">🏦 저축</option>
         </select>
-        <input type="text" id="f-desc" placeholder="내용">
+        <div id="f-desc-wrap" style="position:relative">
+          <input type="text" id="f-desc" placeholder="내용" autocomplete="off"
+            oninput="acOnInput(this.value)" onkeydown="acOnKey(event)"
+            onfocus="acOnInput(this.value)" style="width:100%;box-sizing:border-box">
+          <div id="desc-suggest"></div>
+        </div>
         <input type="number" id="f-amount" placeholder="금액 (엔)">
         <button class="btn-add" onclick="addExpense()">+</button>
       </div>
@@ -1613,9 +1644,11 @@ function addExpense(){
   var rows=loadExp();
   rows.push({id:Date.now(),date:date,desc:desc,cat:cat,amount:amount,memo:memo});
   saveExp(rows);
+  acSaveHistory(desc, cat);
   document.getElementById('f-desc').value='';
   document.getElementById('f-amount').value='';
   document.getElementById('f-memo').value='';
+  acHide();
   badge('exp-badge','✓ 저장됨');
   // 공과금 입력시 수입탭 자동 반영
   if(cat==='공과금'){
@@ -1778,6 +1811,86 @@ function renderIncList(){
         +'<span class="income-amt">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+memoDiv;
     }).join('');
 }
+// ===== 자동완성 =====
+var AC_KEY='budget_ac_history_v1';
+var acIdx=-1;
+
+function acLoad(){
+  try{return JSON.parse(localStorage.getItem(AC_KEY))||[];}catch(e){return[];}
+}
+function acSaveHistory(desc, cat){
+  if(!desc) return;
+  var list=acLoad();
+  // 중복 제거 후 맨 앞에 추가
+  list=list.filter(function(x){return !(x.desc===desc&&x.cat===cat);});
+  list.unshift({desc:desc,cat:cat,ts:Date.now()});
+  if(list.length>50) list=list.slice(0,50);
+  localStorage.setItem(AC_KEY,JSON.stringify(list));
+}
+function acOnInput(v){
+  var box=document.getElementById('desc-suggest');
+  if(!box) return;
+  if(!v){acHide();return;}
+  var cat=document.getElementById('f-cat').value;
+  var list=acLoad();
+  // 현재 카테고리 우선, 같은 카테고리 먼저
+  var matched=list.filter(function(x){
+    return x.desc.toLowerCase().includes(v.toLowerCase());
+  });
+  // 같은 카테고리 앞으로
+  matched.sort(function(a,b){
+    if(a.cat===cat&&b.cat!==cat) return -1;
+    if(a.cat!==cat&&b.cat===cat) return 1;
+    return 0;
+  });
+  matched=matched.slice(0,6);
+  if(!matched.length){acHide();return;}
+  acIdx=-1;
+  box.innerHTML=matched.map(function(x,i){
+    return '<div class="ac-item" data-desc="'+x.desc+'" onclick="acPickEl(this)">'
+      +'<span class="ac-clock">🕐</span>'
+      +'<span style="flex:1">'+x.desc+'</span>'
+      +(x.cat!==cat?'<span style="font-size:10px;color:#bbb">'+CAT_LABEL[x.cat]+'</span>':'')
+      +'</div>';
+  }).join('');
+  box.style.display='block';
+}
+function acOnKey(e){
+  var box=document.getElementById('desc-suggest');
+  if(!box||box.style.display==='none') return;
+  var items=box.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    acIdx=Math.min(acIdx+1,items.length-1);
+    items.forEach(function(el,i){el.classList.toggle('ac-active',i===acIdx);});
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    acIdx=Math.max(acIdx-1,-1);
+    items.forEach(function(el,i){el.classList.toggle('ac-active',i===acIdx);});
+  } else if(e.key==='Enter'&&acIdx>=0){
+    e.preventDefault();
+    acPick(items[acIdx].dataset.desc);
+  } else if(e.key==='Escape'){
+    acHide();
+  }
+}
+function acPick(desc){
+  document.getElementById('f-desc').value=desc;
+  acHide();
+  document.getElementById('f-amount').focus();
+}
+function acPickEl(el){
+  acPick(el.dataset.desc);
+}
+function acHide(){
+  var box=document.getElementById('desc-suggest');
+  if(box) box.style.display='none';
+  acIdx=-1;
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#f-desc-wrap')) acHide();
+});
+
 function fmtShort(v){
   if(v>=10000) return Math.round(v/10000)+'만';
   if(v>=1000) return Math.round(v/1000)+'천';
