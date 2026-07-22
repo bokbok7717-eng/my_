@@ -862,7 +862,9 @@ body.dark .input-tab-btn{color:#666}
       <div class="f-memo-wrap">
         <input class="f-memo-inp" id="inc-memo" type="text" placeholder="📝 메모 (선택)">
       </div>
-      <div id="inc-list" style="margin-top:8px"></div>
+      <div id="inc-list-wrap" style="display:none">
+        <div id="inc-list" style="margin-top:8px"></div>
+      </div>
     </div>
   </div>
 
@@ -1757,7 +1759,9 @@ function renderIncList(){
   if(!el) return;
   var ym=gYear+'-'+String(gMonth).padStart(2,'0');
   var rows=loadIncome().filter(function(r){return r.date.slice(0,7)===ym;});
-  if(rows.length===0){el.innerHTML='';return;}
+  var wrap=document.getElementById('inc-list-wrap');
+  if(rows.length===0){el.innerHTML='';if(wrap)wrap.style.display='none';return;}
+  if(wrap)wrap.style.display='block';
   var total=rows.reduce(function(s,r){return s+r.amount;},0);
   el.innerHTML='<div style="font-size:11px;color:#aaa;margin-bottom:4px">이번달 별도 수입 <span style="color:#2eaa6e;font-weight:600">+'+fmt(total)+'</span></div>'+
     rows.map(function(r){
