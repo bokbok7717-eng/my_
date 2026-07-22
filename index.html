@@ -586,11 +586,12 @@ body.dark #cycle-summary .cs-move{border-top-color:#3a3a3a!important}
 .income-amt{color:#2eaa6e;font-weight:600}
 .day-inc{font-size:9px;color:#2eaa6e;font-weight:600;margin-top:1px}
 .day-inc-dot{width:5px;height:5px;border-radius:50%;background:#2eaa6e;display:inline-block;margin-top:2px}
-body.dark .income-row{border-bottom-color:#333}
 body.dark #inc-list [style*="color:#888"]{color:#666!important}
+body.dark .income-row{border-bottom-color:#333}
+body.dark .detail-row [style*="background:#e6f7ee"]{background:#1a3028!important;color:#5dcc96!important}
+body.dark [style*="color:#2eaa6e"]{color:#5dcc96!important}
 body.dark .day-inc{color:#5dcc96}
 body.dark .day-inc-dot{background:#5dcc96}
-
 /* ===== 입력 탭 전환 ===== */
 .input-tab-bar{display:flex;border-radius:8px;background:#f0f0f0;padding:3px;margin-bottom:10px;gap:3px}
 .input-tab-btn{flex:1;padding:6px 0;font-size:12px;font-weight:600;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#aaa;font-family:inherit;transition:all .15s}
@@ -709,7 +710,6 @@ body.dark .input-tab-btn{color:#666}
     <div class="grid2" style="margin-bottom:10px">
       <div class="input-item"><label>월급</label><input type="number" id="in-salary" value="0" oninput="calcAll()"></div>
       <div class="input-item"><label>알바비</label><input type="number" id="in-alba" value="0" oninput="calcAll()"></div>
-
       <div class="input-item"><label>월세</label><input type="number" id="in-rent" value="0" oninput="syncBudgetFixed('rent','budget');calcAll()"></div>
       <div class="input-item"><label>공과금 예상</label><input type="number" id="in-util" value="0" oninput="syncBudgetFixed('util','budget');updateUtilDiff();calcAll()"></div>
     </div>
@@ -814,12 +814,10 @@ body.dark .input-tab-btn{color:#666}
 
   <h2>✏️ 입력</h2>
   <div class="section-box">
-    <!-- 탭 전환 -->
     <div class="input-tab-bar">
       <button class="input-tab-btn active" id="itab-exp" onclick="switchInputTab('exp')">지출</button>
       <button class="input-tab-btn" id="itab-inc" onclick="switchInputTab('inc')">수입</button>
     </div>
-    <!-- 지출 입력 -->
     <div id="input-exp">
       <div class="form-row">
         <input type="date" id="f-date">
@@ -845,7 +843,6 @@ body.dark .input-tab-btn{color:#666}
       </div>
       <span class="save-badge" id="exp-badge"></span>
     </div>
-    <!-- 수입 입력 -->
     <div id="input-inc" style="display:none">
       <div class="form-row">
         <input type="date" id="inc-date">
@@ -862,8 +859,12 @@ body.dark .input-tab-btn{color:#666}
       <div class="f-memo-wrap">
         <input class="f-memo-inp" id="inc-memo" type="text" placeholder="📝 메모 (선택)">
       </div>
+      <div id="inc-list-toggle" onclick="toggleIncList()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:6px 0;margin-top:4px;border-top:1px solid #f0f0f0">
+        <span style="font-size:12px;color:#aaa">이번달 수입 기록</span>
+        <span id="inc-list-arrow" style="font-size:11px;color:#aaa">▾</span>
+      </div>
       <div id="inc-list-wrap" style="display:none">
-        <div id="inc-list" style="margin-top:8px"></div>
+        <div id="inc-list" style="margin-top:4px"></div>
       </div>
     </div>
   </div>
@@ -1163,7 +1164,6 @@ function saveBudgetData(){
   var data={
     salary:document.getElementById('in-salary').value,
     alba:document.getElementById('in-alba').value,
-
     rent:document.getElementById('in-rent').value,
     utilEst:document.getElementById('e-util-est').value,
     utilActual:document.getElementById('e-util-actual').value,
@@ -1188,22 +1188,27 @@ function copyPrevMonthBudget(){
   var data=JSON.parse(raw);
   document.getElementById('in-salary').value=data.salary||0;
   document.getElementById('in-alba').value=data.alba||0;
-
   document.getElementById('in-rent').value=data.rent||0;
   document.getElementById('e-rent').value=data.rent||0;
-  // max를 먼저 설정해야 아래 value 세팅이 0으로 클램핑되지 않음
-  document.getElementById('sl-sav-salary').max=Math.max(data.salary||0,0);
-  document.getElementById('sl-sav-alba').max=Math.max(data.alba||0,0);
-  document.getElementById('sl-sav-salary').value=data.slSavSalary||0;
-  document.getElementById('num-sav-salary').value=data.slSavSalary||0;
-  document.getElementById('sl-sav-alba').value=data.slSavAlba||0;
-  document.getElementById('num-sav-alba').value=data.slSavAlba||0;
   if(data.cats){
     Object.keys(data.cats).forEach(function(cat){
       var el=document.getElementById('b-'+cat);
       if(el){ el.value=data.cats[cat]; onBudgetInput(cat); }
     });
   }
+  // max 먼저 설정하기 위해 calcAll 선실행
+  calcAll();
+  // calcAll 이후 max가 설정된 상태에서 저축 슬라이더 값 세팅
+  var salary=+document.getElementById('in-salary').value||0;
+  var alba=+document.getElementById('in-alba').value||0;
+  var slS=document.getElementById('sl-sav-salary');
+  var slA=document.getElementById('sl-sav-alba');
+  slS.max=Math.max(salary,0);
+  slA.max=Math.max(alba,0);
+  slS.value=Math.min(data.slSavSalary||0,salary);
+  document.getElementById('num-sav-salary').value=slS.value;
+  slA.value=Math.min(data.slSavAlba||0,alba);
+  document.getElementById('num-sav-alba').value=slA.value;
   saveBudgetData();
   calcAll(); renderSummary();
   if(typeof checkBadges==='function') checkBadges();
@@ -1237,18 +1242,18 @@ function loadBudgetData(){
   var data=JSON.parse(raw);
   document.getElementById('in-salary').value=data.salary||0;
   document.getElementById('in-alba').value=data.alba||0;
-
   document.getElementById('in-rent').value=data.rent||0;
   document.getElementById('e-rent').value=data.rent||0;
   document.getElementById('e-util-est').value=data.utilEst||0;
   document.getElementById('e-util-actual').value=data.utilActual||0;
-  // max를 먼저 설정해야 아래 value 세팅이 0으로 클램핑되지 않음
-  document.getElementById('sl-sav-salary').max=Math.max(data.salary||0,0);
-  document.getElementById('sl-sav-alba').max=Math.max(data.alba||0,0);
-  document.getElementById('sl-sav-salary').value=data.slSavSalary||0;
-  document.getElementById('num-sav-salary').value=data.slSavSalary||0;
-  document.getElementById('sl-sav-alba').value=data.slSavAlba||0;
-  document.getElementById('num-sav-alba').value=data.slSavAlba||0;
+  var slS2=document.getElementById('sl-sav-salary');
+  var slA2=document.getElementById('sl-sav-alba');
+  var sal2=+document.getElementById('in-salary').value||0;
+  var alb2=+document.getElementById('in-alba').value||0;
+  slS2.max=Math.max(sal2,0); slS2.value=Math.min(data.slSavSalary||0,sal2);
+  document.getElementById('num-sav-salary').value=slS2.value;
+  slA2.max=Math.max(alb2,0); slA2.value=Math.min(data.slSavAlba||0,alb2);
+  document.getElementById('num-sav-alba').value=slA2.value;
   if(data.cats){
     Object.keys(data.cats).forEach(function(cat){
       var el=document.getElementById('b-'+cat);
@@ -1276,6 +1281,7 @@ function onGlobalChange(){
   loadBudgetData();
   renderCal();
   renderCycleBar();
+  renderIncList();
   renderLimitBanner();
   renderCycleSummary();
   document.getElementById('detail-panel').innerHTML='<div class="empty">날짜를 클릭하면 내역이 보여요</div>';
@@ -1371,7 +1377,7 @@ window.addEventListener('load',function(){
   document.getElementById('g-month').value=gMonth;
   loadBudgetData();
   var td=new Date().toISOString().split('T')[0];var incDateEl=document.getElementById('inc-date');if(incDateEl)incDateEl.value=td;
-renderIncList();if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();renderLimitBanner();if(typeof checkSpendingTypePopup==='function')checkSpendingTypePopup();}
+  renderIncList();if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();renderLimitBanner();if(typeof checkSpendingTypePopup==='function')checkSpendingTypePopup();}
   if(typeof loadCalEvents2==='function'){loadCalEvents2();renderEvLegend();}
   if(typeof renderGoalDisplay==='function'){renderGoalDisplay();renderGoalHistory();}
   if(typeof renderSubGoals==='function') renderSubGoals();
@@ -1474,7 +1480,6 @@ function renderCal(){
     if(dayMap[ds]){inner+='<div class="day-amt-sm">'+fmt(dayMap[ds].total)+'</div><div class="day-dot"></div>';}
     var incTotal=incomeMap[ds]||0;
     if(incTotal>0) inner+='<div class="day-inc">+'+fmtShort(incTotal)+'</div>';
-
     var evs2=typeof getCalEvents==='function'?getCalEvents(ds):[];
     if(evs2.length>0){
       var ev0=evs2[0];
@@ -1512,19 +1517,22 @@ function renderDetail(){
     }
   }
   var incRows=loadIncome().filter(function(r){return r.date===selDate;});
-  var incTotal=incRows.reduce(function(s,r){return s+r.amount;},0);
-  var incHtml=incRows.length>0?'<div style="margin-bottom:6px">'+incRows.map(function(r){
+  var INC_EMO={'용돈':'💵','팁':'💰','환급':'🔄','기타수입':'📥'};
+  var incHtml=incRows.map(function(r){
     var im=r.memo?'<div class="memo-row" id="imemo-'+r.id+'">'+r.memo+'</div>':'';
-    return '<div class="income-row"><span>💚 '+r.cat+' '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px">'+(r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'')+'<span class="income-amt">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+im;
-  }).join('')+'</div>':'';
-  panel.innerHTML=cycleBanner+incHtml+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0||incRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
+    var emo=INC_EMO[r.cat]||'💚';
+    var memoBtn=r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'';
+    return '<div class="detail-row"><span><span class="tag" style="background:#e6f7ee;color:#2eaa6e">'+emo+' 수입</span> '+r.desc+'</span>'
+      +'<span style="display:flex;align-items:center;gap:6px">'+memoBtn+'<span style="font-weight:600;color:#2eaa6e">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+im;
+  }).join('');
+  panel.innerHTML=cycleBanner+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0||incRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
     (dayRows.length===0?'<div class="empty" style="padding:10px">이날 지출 내역이 없어요 ☁️</div>':
     dayRows.map(function(r){
       var cls=FIX_CATS.indexOf(r.cat)>=0?'tag-고정':'tag-'+r.cat;
       var memoBtn = r.memo ? '<button class="memo-toggle" onclick="toggleMemo('+r.id+')" title="메모 보기">📝</button>' : '';
       var memoDiv = r.memo ? '<div class="memo-row" id="memo-'+r.id+'">'+r.memo+'</div>' : '';
       return '<div class="detail-row"><span><span class="tag '+cls+'">'+CAT_LABEL[r.cat]+'</span> '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px">'+memoBtn+'<span style="font-weight:600;color:#7fb5c1">'+fmt(r.amount)+'</span><button class="btn-del" onclick="delExpense('+r.id+')">✕</button></span></div>'+memoDiv;
-    }).join('')+renderWeekSummary());
+    }).join('')+incHtml+renderWeekSummary());
 }
 
 function renderWeekSummary(){ return renderPaceInDetail(); }
@@ -1624,10 +1632,6 @@ function addExpense(){
   if(typeof renderLimitBanner==='function') renderLimitBanner();
 }
 
-function toggleMemo2(id){
-  var el=document.getElementById('imemo-'+id);
-  if(el) el.classList.toggle('open');
-}
 function toggleMemo(id){
   var el=document.getElementById('memo-'+id);
   if(el) el.classList.toggle('open');
@@ -1728,7 +1732,13 @@ function switchInputTab(tab){
   document.getElementById('itab-exp').classList.toggle('active',tab==='exp');
   document.getElementById('itab-inc').classList.toggle('active',tab==='inc');
 }
-
+function toggleIncList(){
+  var wrap=document.getElementById('inc-list-wrap');
+  var arrow=document.getElementById('inc-list-arrow');
+  var open=wrap.style.display==='none';
+  wrap.style.display=open?'block':'none';
+  if(arrow) arrow.textContent=open?'▴':'▾';
+}
 function addIncome(){
   var date=document.getElementById('inc-date').value;
   var cat=document.getElementById('inc-cat').value;
@@ -1742,32 +1752,30 @@ function addIncome(){
   document.getElementById('inc-desc').value='';
   document.getElementById('inc-amt').value='';
   document.getElementById('inc-memo').value='';
-  renderIncList();
-  renderCal();
-  calcAll();
-  renderDetail();
+  renderIncList(); renderCal(); calcAll(); renderDetail();
+  if(typeof renderLimitBanner==='function') renderLimitBanner();
 }
 function delIncome(id){
   saveIncome(loadIncome().filter(function(r){return r.id!==id;}));
-  renderIncList();
-  renderCal();
-  calcAll();
-  renderDetail();
+  renderIncList(); renderCal(); calcAll(); renderDetail();
+}
+function toggleMemo2(id){
+  var el=document.getElementById('imemo-'+id);
+  if(el) el.classList.toggle('open');
 }
 function renderIncList(){
   var el=document.getElementById('inc-list');
   if(!el) return;
   var ym=gYear+'-'+String(gMonth).padStart(2,'0');
   var rows=loadIncome().filter(function(r){return r.date.slice(0,7)===ym;});
-  var wrap=document.getElementById('inc-list-wrap');
-  if(rows.length===0){el.innerHTML='';if(wrap)wrap.style.display='none';return;}
-  if(wrap)wrap.style.display='block';
+  if(rows.length===0){el.innerHTML='';return;}
   var total=rows.reduce(function(s,r){return s+r.amount;},0);
   el.innerHTML='<div style="font-size:11px;color:#aaa;margin-bottom:4px">이번달 별도 수입 <span style="color:#2eaa6e;font-weight:600">+'+fmt(total)+'</span></div>'+
     rows.map(function(r){
       var memoDiv=r.memo?'<div class="memo-row" id="imemo-'+r.id+'">'+r.memo+'</div>':'';
       return '<div class="income-row"><span style="color:#888">'+r.date.slice(5).replace('-','/')+'  '+r.cat+' '+r.desc+'</span>'
-        +'<span style="display:flex;align-items:center;gap:6px">'+(r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'')+'<span class="income-amt">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+memoDiv;
+        +'<span style="display:flex;align-items:center;gap:6px">'+(r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'')
+        +'<span class="income-amt">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+memoDiv;
     }).join('');
 }
 function fmtShort(v){
