@@ -1,0 +1,22 @@
+{
+  "name": "가계부",
+  "short_name": "가계부",
+  "description": "일본 자취 가계부 앱",
+  "start_url": "/diary-main/index.html",
+  "display": "standalone",
+  "background_color": "#7fb5c1",
+  "theme_color": "#7fb5c1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%237fb5c1'/%3E%3Ctext y='130' x='50%25' text-anchor='middle' font-size='120'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%237fb5c1'/%3E%3Ctext y='360' x='50%25' text-anchor='middle' font-size='320'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
