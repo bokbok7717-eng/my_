@@ -579,6 +579,25 @@ body.dark #cycle-summary .cs-sub{color:#666!important}
 body.dark #cycle-summary .cs-cats{border-top-color:#3a3a3a!important}
 body.dark #cycle-summary .cs-row span{color:#aaa!important}
 body.dark #cycle-summary .cs-move{border-top-color:#3a3a3a!important}
+
+/* ===== 별도 수입 ===== */
+.income-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee;font-size:13px}
+.income-row:last-child{border-bottom:none}
+.income-amt{color:#2eaa6e;font-weight:600}
+.day-inc{font-size:9px;color:#2eaa6e;font-weight:600;margin-top:1px}
+.day-inc-dot{width:5px;height:5px;border-radius:50%;background:#2eaa6e;display:inline-block;margin-top:2px}
+body.dark .income-row{border-bottom-color:#333}
+body.dark #inc-list [style*="color:#888"]{color:#666!important}
+body.dark .day-inc{color:#5dcc96}
+body.dark .day-inc-dot{background:#5dcc96}
+
+/* ===== 입력 탭 전환 ===== */
+.input-tab-bar{display:flex;border-radius:8px;background:#f0f0f0;padding:3px;margin-bottom:10px;gap:3px}
+.input-tab-btn{flex:1;padding:6px 0;font-size:12px;font-weight:600;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#aaa;font-family:inherit;transition:all .15s}
+.input-tab-btn.active{background:#fff;color:#7fb5c1;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+body.dark .input-tab-bar{background:#333}
+body.dark .input-tab-btn.active{background:#2a2a2a;color:#7fb5c1}
+body.dark .input-tab-btn{color:#666}
 </style>
 </head>
 <body>
@@ -690,6 +709,7 @@ body.dark #cycle-summary .cs-move{border-top-color:#3a3a3a!important}
     <div class="grid2" style="margin-bottom:10px">
       <div class="input-item"><label>월급</label><input type="number" id="in-salary" value="0" oninput="calcAll()"></div>
       <div class="input-item"><label>알바비</label><input type="number" id="in-alba" value="0" oninput="calcAll()"></div>
+
       <div class="input-item"><label>월세</label><input type="number" id="in-rent" value="0" oninput="syncBudgetFixed('rent','budget');calcAll()"></div>
       <div class="input-item"><label>공과금 예상</label><input type="number" id="in-util" value="0" oninput="syncBudgetFixed('util','budget');updateUtilDiff();calcAll()"></div>
     </div>
@@ -792,31 +812,58 @@ body.dark #cycle-summary .cs-move{border-top-color:#3a3a3a!important}
     </div>
   </div>
 
-  <h2>✏️ 지출 입력</h2>
+  <h2>✏️ 입력</h2>
   <div class="section-box">
-    <div class="form-row">
-      <input type="date" id="f-date">
-      <select id="f-cat">
-        <option value="교통비">🚃 교통비</option>
-        <option value="식비">🍚 식비</option>
-        <option value="생필품">🧴 생필품</option>
-        <option value="미용">💇 미용</option>
-        <option value="의류잡화">👗 의류/잡화</option>
-        <option value="문화여가">☕ 문화/여가</option>
-        <option value="비상금">🚨 비상금</option>
-        <option value="기타">📦 기타</option>
-        <option value="월세">🏠 월세</option>
-        <option value="공과금">💡 공과금</option>
-        <option value="저축">🏦 저축</option>
-      </select>
-      <input type="text" id="f-desc" placeholder="내용">
-      <input type="number" id="f-amount" placeholder="금액 (엔)">
-      <button class="btn-add" onclick="addExpense()">+</button>
+    <!-- 탭 전환 -->
+    <div class="input-tab-bar">
+      <button class="input-tab-btn active" id="itab-exp" onclick="switchInputTab('exp')">지출</button>
+      <button class="input-tab-btn" id="itab-inc" onclick="switchInputTab('inc')">수입</button>
     </div>
-    <div class="f-memo-wrap">
-      <input class="f-memo-inp" id="f-memo" type="text" placeholder="📝 메모 (선택) — 예: 양배추, 대파, 두부">
+    <!-- 지출 입력 -->
+    <div id="input-exp">
+      <div class="form-row">
+        <input type="date" id="f-date">
+        <select id="f-cat">
+          <option value="교통비">🚃 교통비</option>
+          <option value="식비">🍚 식비</option>
+          <option value="생필품">🧴 생필품</option>
+          <option value="미용">💇 미용</option>
+          <option value="의류잡화">👗 의류/잡화</option>
+          <option value="문화여가">☕ 문화/여가</option>
+          <option value="비상금">🚨 비상금</option>
+          <option value="기타">📦 기타</option>
+          <option value="월세">🏠 월세</option>
+          <option value="공과금">💡 공과금</option>
+          <option value="저축">🏦 저축</option>
+        </select>
+        <input type="text" id="f-desc" placeholder="내용">
+        <input type="number" id="f-amount" placeholder="금액 (엔)">
+        <button class="btn-add" onclick="addExpense()">+</button>
+      </div>
+      <div class="f-memo-wrap">
+        <input class="f-memo-inp" id="f-memo" type="text" placeholder="📝 메모 (선택) — 예: 양배추, 대파, 두부">
+      </div>
+      <span class="save-badge" id="exp-badge"></span>
     </div>
-    <span class="save-badge" id="exp-badge"></span>
+    <!-- 수입 입력 -->
+    <div id="input-inc" style="display:none">
+      <div class="form-row">
+        <input type="date" id="inc-date">
+        <select id="inc-cat">
+          <option value="용돈">💵 용돈</option>
+          <option value="팁">💰 팁</option>
+          <option value="환급">🔄 환급</option>
+          <option value="기타수입">📥 기타</option>
+        </select>
+        <input type="text" id="inc-desc" placeholder="내용">
+        <input type="number" id="inc-amt" placeholder="금액 (엔)">
+        <button class="btn-add" onclick="addIncome()">+</button>
+      </div>
+      <div class="f-memo-wrap">
+        <input class="f-memo-inp" id="inc-memo" type="text" placeholder="📝 메모 (선택)">
+      </div>
+      <div id="inc-list" style="margin-top:8px"></div>
+    </div>
   </div>
 
   <h2>📅 지출 달력 <button onclick="openEventModal2()" style="background:#7fb5c1;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;vertical-align:middle">+ 반복일정</button></h2>
@@ -1114,6 +1161,7 @@ function saveBudgetData(){
   var data={
     salary:document.getElementById('in-salary').value,
     alba:document.getElementById('in-alba').value,
+
     rent:document.getElementById('in-rent').value,
     utilEst:document.getElementById('e-util-est').value,
     utilActual:document.getElementById('e-util-actual').value,
@@ -1138,6 +1186,7 @@ function copyPrevMonthBudget(){
   var data=JSON.parse(raw);
   document.getElementById('in-salary').value=data.salary||0;
   document.getElementById('in-alba').value=data.alba||0;
+
   document.getElementById('in-rent').value=data.rent||0;
   document.getElementById('e-rent').value=data.rent||0;
   // max를 먼저 설정해야 아래 value 세팅이 0으로 클램핑되지 않음
@@ -1186,6 +1235,7 @@ function loadBudgetData(){
   var data=JSON.parse(raw);
   document.getElementById('in-salary').value=data.salary||0;
   document.getElementById('in-alba').value=data.alba||0;
+
   document.getElementById('in-rent').value=data.rent||0;
   document.getElementById('e-rent').value=data.rent||0;
   document.getElementById('e-util-est').value=data.utilEst||0;
@@ -1318,7 +1368,8 @@ window.addEventListener('load',function(){
   });
   document.getElementById('g-month').value=gMonth;
   loadBudgetData();
-  if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();renderLimitBanner();if(typeof checkSpendingTypePopup==='function')checkSpendingTypePopup();}
+  var td=new Date().toISOString().split('T')[0];var incDateEl=document.getElementById('inc-date');if(incDateEl)incDateEl.value=td;
+renderIncList();if(typeof loadCycleData==='function'){loadCycleData();renderCycleBar();renderLimitBanner();if(typeof checkSpendingTypePopup==='function')checkSpendingTypePopup();}
   if(typeof loadCalEvents2==='function'){loadCalEvents2();renderEvLegend();}
   if(typeof renderGoalDisplay==='function'){renderGoalDisplay();renderGoalHistory();}
   if(typeof renderSubGoals==='function') renderSubGoals();
@@ -1343,7 +1394,11 @@ function calcAll(){
   var fsav=savSalary+savAlba;
   // e-fsav 동기화 (지출탭 연동용)
   document.getElementById('e-fsav').value=fsav;
-  var total=salary+alba;
+  var ar2=getActiveCycleRange();
+  var extraIncome=loadIncome().filter(function(r){
+    return ar2?r.date>=ar2.start&&r.date<=ar2.end:r.date.slice(0,7)===gYear+'-'+String(gMonth).padStart(2,'0');
+  }).reduce(function(s,r){return s+r.amount;},0);
+  var total=salary+alba+extraIncome;
   // 고정지출 = 월세 + 공과금 + 저축합계
   var fixed=rent+util+fsav;
   // 수중금액 = 총수입 - 고정지출
@@ -1401,6 +1456,8 @@ function renderCal(){
   var rows=loadExp();
   var dayMap={};
   rows.forEach(function(r){if(!dayMap[r.date])dayMap[r.date]={total:0};dayMap[r.date].total+=r.amount;});
+  var incomeMap={};
+  loadIncome().forEach(function(r){incomeMap[r.date]=(incomeMap[r.date]||0)+r.amount;});
   var first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
   var todayStr=new Date().toISOString().split('T')[0];
   var html=['월','화','수','목','금','토','일'].map(function(d){return '<div class="cal-head">'+d+'</div>';}).join('');
@@ -1413,6 +1470,9 @@ function renderCal(){
     var cls='cal-day'+(dow===0?' sun':dow===6?' sat':'')+(ds===todayStr?' today':'')+(ds===selDate?' selected':'');
     var inner='<div class="day-num">'+d+'</div>';
     if(dayMap[ds]){inner+='<div class="day-amt-sm">'+fmt(dayMap[ds].total)+'</div><div class="day-dot"></div>';}
+    var incTotal=incomeMap[ds]||0;
+    if(incTotal>0) inner+='<div class="day-inc">+'+fmtShort(incTotal)+'</div>';
+
     var evs2=typeof getCalEvents==='function'?getCalEvents(ds):[];
     if(evs2.length>0){
       var ev0=evs2[0];
@@ -1449,7 +1509,13 @@ function renderDetail(){
       cycleBanner='<div id="cycle-banner" style="font-size:11px;color:#7fb5c1;background:rgba(127,181,193,.12);border-radius:8px;padding:5px 10px;margin-bottom:8px;text-align:center">📅 '+sm2+'/'+sd2+'~'+em2+'/'+ed2+'</div>';
     }
   }
-  panel.innerHTML=cycleBanner+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
+  var incRows=loadIncome().filter(function(r){return r.date===selDate;});
+  var incTotal=incRows.reduce(function(s,r){return s+r.amount;},0);
+  var incHtml=incRows.length>0?'<div style="margin-bottom:6px">'+incRows.map(function(r){
+    var im=r.memo?'<div class="memo-row" id="imemo-'+r.id+'">'+r.memo+'</div>':'';
+    return '<div class="income-row"><span>💚 '+r.cat+' '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px">'+(r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'')+'<span class="income-amt">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+im;
+  }).join('')+'</div>':'';
+  panel.innerHTML=cycleBanner+incHtml+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0||incRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
     (dayRows.length===0?'<div class="empty" style="padding:10px">이날 지출 내역이 없어요 ☁️</div>':
     dayRows.map(function(r){
       var cls=FIX_CATS.indexOf(r.cat)>=0?'tag-고정':'tag-'+r.cat;
@@ -1556,6 +1622,10 @@ function addExpense(){
   if(typeof renderLimitBanner==='function') renderLimitBanner();
 }
 
+function toggleMemo2(id){
+  var el=document.getElementById('imemo-'+id);
+  if(el) el.classList.toggle('open');
+}
 function toggleMemo(id){
   var el=document.getElementById('memo-'+id);
   if(el) el.classList.toggle('open');
@@ -1643,6 +1713,63 @@ function renderPaceCheck(){
       +'</div>';
   }
   detailEl.innerHTML=html;
+}
+
+// ===== 별도 수입 =====
+var INC_KEY='budget_extra_income_v1';
+function loadIncome(){try{return JSON.parse(localStorage.getItem(INC_KEY))||[];}catch(e){return[];}}
+function saveIncome(rows){localStorage.setItem(INC_KEY,JSON.stringify(rows));}
+
+function switchInputTab(tab){
+  document.getElementById('input-exp').style.display=tab==='exp'?'block':'none';
+  document.getElementById('input-inc').style.display=tab==='inc'?'block':'none';
+  document.getElementById('itab-exp').classList.toggle('active',tab==='exp');
+  document.getElementById('itab-inc').classList.toggle('active',tab==='inc');
+}
+
+function addIncome(){
+  var date=document.getElementById('inc-date').value;
+  var cat=document.getElementById('inc-cat').value;
+  var desc=document.getElementById('inc-desc').value.trim();
+  var amt=+document.getElementById('inc-amt').value||0;
+  var memo=document.getElementById('inc-memo').value.trim();
+  if(!date||!amt){toast('날짜와 금액을 입력해주세요!');return;}
+  var rows=loadIncome();
+  rows.push({id:Date.now(),date:date,cat:cat,desc:desc,amount:amt,memo:memo});
+  saveIncome(rows);
+  document.getElementById('inc-desc').value='';
+  document.getElementById('inc-amt').value='';
+  document.getElementById('inc-memo').value='';
+  renderIncList();
+  renderCal();
+  calcAll();
+  renderDetail();
+}
+function delIncome(id){
+  saveIncome(loadIncome().filter(function(r){return r.id!==id;}));
+  renderIncList();
+  renderCal();
+  calcAll();
+  renderDetail();
+}
+function renderIncList(){
+  var el=document.getElementById('inc-list');
+  if(!el) return;
+  var ym=gYear+'-'+String(gMonth).padStart(2,'0');
+  var rows=loadIncome().filter(function(r){return r.date.slice(0,7)===ym;});
+  if(rows.length===0){el.innerHTML='';return;}
+  var total=rows.reduce(function(s,r){return s+r.amount;},0);
+  el.innerHTML='<div style="font-size:11px;color:#aaa;margin-bottom:4px">이번달 별도 수입 <span style="color:#2eaa6e;font-weight:600">+'+fmt(total)+'</span></div>'+
+    rows.map(function(r){
+      var memoDiv=r.memo?'<div class="memo-row" id="imemo-'+r.id+'">'+r.memo+'</div>':'';
+      return '<div class="income-row"><span style="color:#888">'+r.date.slice(5).replace('-','/')+'  '+r.cat+' '+r.desc+'</span>'
+        +'<span style="display:flex;align-items:center;gap:6px">'+(r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'')+'<span class="income-amt">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+memoDiv;
+    }).join('');
+}
+function fmtShort(v){
+  if(v>=10000) return Math.round(v/10000)+'만';
+  if(v>=1000) return Math.round(v/1000)+'천';
+  return v.toLocaleString('ja-JP');
 }
 
 function getActiveCycleRange(){
