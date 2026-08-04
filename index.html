@@ -618,7 +618,7 @@ body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
   <meta name="apple-mobile-web-app-title" content="가계부">
   <meta name="theme-color" content="#7fb5c1">
   <script>
-    if('serviceWorker' in navigator){
+    if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com'){
       window.addEventListener('load', function(){
         navigator.serviceWorker.register('/diary-main/sw.js')
           .then(function(reg){ console.log('SW 등록:', reg.scope); })
@@ -1508,9 +1508,15 @@ function renderCal(){
     var dowMon=(dow+6)%7;
     var cls='cal-day'+(dow===0?' sun':dow===6?' sat':'')+(ds===todayStr?' today':'')+(ds===selDate?' selected':'');
     var inner='<div class="day-num">'+d+'</div>';
-    if(dayMap[ds]){inner+='<div class="day-amt-sm">'+fmt(dayMap[ds].total)+'</div><div class="day-dot"></div>';}
     var incTotal=incomeMap[ds]||0;
-    if(incTotal>0) inner+='<div class="day-inc">+'+fmtShort(incTotal)+'</div>';
+    if(dayMap[ds]){
+      inner+='<div class="day-amt-sm">'+fmt(dayMap[ds].total)+'</div>';
+      if(incTotal>0) inner+='<div class="day-inc">+'+fmtShort(incTotal)+'</div>';
+      inner+='<div class="day-dot"></div>';
+    } else if(incTotal>0){
+      inner+='<div class="day-inc">+'+fmtShort(incTotal)+'</div>';
+      inner+='<div class="day-dot" style="background:#2eaa6e"></div>';
+    }
     var evs2=typeof getCalEvents==='function'?getCalEvents(ds):[];
     if(evs2.length>0){
       var ev0=evs2[0];
@@ -1650,9 +1656,13 @@ function addExpense(){
   document.getElementById('f-memo').value='';
   acHide();
   badge('exp-badge','✓ 저장됨');
-  // 공과금 입력시 수입탭 자동 반영
+  // 공과금 입력시 수입탭 자동 반영 - 사이클 내 공과금 합산
   if(cat==='공과금'){
-    document.getElementById('e-util-actual').value=amount;
+    var ar=getActiveCycleRange();
+    var utilSum=loadExp().filter(function(r){
+      return r.cat==='공과금' && (ar ? r.date>=ar.start&&r.date<=ar.end : r.date.slice(0,7)===(gYear+'-'+String(gMonth).padStart(2,'0')));
+    }).reduce(function(s,r){return s+r.amount;},0);
+    document.getElementById('e-util-actual').value=utilSum;
     updateUtilDiff();
   }
   var d=new Date(date+'T00:00:00');
@@ -1672,7 +1682,18 @@ function toggleMemo(id){
 
 function delExpense(id){
   if(!confirm('삭제할까요?'))return;
-  saveExp(loadExp().filter(function(r){return r.id!==id;}));
+  var rows=loadExp();
+  var delRow=rows.find(function(r){return r.id===id;});
+  saveExp(rows.filter(function(r){return r.id!==id;}));
+  // 공과금 삭제 시 실제 납부액 재계산
+  if(delRow&&delRow.cat==='공과금'){
+    var ar=getActiveCycleRange();
+    var utilSum=loadExp().filter(function(r){
+      return r.cat==='공과금'&&(ar?r.date>=ar.start&&r.date<=ar.end:r.date.slice(0,7)===(gYear+'-'+String(gMonth).padStart(2,'0')));
+    }).reduce(function(s,r){return s+r.amount;},0);
+    document.getElementById('e-util-actual').value=utilSum;
+    updateUtilDiff();
+  }
   renderCal(); renderDetail(); renderSummary();
 }
 
@@ -1968,6 +1989,15 @@ function renderSummary(){
   sg.innerHTML=cards.join('');
   // 공과금 카드
   var utilEst=+document.getElementById('e-util-est').value||0;
+  // 공과금 실제납부액: 사이클 내 공과금 지출 합산
+  var ar3=getActiveCycleRange();
+  var utilActualCalc=loadExp().filter(function(r){
+    return r.cat==='공과금'&&(ar3?r.date>=ar3.start&&r.date<=ar3.end:r.date.slice(0,7)===(gYear+'-'+String(gMonth).padStart(2,'0')));
+  }).reduce(function(s,r){return s+r.amount;},0);
+  if(utilActualCalc>0){
+    document.getElementById('e-util-actual').value=utilActualCalc;
+    updateUtilDiff();
+  }
   var utilActual=+document.getElementById('e-util-actual').value||0;
   var utilDiff=utilEst-utilActual;
   var utilActualColor=utilActual>0?(utilDiff>=0?'#7fb5c1':'#F06B8A'):'#aaa';
