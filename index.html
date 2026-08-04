@@ -1529,7 +1529,16 @@ function renderCal(){
 function clickDay(date){
   selDate=date;
   document.getElementById('f-date').value=date;
-  renderCal(); renderDetail(); renderSummary();
+  // 달력 전체 재렌더 대신 선택 스타일만 업데이트
+  document.querySelectorAll('.cal-day.selected').forEach(function(el){el.classList.remove('selected');});
+  var cells=document.querySelectorAll('.cal-day');
+  cells.forEach(function(el){
+    var onclick=el.getAttribute('onclick');
+    if(onclick&&onclick.indexOf("'"+date+"'")>=0) el.classList.add('selected');
+  });
+  // detail은 즉시, summary는 지연
+  renderDetail();
+  setTimeout(function(){ renderSummary(); }, 30);
 }
 
 function renderDetail(){
