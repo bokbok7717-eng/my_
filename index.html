@@ -1184,7 +1184,7 @@ function switchTab(id,btn){
       calcAll();
       // renderSummary는 지출탭에서만 필요
     }
-    if(id==='expense') renderCal();
+    if(id==='expense'){renderCal();renderSummary();}
     if(id==='savings'){updateSavMonthSel();renderSavings();}
     if(id==='annual'){renderAnnual();localStorage.setItem('visited_annual','1');}
     if(id==='badges'&&typeof checkBadges==='function') checkBadges();
