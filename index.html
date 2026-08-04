@@ -612,20 +612,10 @@ body.dark .ac-item{color:#ddd;border-bottom-color:#333}
 body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
 </style>
   <!-- PWA -->
-  <link rel="manifest" href="/diary-main/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="가계부">
   <meta name="theme-color" content="#7fb5c1">
-  <script>
-    if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com'){
-      window.addEventListener('load', function(){
-        navigator.serviceWorker.register('/diary-main/sw.js')
-          .then(function(reg){ console.log('SW 등록:', reg.scope); })
-          .catch(function(err){ console.log('SW 실패:', err); });
-      });
-    }
-  </script>
 </head>
 <body>
 
@@ -1169,7 +1159,9 @@ function saveSav(r){localStorage.setItem(SAV_KEY,JSON.stringify(r));}
 function badge(id,msg){var b=document.getElementById(id);b.textContent=msg;setTimeout(function(){b.textContent='';},2000);}
 
 // ===== 탭 전환 =====
+var _lastTab='';
 function switchTab(id,btn){
+  // UI 전환 먼저 - 즉시 반응
   document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
   document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});
   document.getElementById('tab-'+id).classList.add('active');
@@ -1177,11 +1169,17 @@ function switchTab(id,btn){
   var btnAnnual=document.getElementById('btn-annual'); if(btnAnnual) btnAnnual.classList.toggle('active', id==='annual');
   var btnBadges=document.getElementById('btn-badges'); if(btnBadges) btnBadges.classList.toggle('active', id==='badges');
   var btnBadges2=document.querySelector('.tab-btn[onclick*="badges"]'); if(btnBadges2) btnBadges2.classList.toggle('active', id==='badges');
-  if(id==='budget') calcAll();
-  if(id==='expense'){renderCal();renderSummary();}
-  if(id==='savings'){updateSavMonthSel();renderSavings();}
-  if(id==='annual'){renderAnnual();localStorage.setItem('visited_annual','1');}
-  if(id==='badges'&&typeof checkBadges==='function') checkBadges();
+  // 같은 탭 재클릭 시 재렌더링 스킵
+  if(_lastTab===id) return;
+  _lastTab=id;
+  // 렌더링은 requestAnimationFrame으로 지연 - UI가 먼저 보임
+  requestAnimationFrame(function(){
+    if(id==='budget') calcAll();
+    if(id==='expense') renderCal();
+    if(id==='savings'){updateSavMonthSel();renderSavings();}
+    if(id==='annual'){renderAnnual();localStorage.setItem('visited_annual','1');}
+    if(id==='badges'&&typeof checkBadges==='function') checkBadges();
+  });
 }
 
 // ===== 월별 수입/예산 저장/불러오기 =====
@@ -2093,15 +2091,18 @@ function renderSavings(){
   }).join('');
   document.getElementById('sav-foot').innerHTML='<span class="'+(footTotal>=0?'amt-plus':'amt-minus')+'">'+(footTotal>=0?'+':'-')+fmt(footTotal)+'</span>';
   // 저축 목표 체크
-  if(typeof checkGoalAchieved==='function') checkGoalAchieved();
-  if(typeof renderGoalDisplay==='function') renderGoalDisplay();
-  if(typeof renderLevelCard==='function') renderLevelCard();
-  if(typeof renderGoalHistory==='function') renderGoalHistory();
-  if(typeof checkSubGoalsAchieved==='function') checkSubGoalsAchieved();
-  if(typeof renderSubGoals==='function') renderSubGoals();
-  if(typeof renderSavTagButtons==='function') renderSavTagButtons();
-  if(typeof checkSavMilestone==='function') checkSavMilestone();
-  if(typeof checkBadges==='function') checkBadges();
+  // 무거운 렌더링은 지연 실행으로 탭 전환 속도 개선
+  setTimeout(function(){
+    if(typeof checkGoalAchieved==='function') checkGoalAchieved();
+    if(typeof renderGoalDisplay==='function') renderGoalDisplay();
+    if(typeof renderLevelCard==='function') renderLevelCard();
+    if(typeof renderGoalHistory==='function') renderGoalHistory();
+    if(typeof checkSubGoalsAchieved==='function') checkSubGoalsAchieved();
+    if(typeof renderSubGoals==='function') renderSubGoals();
+    if(typeof renderSavTagButtons==='function') renderSavTagButtons();
+    if(typeof checkSavMilestone==='function') checkSavMilestone();
+    if(typeof checkBadges==='function') checkBadges();
+  }, 50);
 }
 
 // ===== 연간결산 =====
