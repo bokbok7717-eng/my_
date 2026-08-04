@@ -1175,7 +1175,10 @@ function switchTab(id,btn){
   _lastTab=id;
   // 렌더링은 requestAnimationFrame으로 지연 - UI가 먼저 보임
   requestAnimationFrame(function(){
-    if(id==='budget') calcAll();
+    if(id==='budget'){
+      calcAll();
+      // renderSummary는 지출탭에서만 필요
+    }
     if(id==='expense') renderCal();
     if(id==='savings'){updateSavMonthSel();renderSavings();}
     if(id==='annual'){renderAnnual();localStorage.setItem('visited_annual','1');}
@@ -1240,7 +1243,7 @@ function copyPrevMonthBudget(){
   slA.value=Math.min(data.slSavAlba||0,alba);
   document.getElementById('num-sav-alba').value=slA.value;
   saveBudgetData();
-  calcAll(); renderSummary();
+  calcAll();
   if(typeof checkBadges==='function') checkBadges();
   badge('exp-badge','지난달 예산을 복사했어요 📋');
 }
@@ -1484,7 +1487,6 @@ function calcAll(){
     donutChart.update();
   }
   document.getElementById('leg').innerHTML=segs.map(function(d){return '<span><span class="dot" style="background:'+d.c+'"></span>'+d.l+' '+fmt(d.v)+'</span>';}).join('');
-  renderSummary();
   saveBudgetData();
 }
 
@@ -1977,6 +1979,9 @@ function getActiveCycleRange(){
 }
 
 function renderSummary(){
+  // 지출탭이 아니면 스킵
+  var expTab=document.getElementById('tab-expense');
+  if(expTab&&!expTab.classList.contains('active')) return;
   var ym=gYear+'-'+String(gMonth).padStart(2,'0');
   var activeRange=getActiveCycleRange();
   var expRows=loadExp().filter(function(r){
