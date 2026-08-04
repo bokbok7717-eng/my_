@@ -645,7 +645,7 @@ body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
   <div class="settings-item" onclick="openBackupModal();closeSettingsDrawer()">
     <span>💾 백업 / 복원</span><span class="settings-arr">›</span>
   </div>
-  <div class="settings-item" onclick="switchTab('badges',document.querySelector('[onclick*="badges"]'));closeSettingsDrawer()">
+  <div class="settings-item" onclick="goBadgesTab()">
     <span>🏅 뱃지</span><span class="settings-arr">›</span>
   </div>
   <div class="settings-item" onclick="openDarkScheduleModal();closeSettingsDrawer()">
@@ -1036,6 +1036,11 @@ function openSettingsDrawer(){
   var PACE_KEY='budget_pace_enabled';
   var lbl=document.getElementById('pace-setting-label');
   if(lbl) lbl.textContent=localStorage.getItem(PACE_KEY)!=='false'?'ON':'OFF';
+}
+function goBadgesTab(){
+  var btn=document.querySelector('.tab-btn[onclick*="badges"]');
+  switchTab('badges',btn);
+  closeSettingsDrawer();
 }
 function closeSettingsDrawer(){
   document.getElementById('settings-overlay').style.display='none';
@@ -1524,18 +1529,19 @@ function renderCal(){
       inner=inner.replace('<div class="day-num">'+d+'</div>','<div class="day-num" style="width:22px;height:22px;border-radius:50%;background:'+ev0.color+';color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700">'+d+'</div>');
       if(evs2.length>1){inner+='<div style="display:flex;gap:2px;justify-content:center;margin-top:1px">';evs2.slice(1,3).forEach(function(ev){inner+='<span style="width:5px;height:5px;border-radius:50%;background:'+ev.color+';display:inline-block"></span>';});inner+='</div>';}
     }
-    html+='<div class="'+cls+'" onclick="clickDay(\''+ds+'\')">'+inner+'</div>';
+    html+='<div class="'+cls+'" data-date="'+ds+'" onclick="clickDayEl(this)">'+inner+'</div>';
   }
   document.getElementById('cal').innerHTML=html;
 }
 
+function clickDayEl(el){clickDay(el.dataset.date);}
 function clickDay(date){
   selDate=date;
   document.getElementById('f-date').value=date;
   // 선택 스타일만 즉시 교체
   document.querySelectorAll('.cal-day.selected').forEach(function(el){el.classList.remove('selected');});
   document.querySelectorAll('.cal-day').forEach(function(el){
-    if(el.getAttribute('onclick')==="clickDay('"+date+"')") el.classList.add('selected');
+    if(el.dataset.date===date) el.classList.add('selected');
   });
   // 상세 내역만 즉시 렌더
   renderDetail();
@@ -1652,14 +1658,7 @@ function renderPaceInDetail(){
       +'</div>'
       +'</div>';
   }).join('');
-  var paceId='pace-detail-'+Date.now();
-  return '<div style="margin-top:6px;border-top:1px solid #eee">'
-    +'<div onclick="var d=document.getElementById(\''+paceId+'\');var a=this.querySelector(\'span:last-child\');if(d.style.display===\'none\'){d.style.display=\'block\';a.textContent=\'다음주까지 '+(7-((sd.getDay()+6)%7))+'일 ▴\';}else{d.style.display=\'none\';a.textContent=\'다음주까지 '+(7-((sd.getDay()+6)%7))+'일 ▾\';}" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;cursor:pointer">'
-      +'<span style="font-size:12px;color:#888">페이스 체크</span>'
-      +'<span style="font-size:11px;color:#aaa">다음주까지 '+(7-((sd.getDay()+6)%7))+'일 ▾</span>'
-    +'</div>'
-    +'<div id="'+paceId+'" style="display:none;padding-bottom:4px">'+rows+'</div>'
-    +'</div>';
+  return rows;
 }
 
 function addExpense(){
@@ -3145,7 +3144,7 @@ function renderBadges(){
     var unlocked=b.check?b.check():false;
     var isNew=unlocked&&shown.indexOf(b.label)===-1;
     if(unlocked){ newShown.push(b.label); unlockedCount++; }
-    return '<div class="bdg" onclick="showBadgePopup(\''+b.label+'\')"><div class="bdg-icon '+(unlocked?'unlocked ':'locked ')+b.cls+'">'
+    return '<div class="bdg" data-badge="'+b.label+'" onclick="showBadgePopupEl(this)"><div class="bdg-icon '+(unlocked?'unlocked ':'locked ')+b.cls+'">'
       +b.icon+(isNew?'<span class="new-tag">NEW</span>':'')
       +'</div><div class="bdg-label'+(unlocked?' unlocked':'')+'">'+b.label+'</div></div>';
   }).join('');
@@ -3155,6 +3154,7 @@ function renderBadges(){
   var pBar=document.getElementById('badge-progress-bar'); if(pBar) pBar.style.width=(total?Math.round(unlockedCount/total*100):0)+'%';
 }
 
+function showBadgePopupEl(el){showBadgePopup(el.dataset.badge);}
 function showBadgePopup(name){
   var b=ALL_BADGES.find(function(x){return x.label===name;});
   if(!b) return;
@@ -3167,7 +3167,12 @@ var BADGE_UNLOCKED_KEY='badges_unlocked_v1';
 var BADGE_BASELINE_KEY='badges_baseline_v1';
 var badgePopupQueue=[];
 
+var _lastBadgeCheck=0;
 function checkBadges(){
+  // 3초 내 중복 호출 방지
+  var now=Date.now();
+  if(now-_lastBadgeCheck<3000) return;
+  _lastBadgeCheck=now;
   var prev=JSON.parse(localStorage.getItem(BADGE_UNLOCKED_KEY)||'[]');
   var hasBaseline=localStorage.getItem(BADGE_BASELINE_KEY)==='1';
   var curUnlocked=[];
