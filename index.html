@@ -126,6 +126,8 @@ h2:first-child{margin-top:0}
 .tag-생필품{background:#fff4e0;color:#F3C98B}
 .tag-비상금{background:#ffe8e8;color:#F06B8A}
 .tag-문화여가{background:#fde8f0;color:#D4537E}
+.tag-구독료{background:#ede9fa;color:#7a68b8}
+.tag-데이트비용{background:#ffe9f2;color:#d4568a}
 .tag-기타{background:#f0f0ee;color:#888}
 .tag-미용{background:#f3e8ff;color:#9333EA}
 .tag-의류잡화{background:#fce7f3;color:#db2777}
@@ -160,6 +162,10 @@ thead tr{background:#f5f4f0}
 th{padding:8px 10px;text-align:left;font-weight:500;color:#666;border-bottom:2px solid #eee}
 td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 .btn-del{background:none;border:none;color:#ddd;cursor:pointer;font-size:13px}
+.btn-edit{background:none;border:none;color:#c8d8dd;cursor:pointer;font-size:12px;padding:0 2px}
+.btn-edit:hover{color:#7fb5c1}
+body.dark .btn-edit{color:#4a5560}
+body.dark .btn-edit:hover{color:#7fb5c1}
 .btn-del:hover{color:#F06B8A}
 .amt-plus{color:#7fb5c1;font-weight:600}
 .amt-minus{color:#F06B8A;font-weight:600}
@@ -348,6 +354,8 @@ body.dark tfoot td{color:#aaa!important}
 body.dark .filter-row select{background:#2a2a2a!important;border-color:#3a3a3a!important;color:#e8e8e8!important}
 body.dark #c-sav-salary,body.dark #c-sav-alba{color:#7fb5c1}
 body.dark .tag-교통비{background:#1e2d40;color:#6aabff}
+body.dark .tag-구독료{background:#2a2540;color:#9d8de0}
+body.dark .tag-데이트비용{background:#3a2030;color:#e08aae}
 body.dark .tag-식비{background:#1e3030;color:#8dbfb8}
 body.dark .tag-생필품{background:#302a1a;color:#f3c98b}
 body.dark .tag-비상금{background:#3a1e1e;color:#f06b8a}
@@ -778,6 +786,8 @@ body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
         <div class="sl-combo"><label>미용</label><input type="range" min="0" max="500000" step="500" value="0" id="sl-mi" oninput="onCatSlider('미용')"><input type="number" class="sl-num" id="num-미용" value="0" oninput="onCatNum('미용')"></div>
         <div class="sl-combo"><label>의류/잡화</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-cl" oninput="onCatSlider('의류잡화')"><input type="number" class="sl-num" id="num-의류잡화" value="0" oninput="onCatNum('의류잡화')"></div>
         <div class="sl-combo"><label>문화/여가</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-cu" oninput="onCatSlider('문화여가')"><input type="number" class="sl-num" id="num-문화여가" value="0" oninput="onCatNum('문화여가')"></div>
+        <div class="sl-combo"><label>구독료</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-sb" oninput="onCatSlider('구독료')"><input type="number" class="sl-num" id="num-구독료" value="0" oninput="onCatNum('구독료')"></div>
+        <div class="sl-combo"><label>데이트</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-dt" oninput="onCatSlider('데이트비용')"><input type="number" class="sl-num" id="num-데이트비용" value="0" oninput="onCatNum('데이트비용')"></div>
         <div class="sl-combo"><label>비상금</label><input type="range" min="0" max="500000" step="1000" value="0" id="sl-em" oninput="onCatSlider('비상금')"><input type="number" class="sl-num" id="num-비상금" value="0" oninput="onCatNum('비상금')"></div>
         <div class="left-over"><span style="color:#888;font-size:12px">남은 여유</span><span id="lb-left" style="font-weight:600;font-size:12px;color:#8dbfb8">0엔</span></div>
       </div>
@@ -823,6 +833,8 @@ body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
       <input type="number" id="b-미용" value="0">
       <input type="number" id="b-의류잡화" value="0">
       <input type="number" id="b-문화여가" value="0">
+      <input type="number" id="b-구독료" value="0">
+      <input type="number" id="b-데이트비용" value="0">
       <input type="number" id="b-비상금" value="0">
       <input type="number" id="b-기타" value="0">
     </div>
@@ -844,6 +856,8 @@ body.dark .ac-item:hover,body.dark .ac-item.ac-active{background:#333}
           <option value="미용">💇 미용</option>
           <option value="의류잡화">👗 의류/잡화</option>
           <option value="문화여가">☕ 문화/여가</option>
+        <option value="구독료">📺 구독료</option>
+        <option value="데이트비용">💑 데이트비용</option>
           <option value="비상금">🚨 비상금</option>
           <option value="기타">📦 기타</option>
           <option value="월세">🏠 월세</option>
@@ -1147,12 +1161,12 @@ document.addEventListener('DOMContentLoaded', function(){ applyDarkSchedule(); }
 })();
 
 var EXP_KEY='expense_log_v1', SAV_KEY='savings_log_v1';
-var CAT_LABEL={'교통비':'🚃 교통비','식비':'🍚 식비','생필품':'🧴 생필품','미용':'💇 미용','의류잡화':'👗 의류/잡화','문화여가':'☕ 문화/여가','비상금':'🚨 비상금','기타':'📦 기타','월세':'🏠 월세','공과금':'💡 공과금','저축':'🏦 저축'};
-var VAR_CATS=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+var CAT_LABEL={'교통비':'🚃 교통비','식비':'🍚 식비','생필품':'🧴 생필품','미용':'💇 미용','의류잡화':'👗 의류/잡화','문화여가':'☕ 문화/여가','구독료':'📺 구독료','데이트비용':'💑 데이트','비상금':'🚨 비상금','기타':'📦 기타','월세':'🏠 월세','공과금':'💡 공과금','저축':'🏦 저축'};
+var VAR_CATS=['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'];
 var FIX_CATS=['월세','공과금','저축'];
 var DC={tr:"#BFCDD9",fd:"#C5E2D3",es:"#FDDCB0",mi:"#FACDD8",cl:"#F0C4DC",cu:"#D9D0F0",em:"#FEF0A4",lf:"#E8F4F0"};
-var CAT_TO_SL={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','비상금':'sl-em'};
-var CAT_TO_NUM={'교통비':'num-교통비','식비':'num-식비','생필품':'num-생필품','미용':'num-미용','의류잡화':'num-의류잡화','문화여가':'num-문화여가','비상금':'num-비상금'};
+var CAT_TO_SL={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','구독료':'sl-sb','데이트비용':'sl-dt','비상금':'sl-em'};
+var CAT_TO_NUM={'교통비':'num-교통비','식비':'num-식비','생필품':'num-생필품','미용':'num-미용','의류잡화':'num-의류잡화','문화여가':'num-문화여가','구독료':'num-구독료','데이트비용':'num-데이트비용','비상금':'num-비상금'};
 var donutChart=null, annualChart=null, selDate=null;
 
 function fmt(v){return Math.abs(v).toLocaleString('ja-JP')+'엔';}
@@ -1162,7 +1176,24 @@ function loadExp(){if(_expCache)return _expCache;try{_expCache=JSON.parse(localS
 function saveExp(r){_expCache=null;localStorage.setItem(EXP_KEY,JSON.stringify(r));}
 function loadSav(){try{return JSON.parse(localStorage.getItem(SAV_KEY))||[];}catch(e){return[];}}
 function saveSav(r){localStorage.setItem(SAV_KEY,JSON.stringify(r));}
-function badge(id,msg){var b=document.getElementById(id);b.textContent=msg;setTimeout(function(){b.textContent='';},2000);}
+function badge(id,msg){var b=document.getElementById(id);if(b){b.textContent=msg;setTimeout(function(){b.textContent='';},2000);}}
+function toast(msg){
+  var t=document.getElementById('_toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='_toast';
+    t.style.cssText='position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(70px);background:#444;color:#fff;padding:9px 18px;border-radius:22px;font-size:12.5px;z-index:9999;opacity:0;transition:all .28s;pointer-events:none;max-width:80%;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.opacity='1';
+  t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._tm);
+  t._tm=setTimeout(function(){
+    t.style.opacity='0';
+    t.style.transform='translateX(-50%) translateY(70px)';
+  },1900);
+}
 
 // ===== 탭 전환 =====
 var _lastTab='';
@@ -1210,7 +1241,7 @@ function saveBudgetData(){
     slSavAlba:document.getElementById('sl-sav-alba').value,
     cats:{}
   };
-  ['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'].forEach(function(cat){
+  ['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'].forEach(function(cat){
     var el=document.getElementById('b-'+cat);
     if(el) data.cats[cat]=el.value;
   });
@@ -1260,10 +1291,10 @@ function loadBudgetData(){
     ['in-salary','in-alba','in-rent','e-util-est','e-util-actual','e-fsav'].forEach(function(id){
       document.getElementById(id).value=0;
     });
-    ['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'].forEach(function(cat){
+    ['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'].forEach(function(cat){
       var el=document.getElementById('b-'+cat);
       if(el) el.value=0;
-      var slId={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','비상금':'sl-em'}[cat];
+      var slId={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','구독료':'sl-sb','데이트비용':'sl-dt','비상금':'sl-em'}[cat];
       if(slId) document.getElementById(slId).value=0;
       var numId='num-'+cat;
       var numEl=document.getElementById(numId);
@@ -1296,7 +1327,7 @@ function loadBudgetData(){
     Object.keys(data.cats).forEach(function(cat){
       var el=document.getElementById('b-'+cat);
       if(el) el.value=data.cats[cat];
-      var slId={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','비상금':'sl-em'}[cat];
+      var slId={'교통비':'sl-tr','식비':'sl-fd','생필품':'sl-es','미용':'sl-mi','의류잡화':'sl-cl','문화여가':'sl-cu','구독료':'sl-sb','데이트비용':'sl-dt','비상금':'sl-em'}[cat];
       if(slId) document.getElementById(slId).value=data.cats[cat];
       var numEl=document.getElementById('num-'+cat);
       if(numEl) numEl.value=data.cats[cat];
@@ -1573,16 +1604,17 @@ function renderDetail(){
     var emo=INC_EMO[r.cat]||'💚';
     var memoBtn=r.memo?'<button class="memo-toggle" onclick="toggleMemo2('+r.id+')">📝</button>':'';
     return '<div class="detail-row"><span><span class="tag" style="background:#e6f7ee;color:#2eaa6e">'+emo+' 수입</span> '+r.desc+'</span>'
-      +'<span style="display:flex;align-items:center;gap:6px">'+memoBtn+'<span style="font-weight:600;color:#2eaa6e">+'+fmt(r.amount)+'</span><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+im;
+      +'<span style="display:flex;align-items:center;gap:6px">'+memoBtn+'<span style="font-weight:600;color:#2eaa6e">+'+fmt(r.amount)+'</span><button class="btn-edit" onclick="editIncome('+r.id+')" title="수정">✎</button><button class="btn-del" onclick="delIncome('+r.id+')">✕</button></span></div>'+im;
   }).join('');
-  panel.innerHTML=cycleBanner+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0||incRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'+
-    (dayRows.length===0?'<div class="empty" style="padding:10px">이날 지출 내역이 없어요 ☁️</div>':
-    dayRows.map(function(r){
-      var cls=FIX_CATS.indexOf(r.cat)>=0?'tag-고정':'tag-'+r.cat;
-      var memoBtn = r.memo ? '<button class="memo-toggle" onclick="toggleMemo('+r.id+')" title="메모 보기">📝</button>' : '';
-      var memoDiv = r.memo ? '<div class="memo-row" id="memo-'+r.id+'">'+r.memo+'</div>' : '';
-      return '<div class="detail-row"><span><span class="tag '+cls+'">'+CAT_LABEL[r.cat]+'</span> '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px">'+memoBtn+'<span style="font-weight:600;color:#7fb5c1">'+fmt(r.amount)+'</span><button class="btn-del" onclick="delExpense('+r.id+')">✕</button></span></div>'+memoDiv;
-    }).join('')+incHtml+renderWeekSummary());
+  var expHtml=dayRows.map(function(r){
+    var cls=FIX_CATS.indexOf(r.cat)>=0?'tag-고정':'tag-'+r.cat;
+    var memoBtn = r.memo ? '<button class="memo-toggle" onclick="toggleMemo('+r.id+')" title="메모 보기">📝</button>' : '';
+    var memoDiv = r.memo ? '<div class="memo-row" id="memo-'+r.id+'">'+r.memo+'</div>' : '';
+    return '<div class="detail-row"><span><span class="tag '+cls+'">'+CAT_LABEL[r.cat]+'</span> '+r.desc+'</span><span style="display:flex;align-items:center;gap:6px">'+memoBtn+'<span style="font-weight:600;color:#7fb5c1">'+fmt(r.amount)+'</span><button class="btn-edit" onclick="editExpense('+r.id+')" title="수정">✎</button><button class="btn-del" onclick="delExpense('+r.id+')">✕</button></span></div>'+memoDiv;
+  }).join('');
+  var emptyMsg=(dayRows.length===0&&incRows.length===0)?'<div class="empty" style="padding:10px">이날 내역이 없어요 ☁️</div>':'';
+  panel.innerHTML=cycleBanner+'<div class="detail-header"><span class="detail-title">'+parseInt(mm)+'월 '+parseInt(dd)+'일</span>'+(dayRows.length>0||incRows.length>0?'<span class="detail-total">'+fmt(total)+'</span>':'')+' </div>'
+    +emptyMsg+expHtml+incHtml+renderWeekSummary();
 }
 
 function renderWeekSummary(){
@@ -1628,7 +1660,7 @@ function renderPaceInDetail(){
   for(var i=0;i<7;i++){var wd=new Date(weekStart);wd.setDate(weekStart.getDate()+i);weekDates.push(wd.getFullYear()+'-'+String(wd.getMonth()+1).padStart(2,'0')+'-'+String(wd.getDate()).padStart(2,'0'));}
   var weekRows=allExp.filter(function(r){return weekDates.indexOf(r.date)>=0;});
   var weekTotal=weekRows.reduce(function(s,r){return s+r.amount;},0);
-  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'];
   var cats=VAR_C.map(function(cat){
     var budget=+(document.getElementById('b-'+cat)||{value:0}).value||0;
     var cycleSpent=cycleRows.filter(function(r){return r.cat===cat;}).reduce(function(s,r){return s+r.amount;},0);
@@ -1669,14 +1701,21 @@ function addExpense(){
   if(!date||!desc||!amount){alert('날짜, 내용, 금액을 모두 입력해주세요!');return;}
   var memo=document.getElementById('f-memo').value.trim();
   var rows=loadExp();
-  rows.push({id:Date.now(),date:date,desc:desc,cat:cat,amount:amount,memo:memo});
+  if(editingExpId){
+    var t=rows.find(function(x){return x.id===editingExpId;});
+    if(t){t.date=date;t.desc=desc;t.cat=cat;t.amount=amount;t.memo=memo;}
+    resetEditMode();
+    badge('exp-badge','✓ 수정됨');
+  } else {
+    rows.push({id:Date.now(),date:date,desc:desc,cat:cat,amount:amount,memo:memo});
+    badge('exp-badge','✓ 저장됨');
+  }
   saveExp(rows);
   acSaveHistory(desc, cat);
   document.getElementById('f-desc').value='';
   document.getElementById('f-amount').value='';
   document.getElementById('f-memo').value='';
   acHide();
-  badge('exp-badge','✓ 저장됨');
   // 공과금 입력시 수입탭 자동 반영 - 사이클 내 공과금 합산
   if(cat==='공과금'){
     var ar=getActiveCycleRange();
@@ -1699,6 +1738,46 @@ function addExpense(){
 function toggleMemo(id){
   var el=document.getElementById('memo-'+id);
   if(el) el.classList.toggle('open');
+}
+
+var editingExpId=null, editingIncId=null;
+
+function editExpense(id){
+  var r=loadExp().find(function(x){return x.id===id;});
+  if(!r) return;
+  editingExpId=id; editingIncId=null;
+  switchInputTab('exp');
+  document.getElementById('f-date').value=r.date;
+  document.getElementById('f-cat').value=r.cat;
+  document.getElementById('f-desc').value=r.desc||'';
+  document.getElementById('f-amount').value=r.amount;
+  document.getElementById('f-memo').value=r.memo||'';
+  var btn=document.querySelector('#input-exp .btn-add');
+  if(btn){btn.textContent='✓';btn.style.background='#f3a54a';}
+  document.getElementById('input-exp').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('수정 후 ✓ 를 눌러주세요');
+}
+function editIncome(id){
+  var r=loadIncome().find(function(x){return x.id===id;});
+  if(!r) return;
+  editingIncId=id; editingExpId=null;
+  switchInputTab('inc');
+  document.getElementById('inc-date').value=r.date;
+  document.getElementById('inc-cat').value=r.cat;
+  document.getElementById('inc-desc').value=r.desc||'';
+  document.getElementById('inc-amt').value=r.amount;
+  document.getElementById('inc-memo').value=r.memo||'';
+  var btn=document.querySelector('#input-inc .btn-add');
+  if(btn){btn.textContent='✓';btn.style.background='#f3a54a';}
+  document.getElementById('input-inc').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('수정 후 ✓ 를 눌러주세요');
+}
+function resetEditMode(){
+  editingExpId=null; editingIncId=null;
+  var b1=document.querySelector('#input-exp .btn-add');
+  if(b1){b1.textContent='+';b1.style.background='';}
+  var b2=document.querySelector('#input-inc .btn-add');
+  if(b2){b2.textContent='+';b2.style.background='';}
 }
 
 function delExpense(id){
@@ -1743,7 +1822,7 @@ function renderPaceCheck(){
 
   // 카테고리별 지출
   var expRows=loadExp().filter(function(r){return r.date>=ar.start&&r.date<=ar.end;});
-  var VAR=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var VAR=['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'];
   var LABEL={'교통비':'교통','식비':'식비','생필품':'생필','미용':'미용','의류잡화':'의류','문화여가':'문화','비상금':'비상','기타':'기타'};
 
   var cats=VAR.map(function(cat){
@@ -1802,6 +1881,7 @@ function loadIncome(){try{return JSON.parse(localStorage.getItem(INC_KEY))||[];}
 function saveIncome(rows){localStorage.setItem(INC_KEY,JSON.stringify(rows));}
 
 function switchInputTab(tab){
+  if(typeof resetEditMode==='function'&&((tab==='exp'&&editingIncId)||(tab==='inc'&&editingExpId))) resetEditMode();
   document.getElementById('input-exp').style.display=tab==='exp'?'block':'none';
   document.getElementById('input-inc').style.display=tab==='inc'?'block':'none';
   document.getElementById('itab-exp').classList.toggle('active',tab==='exp');
@@ -1822,7 +1902,14 @@ function addIncome(){
   var memo=document.getElementById('inc-memo').value.trim();
   if(!date||!amt){toast('날짜와 금액을 입력해주세요!');return;}
   var rows=loadIncome();
-  rows.push({id:Date.now(),date:date,cat:cat,desc:desc,amount:amt,memo:memo});
+  if(editingIncId){
+    var t=rows.find(function(x){return x.id===editingIncId;});
+    if(t){t.date=date;t.cat=cat;t.desc=desc;t.amount=amt;t.memo=memo;}
+    resetEditMode();
+    toast('수정했어요');
+  } else {
+    rows.push({id:Date.now(),date:date,cat:cat,desc:desc,amount:amt,memo:memo});
+  }
   saveIncome(rows);
   document.getElementById('inc-desc').value='';
   document.getElementById('inc-amt').value='';
@@ -2297,7 +2384,7 @@ function renderLimitBanner(){
   var ar=getActiveCycleRange();
   if(!ar) return;
   var expRows=loadExp().filter(function(r){return r.date>=ar.start&&r.date<=ar.end;});
-  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'];
   var overCats=[], warnCats=[];
   VAR_C.forEach(function(cat){
     var budget=+(document.getElementById('b-'+cat)||{value:0}).value||0;
@@ -2343,7 +2430,7 @@ function renderCycleSummary(){
 
   var expRows=loadExp().filter(function(r){return r.date>=cycleStart&&r.date<=cycleEnd;});
   var totalSpent=expRows.reduce(function(s,r){return s+r.amount;},0);
-  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'];
   var totalBudget=VAR_C.reduce(function(s,cat){
     return s+(+(document.getElementById('b-'+cat)||{value:0}).value||0);
   },0);
@@ -2828,7 +2915,7 @@ function checkSpendingTypePopup(){
   var typeIdx=topCat&&catToType[topCat]!==undefined?catToType[topCat]:6;
   var t=SP_TYPES[typeIdx];
   var pct=totalSpent>0?Math.round(topAmt/totalSpent*100):0;
-  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','비상금','기타'];
+  var VAR_C=['교통비','식비','생필품','미용','의류잡화','문화여가','구독료','데이트비용','비상금','기타'];
   var totalBudget=VAR_C.reduce(function(s,cat){return s+(+(document.getElementById('b-'+cat)||{value:0}).value||0);},0);
   var diff=totalBudget-totalSpent;
   var budgetPct=totalBudget>0?Math.round(totalSpent/totalBudget*100):0;
