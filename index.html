@@ -1152,7 +1152,25 @@ var SKINS={
     dl:'#362630',dl2:'#422e3a',dl3:'#3a2a34',dl4:'#32242c',dl5:'#30222a'},
   sand:{n:'샌드',c:'#c4a882',d:'#8f7550',s:'#d4bc9a',
     l:'#faf5ec',l2:'#f0e4cd',l3:'#f5ecdc',l4:'#fcf9f3',l5:'#f7f0e2',
-    dl:'#332e24',dl2:'#3e382c',dl3:'#363028',dl4:'#2e2a22',dl5:'#2c2820'}
+    dl:'#332e24',dl2:'#3e382c',dl3:'#363028',dl4:'#2e2a22',dl5:'#2c2820'},
+  sunset:{n:'선셋',c:'#e89a9a',d:'#b86a5e',s:'#f0b88a',
+    l:'#fdf0ec',l2:'#fce8d5',l3:'#f9dcc8',l4:'#fdf6f0',l5:'#faeee0',
+    dl:'#3a2a26',dl2:'#42332a',dl3:'#3e2e26',dl4:'#332622',dl5:'#382c22'},
+  twilight:{n:'트와일라잇',c:'#8fa8d4',d:'#6070a8',s:'#b8a5d8',
+    l:'#f0f2fb',l2:'#e2e0f5',l3:'#e8e4f7',l4:'#f7f6fc',l5:'#eee4f5',
+    dl:'#262c3e',dl2:'#2e3348',dl3:'#2a2e40',dl4:'#242838',dl5:'#2c2840'},
+  forest:{n:'포레스트',c:'#7fbdb0',d:'#4f8f80',s:'#a8ceb0',
+    l:'#eef7f4',l2:'#dcecdc',l3:'#e4f0e2',l4:'#f5faf7',l5:'#eef3dc',
+    dl:'#22322e',dl2:'#2a3c34',dl3:'#26362e',dl4:'#202c28',dl5:'#2a3226'},
+  beach:{n:'해변',c:'#7aa8c4',d:'#4f7d98',s:'#d9c9b0',
+    l:'#eef4f8',l2:'#e4eef2',l3:'#f0e8dc',l4:'#f7f9fb',l5:'#f2e6d4',
+    dl:'#232e36',dl2:'#2a3740',dl3:'#32302a',dl4:'#1f2830',dl5:'#332e26'},
+  berry:{n:'베리',c:'#d99a9a',d:'#a06070',s:'#a8a5cc',
+    l:'#fbf0f0',l2:'#f2e2e8',l3:'#ebe4f2',l4:'#fdf7f8',l5:'#e8dcea',
+    dl:'#362630',dl2:'#3e2c38',dl3:'#322c40',dl4:'#2c2028',dl5:'#302a3c'},
+  latte:{n:'라떼',c:'#c9a882',d:'#94734f',s:'#b0a894',
+    l:'#faf4ec',l2:'#f0e6d6',l3:'#ede4d4',l4:'#fcf8f2',l5:'#f2ede2',
+    dl:'#332c22',dl2:'#3c342a',dl3:'#362f26',dl4:'#2c261e',dl5:'#302b24'}
 };
 function getSkin(){ return localStorage.getItem(SKIN_KEY)||'mint'; }
 function getThemeColor(){ return (SKINS[getSkin()]||SKINS.mint).c; }
